@@ -1,0 +1,151 @@
+/* ===================================================================
+   Perfil de Egreso CERMAT — refinamiento visual sobre Material for MkDocs
+   Objetivo: pulir tipografia, tablas y admonitions manteniendo intacta
+   la estructura de contenido (portada / resumen / secciones / anexos /
+   rubrica) de cada entregable. No cambia jerarquia, solo presentacion.
+   =================================================================== */
+
+:root {
+  --cermat-radius: 10px;
+  --md-primary-fg-color: #3b5bdb;
+  --md-primary-fg-color--dark: #2b3a8f;
+  --md-accent-fg-color: #c92a2a;
+}
+
+/* Tipografia: mas aire entre lineas, texto de cuerpo mas legible */
+.md-typeset {
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-bottom: 3px solid var(--md-primary-fg-color);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+  margin-top: 2.2rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+}
+
+:root[data-md-color-scheme="slate"] .md-typeset h3 {
+  color: #91a7ff;
+}
+
+/* Tablas: look de rubrica profesional, con enfasis en la columna de criterio */
+.md-typeset table:not([class]) {
+  border-radius: var(--cermat-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-size: 0.72rem;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color);
+  color: white;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.md-typeset table:not([class]) td:first-child,
+.md-typeset table:not([class]) th:first-child {
+  font-weight: 600;
+}
+
+.md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: var(--md-default-fg-color--lightest);
+}
+
+/* Admonitions: sombra suave, esquinas mas redondeadas, titulo mas compacto */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: var(--cermat-radius);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+  border-width: 0;
+  border-left: 4px solid var(--md-admonition-fg-color, var(--md-primary-fg-color));
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-weight: 600;
+}
+
+/* Portada / tabla "Informacion general": destacar como una ficha */
+.md-typeset table:not([class]):first-of-type {
+  background: var(--md-code-bg-color);
+}
+
+/* Insignias de competencia (CE0xx) resaltadas cuando aparecen en negrita en encabezados */
+.md-typeset h1 code,
+.md-typeset h1 strong {
+  color: var(--md-primary-fg-color);
+}
+
+/* Indice principal: cards ligeras para la tabla de entregables */
+.md-content table:not([class]) tbody tr:hover {
+  background-color: rgba(59, 91, 219, 0.08);
+}
+
+/* ===================================================================
+   Impresion / exportar a PDF (Ctrl+P) — asi cada entregable se puede
+   entregar como Documento Word/PDF tal como pide la rubrica, generado
+   directamente desde el navegador sin depender de una app externa.
+   =================================================================== */
+@media print {
+  .md-header,
+  .md-tabs,
+  .md-sidebar,
+  .md-footer,
+  .md-top,
+  .md-search,
+  .md-source,
+  .md-content__button {
+    display: none !important;
+  }
+
+  .md-content {
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .md-grid {
+    max-width: 100% !important;
+  }
+
+  .md-typeset {
+    font-size: 11pt;
+  }
+
+  .md-typeset h1 {
+    page-break-before: always;
+    border-bottom-color: #333 !important;
+  }
+
+  .md-typeset h1:first-child {
+    page-break-before: avoid;
+  }
+
+  .md-typeset table:not([class]) th {
+    background-color: #333 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .md-typeset a[href]::after {
+    content: none !important;
+  }
+
+  .md-typeset .admonition {
+    break-inside: avoid;
+  }
+}
