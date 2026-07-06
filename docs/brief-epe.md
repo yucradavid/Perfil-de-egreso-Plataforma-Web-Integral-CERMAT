@@ -3,6 +3,8 @@
 !!! abstract "Tipo de proyecto"
     Este documento corresponde a un proyecto de tipo **EPE (Evaluación de Perfil de Egreso)**, el nivel de mayor exigencia académica. El problema es real, los actores son verificables y el sistema está implementado y funcional.
 
+
+
 ## 1. Informacion general
 
 | Campo | Detalle |

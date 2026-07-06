@@ -75,7 +75,21 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Brief EPE: brief-epe.md
-  - A. Infraestructura Tecnológica (CE03):
+  - "Anexo: Topics de repositorios": anexo-topics-repositorios.md
+  - A. Gestión de Tecnologías de Información (CE01):
+    - Resumen del área: gestion-ti/index.md
+    - "E1 — Diagnóstico Organizacional (CE0111-CE0115)": gestion-ti/e1-diagnostico-organizacional-ce0111.md
+    - "E2 — Business Case (CE0113)": gestion-ti/e2-business-case-ce0113.md
+    - "E3 — Plan de Gestión del Proyecto (CE0121-CE0125)": gestion-ti/e3-plan-gestion-proyecto-ce0121.md
+    - "E4 — Modelado de Procesos AS-IS/TO-BE (CE0131-CE0135)": gestion-ti/e4-modelado-procesos-ce0131.md
+    - "E5 — Propuesta de Solución TIC (CE0141-CE0145)": gestion-ti/e5-propuesta-solucion-tic-ce0141.md
+  - B. Ingeniería de Software (CE02):
+    - "E1 — Definición del Sistema (CE021)": e1-definicion-sistema-ce021.md
+    - "E2 — Base de Datos (CE022)": e2-base-datos-ce022.md
+    - "E3 — Sistema Funcional (CE023)": e3-sistema-funcional-ce023.md
+    - "E4 — Calidad y Operación (CE024)": e4-calidad-operacion-ce024.md
+    - "E5 — Presentación y Sustentación (CE0217)": e5-presentacion-sustentacion-ce0217.md
+  - C. Infraestructura Tecnológica (CE03):
     - Resumen del área: infraestructura/index.md
     - "E1 — Diseño de Red (CE0311)": infraestructura/e1-diseno-red-ce0311.md
     - "E2 — Planificación de Seguridad (CE0321)": infraestructura/e2-planificacion-seguridad-ce0321.md
@@ -83,19 +97,6 @@ nav:
     - "E4 — Implementación y Testing de Red (CE0312-CE0313)": infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md
     - "E5 — Implementación, Monitoreo y Ética (CE0322-CE0324)": infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md
     - "E6 — Implementación y Control de Centro de Datos (CE0332-CE0333)": infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md
-  - B. Gestión de Tecnologías de Información (CE01):
-    - Resumen del área: gestion-ti/index.md
-    - "E1 — Diagnóstico Organizacional (CE0111-CE0115)": gestion-ti/e1-diagnostico-organizacional-ce0111.md
-    - "E2 — Business Case (CE0113)": gestion-ti/e2-business-case-ce0113.md
-    - "E3 — Plan de Gestión del Proyecto (CE0121-CE0125)": gestion-ti/e3-plan-gestion-proyecto-ce0121.md
-    - "E4 — Modelado de Procesos AS-IS/TO-BE (CE0131-CE0135)": gestion-ti/e4-modelado-procesos-ce0131.md
-    - "E5 — Propuesta de Solución TIC (CE0141-CE0145)": gestion-ti/e5-propuesta-solucion-tic-ce0141.md
-  - C. Ingeniería de Software (CE02):
-    - "E1 — Definición del Sistema (CE021)": e1-definicion-sistema-ce021.md
-    - "E2 — Base de Datos (CE022)": e2-base-datos-ce022.md
-    - "E3 — Sistema Funcional (CE023)": e3-sistema-funcional-ce023.md
-    - "E4 — Calidad y Operación (CE024)": e4-calidad-operacion-ce024.md
-    - "E5 — Presentación y Sustentación (CE0217)": e5-presentacion-sustentacion-ce0217.md
 
 extra:
   social:

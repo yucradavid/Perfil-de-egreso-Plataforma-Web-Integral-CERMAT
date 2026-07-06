@@ -1,4 +1,4 @@
-# B. Área de Gestión de Tecnologías de Información (CE01)
+# A. Área de Gestión de Tecnologías de Información (CE01)
 
 !!! abstract "Competencia CE01"
     Diseña y gestiona proyectos de tecnologías e información basándose en la guía del PMBOK y estándares de calidad a fin de lograr la construcción de resultados y el alcance de objetivos de la organización.

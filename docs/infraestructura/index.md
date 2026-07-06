@@ -1,4 +1,4 @@
-# A. Área de Infraestructura Tecnológica (CE03)
+# C. Área de Infraestructura Tecnológica (CE03)
 
 !!! abstract "Competencia CE03"
     Diseña y ejecuta proyectos de infraestructura tecnológica para contribuir en la solución de problemas de la organización siguiendo estándares internacionales y presenta formalmente sus resultados demostrando una actitud ética de la ACM.

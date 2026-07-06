@@ -3,13 +3,15 @@
 !!! abstract "EPE — Sistema funcional en producción"
     Esta documentación organiza las evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT** bajo la estructura de Perfil de Egreso (**EPE**). El sistema no es un prototipo: está implementado, desplegado y operando con datos reales de la Academia Colegio CERMAT, Juliaca, Perú.
 
+    Link del [Repositorio](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) 
+
 ## Presentacion
 
 Esta documentacion organiza las evidencias del proyecto **Plataforma Web Integral de Gestion Academica CERMAT** bajo la estructura operativa de Perfil de Egreso (**EPE**) y las tres lineas de competencia de especialidad de la carrera:
 
-- **CE03 - Infraestructura Tecnologica** (CE031 Conectividad, CE032 Seguridad de la Informacion, CE033 Centro de Datos)
 - **CE01 - Gestion de Tecnologias de Informacion** (CE011 Gestion e Innovacion de TI, CE012 Gestion de Proyectos, CE013 Gestion de Procesos, CE014 Gestion de Sistemas de Informacion)
 - **CE02 - Ingenieria de Software** (CE021 Requerimientos, CE022 Informacion, CE023 Programacion, CE024 Calidad)
+- **CE03 - Infraestructura Tecnologica** (CE031 Conectividad, CE032 Seguridad de la Informacion, CE033 Centro de Datos)
 
 El sistema documentado corresponde a una plataforma escolar web construida con **React, TypeScript, Vite, Firebase Authentication, Cloud Firestore, Firebase Storage, TanStack Query, Tailwind CSS y una API REST Node.js + MySQL opcional para sincronizacion operativa**.
 
@@ -21,25 +23,14 @@ El sistema documentado corresponde a una plataforma escolar web construida con *
 | Tipo | EPE |
 | Organizacion | Academia Colegio CERMAT |
 | Fecha de documentacion | 2026-06-22 (actualizado 2026-07-05) |
-| Alcance academico | Perfil de egreso completo: CE03 (Infraestructura), CE01 (Gestion de TI) y CE02 (Ingenieria de Software) |
+| Alcance academico | Perfil de egreso completo: CE01 (Gestion de TI), CE02 (Ingenieria de Software) y CE03 (Infraestructura) |
 | Base tecnica principal | SPA React + Firebase |
 | Base de datos principal | Cloud Firestore |
 | Base de datos complementaria | MySQL para reportes/sincronizacion operativa |
 
 ## Entregables incluidos
 
-### A. Infraestructura Tecnologica (CE03)
-
-| Entregable | Competencia | Descripcion |
-|---|---|---|
-| [E1 - Diseño de Red](infraestructura/e1-diseno-red-ce0311.md) | CE0311 | Topologia, VLAN, redundancia y estandares de conectividad para la sede que aloja la capa local de la plataforma. |
-| [E2 - Planificacion de Seguridad](infraestructura/e2-planificacion-seguridad-ce0321.md) | CE0321 | Activos criticos, analisis de riesgos ISO 27005/NIST, politicas y roles. |
-| [E3 - Diseño de Centro de Datos](infraestructura/e3-diseno-centro-datos-ce0331.md) | CE0331 | Clasificacion Tier, layout fisico, dimensionamiento y virtualizacion/cloud hibrido. |
-| [E4 - Implementacion y Testing de Red](infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md) | CE0312-CE0313 | Configuracion de dispositivos, direccionamiento y protocolo de pruebas. |
-| [E5 - Implementacion, Monitoreo y Etica](infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md) | CE0322-CE0324 | Controles tecnicos, KPIs de seguridad y analisis etico ACM. |
-| [E6 - Implementacion y Control de Centro de Datos](infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md) | CE0332-CE0333 | Servicios del servidor local, respaldos, SLA y procedimientos operativos. |
-
-### B. Gestion de Tecnologias de Informacion (CE01)
+### A. Gestion de Tecnologias de Informacion (CE01)
 
 | Entregable | Competencia | Descripcion |
 |---|---|---|
@@ -49,7 +40,7 @@ El sistema documentado corresponde a una plataforma escolar web construida con *
 | [E4 - Modelado de Procesos AS-IS/TO-BE](gestion-ti/e4-modelado-procesos-ce0131.md) | CE0131-CE0135 | Rediseño del proceso de matricula, de manual a digital, con mejoras cuantificadas. |
 | [E5 - Propuesta de Solucion TIC](gestion-ti/e5-propuesta-solucion-tic-ce0141.md) | CE0141-CE0145 | La plataforma como ecosistema de sistemas de informacion de la institucion. |
 
-### C. Ingenieria de Software (CE02)
+### B. Ingenieria de Software (CE02)
 
 | Entregable | Competencia | Descripcion |
 |---|---|---|
@@ -59,6 +50,17 @@ El sistema documentado corresponde a una plataforma escolar web construida con *
 | [E3 - Sistema Funcional Integrado](e3-sistema-funcional-ce023.md) | CE023 | Documenta arquitectura de integracion, funcionalidad implementada, diseño de codigo y despliegue. |
 | [E4 - Calidad, Operacion y Evolucion](e4-calidad-operacion-ce024.md) | CE024 | Documenta pruebas, CI/CD, metricas tecnicas y auditoria/evolucion del sistema, con brechas declaradas. |
 | [E5 - Presentacion, Video Pitch y Sustentacion Final](e5-presentacion-sustentacion-ce0217.md) | CE0217 | Guion de sustentacion y demo en vivo, con preguntas anticipadas del jurado y sintesis final del aporte del proyecto. |
+
+### C. Infraestructura Tecnologica (CE03)
+
+| Entregable | Competencia | Descripcion |
+|---|---|---|
+| [E1 - Diseño de Red](infraestructura/e1-diseno-red-ce0311.md) | CE0311 | Topologia, VLAN, redundancia y estandares de conectividad para la sede que aloja la capa local de la plataforma. |
+| [E2 - Planificacion de Seguridad](infraestructura/e2-planificacion-seguridad-ce0321.md) | CE0321 | Activos criticos, analisis de riesgos ISO 27005/NIST, politicas y roles. |
+| [E3 - Diseño de Centro de Datos](infraestructura/e3-diseno-centro-datos-ce0331.md) | CE0331 | Clasificacion Tier, layout fisico, dimensionamiento y virtualizacion/cloud hibrido. |
+| [E4 - Implementacion y Testing de Red](infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md) | CE0312-CE0313 | Configuracion de dispositivos, direccionamiento y protocolo de pruebas. |
+| [E5 - Implementacion, Monitoreo y Etica](infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md) | CE0322-CE0324 | Controles tecnicos, KPIs de seguridad y analisis etico ACM. |
+| [E6 - Implementacion y Control de Centro de Datos](infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md) | CE0332-CE0333 | Servicios del servidor local, respaldos, SLA y procedimientos operativos. |
 
 ## Resumen ejecutivo del sistema
 
@@ -89,9 +91,9 @@ El producto no se limita a una pagina informativa. Opera como una plataforma edu
 
 ```mermaid
 flowchart TD
-  BRIEF["Brief EPE"] --> INFRA["A. Infraestructura (CE03)"]
-  BRIEF --> GTI["B. Gestion de TI (CE01)"]
-  BRIEF --> SW["C. Ingenieria de Software (CE02)"]
+  BRIEF["Brief EPE"] --> GTI["A. Gestion de TI (CE01)"]
+  BRIEF --> SW["B. Ingenieria de Software (CE02)"]
+  BRIEF --> INFRA["C. Infraestructura (CE03)"]
 
   GTI --> DIAG["E1 Diagnostico organizacional"]
   DIAG --> BC["E2 Business case"]
