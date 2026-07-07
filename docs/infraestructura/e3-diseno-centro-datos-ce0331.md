@@ -7,6 +7,8 @@
 | Título | Diseño del centro de datos local — Sede principal CERMAT |
 | Competencia | CE033 — Implementación de Centro de Datos |
 | Semestre | 1 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## Resumen ejecutivo

@@ -4,14 +4,16 @@
 
 | Campo | Detalle |
 |---|---|
-| Título | Diseño de red — Sede principal Academia Colegio CERMAT, Juliaca |
+| Título | Diseño de red — Sede principal Academia La Prepa Cermat, Azángaro |
 | Competencia | CE031 — Conectividad |
 | Semestre | 1 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## Resumen ejecutivo
 
-La sede principal de Academia Colegio CERMAT concentra el personal administrativo (dirección, secretaría/admisión, auxiliares) y aloja el servidor local que sostiene la capa complementaria de la Plataforma CERMAT (API Node.js, MySQL, analítica Python, PM2). Este documento diseña la red de esa sede: separa por VLAN el tráfico administrativo, académico y de invitados; define un esquema de direccionamiento privado escalable; e incorpora redundancia de salida a internet para que la matrícula, el cobro de pagos y la sincronización con Firebase no dependan de un único enlace.
+La sede principal de Academia La Prepa Cermat concentra el personal administrativo (dirección, secretaría/admisión, auxiliares) y aloja el servidor local que sostiene la capa complementaria de la Plataforma CERMAT (API Node.js, MySQL, analítica Python, PM2). Este documento diseña la red de esa sede: separa por VLAN el tráfico administrativo, académico y de invitados; define un esquema de direccionamiento privado escalable; e incorpora redundancia de salida a internet para que la matrícula, el cobro de pagos y la sincronización con Firebase no dependan de un único enlace.
 
 ## Sección 1: Levantamiento de requerimientos
 

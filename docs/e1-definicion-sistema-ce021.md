@@ -9,8 +9,8 @@
 |---|---|
 | Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora |
-| Equipo | Equipo de desarrollo CERMAT |
+| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Fecha | 2026-07-05 |
 
 ## 2. Resumen Ejecutivo
@@ -20,7 +20,7 @@ Este entregable documenta la ingeniería de requerimientos del sistema **Platafo
 ## 3. Descripcion del problema
 
 !!! danger "Problema verificable — contexto institucional real"
-    El problema no es hipotético. La Academia Colegio CERMAT opera en Juliaca, Perú, y sus procesos académicos, administrativos y de comunicación requerían centralización digital. Este sistema nació de necesidades operativas concretas validadas con los actores.
+    El problema no es hipotético. La Academia La Prepa Cermat opera en Azángaro, Perú, y sus procesos académicos, administrativos y de comunicación requerían centralización digital. Este sistema nació de necesidades operativas concretas validadas con los actores.
 
 ### Situacion actual
 
@@ -46,7 +46,7 @@ El problema afecta directamente la eficiencia administrativa, la experiencia del
 
 ### Organizacion / entorno
 
-La plataforma se desarrolla para la Academia Colegio CERMAT, institucion educativa que ofrece ciclos academicos, sedes, talleres, recursos y seguimiento a estudiantes.
+La plataforma se desarrolla para la Academia La Prepa Cermat, institucion educativa que ofrece ciclos academicos, sedes, talleres, recursos y seguimiento a estudiantes.
 
 ### Usuarios
 
@@ -234,7 +234,7 @@ flowchart TD
 
     ![Arquitectura técnica híbrida de la solución CERMAT](assets/arquitectura-hibrida.svg)
 
-    *Diagrama: Arquitectura técnica híbrida de la solución — sistema web inteligente para la gestión de matrícula, asistencia y seguimiento académico. Academia Colegio CERMAT, Juliaca.*
+    *Diagrama: Arquitectura técnica híbrida de la solución — sistema web inteligente para la gestión de matrícula, asistencia y seguimiento académico. Academia La Prepa Cermat, Azángaro.*
 
 ### Estilo arquitectonico
 

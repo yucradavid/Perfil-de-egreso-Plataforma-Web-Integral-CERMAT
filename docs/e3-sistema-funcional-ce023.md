@@ -1,7 +1,7 @@
 # E3 - Sistema de Software Funcional Integrado (CE023)
 
 !!! abstract "Evidencia CE023 — Programación"
-    Este entregable documenta el sistema de software **funcional y desplegado** que implementa los requerimientos del E1 sobre el modelo de datos del E2. No es una maqueta: es la aplicación React + TypeScript en ejecución, integrada con Firebase, una API REST Node.js y un servicio de analítica en Python, operando con datos reales de la Academia Colegio CERMAT.
+    Este entregable documenta el sistema de software **funcional y desplegado** que implementa los requerimientos del E1 sobre el modelo de datos del E2. No es una maqueta: es la aplicación React + TypeScript en ejecución, integrada con Firebase, una API REST Node.js y un servicio de analítica en Python, operando con datos reales de la Academia La Prepa Cermat.
 
 ## 1. Informacion general
 
@@ -9,8 +9,8 @@
 |---|---|
 | Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora |
-| Equipo | Equipo de desarrollo CERMAT |
+| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Repositorio | `academia-school-platform` (raíz del proyecto) |
 | URL de despliegue | `https://www.cermatschool.edu.pe` (dominio de producción configurado en `analytics/main.py` / CORS) — verificar que resuelve antes de la sustentación |
 | Fecha | 2026-07-05 |

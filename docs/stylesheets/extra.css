@@ -102,6 +102,11 @@
    directamente desde el navegador sin depender de una app externa.
    =================================================================== */
 @media print {
+  @page {
+    size: A4;
+    margin: 14mm 11mm;
+  }
+
   .md-header,
   .md-tabs,
   .md-sidebar,
@@ -123,7 +128,7 @@
   }
 
   .md-typeset {
-    font-size: 11pt;
+    font-size: 10.5pt;
   }
 
   .md-typeset h1 {
@@ -135,10 +140,51 @@
     page-break-before: avoid;
   }
 
+  /* Las tablas de Material usan display:inline-block + overflow:auto para
+     permitir scroll horizontal en pantalla. Al imprimir no hay scrollbar,
+     asi que ese overflow recorta en silencio columnas y texto (rubricas
+     con 5-6 columnas quedaban cortadas a mitad de palabra). Forzamos
+     layout de tabla fijo a ancho completo para que el texto haga wrap
+     en vez de recortarse. */
+  .md-typeset table:not([class]) {
+    display: table !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    font-size: 8.3pt;
+  }
+
+  .md-typeset table:not([class]) th,
+  .md-typeset table:not([class]) td {
+    min-width: 0 !important;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    padding: 0.5em 0.6em;
+  }
+
   .md-typeset table:not([class]) th {
     background-color: #333 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .md-typeset table:not([class]) {
+    break-inside: auto;
+  }
+
+  .md-typeset table:not([class]) tr {
+    break-inside: avoid;
+  }
+
+  /* Los bloques de codigo tienen el mismo problema de overflow:auto */
+  .md-typeset pre,
+  .md-typeset code {
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    word-break: break-word;
+    font-size: 8pt;
   }
 
   .md-typeset a[href]::after {
@@ -147,5 +193,12 @@
 
   .md-typeset .admonition {
     break-inside: avoid;
+  }
+
+  /* Diagramas mermaid: que no se recorten ni se deformen al forzar ancho */
+  .md-typeset .mermaid,
+  .md-typeset svg {
+    max-width: 100% !important;
+    height: auto !important;
   }
 }

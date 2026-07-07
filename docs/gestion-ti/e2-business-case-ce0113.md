@@ -6,6 +6,8 @@
 |---|---|
 | Título | Business case — Plataforma Web Integral de Gestión Académica CERMAT |
 | Competencia | CE011 — Gestión e Innovación de TI (evidencia CE0113) |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## 2.1 Justificación del proyecto

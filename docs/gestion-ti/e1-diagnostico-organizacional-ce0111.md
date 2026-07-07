@@ -4,14 +4,16 @@
 
 | Campo | Detalle |
 |---|---|
-| Título | Diagnóstico organizacional y alineamiento estratégico — Academia Colegio CERMAT |
+| Título | Diagnóstico organizacional y alineamiento estratégico — Academia La Prepa Cermat |
 | Competencia | CE011 — Gestión e Innovación de TI |
 | Evidencias | CE0111 Diagnóstico organizacional · CE0112 Alineamiento estratégico · CE0113 Caso de negocio · CE0114 Roadmap de tecnología · CE0115 Matriz de riesgos estratégicos |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## 1.1 Contexto organizacional
 
-**Sector y entorno competitivo.** Academia Colegio CERMAT opera en el sector de educación básica privada en Juliaca, Puno, Perú, un mercado con varias academias e instituciones educativas privadas compitiendo por matrícula, donde la percepción de organización, seguimiento al alumno y comunicación con los padres es un diferenciador comercial directo.
+**Sector y entorno competitivo.** Academia La Prepa Cermat opera en el sector de educación básica privada en Azángaro, Puno, Perú, un mercado con varias academias e instituciones educativas privadas compitiendo por matrícula, donde la percepción de organización, seguimiento al alumno y comunicación con los padres es un diferenciador comercial directo.
 
 **Estructura organizacional.** Dirección general → coordinación académica/secretaría (matrícula, pagos, atención) → docentes por ciclo/curso → auxiliares (soporte de asistencia y disciplina) → alumnos y padres de familia.
 
@@ -21,7 +23,7 @@
 
 ## 1.2 Análisis estratégico
 
-**Misión.** Brindar una formación académica de calidad en Juliaca, con procesos administrativos claros y trazables que den confianza a las familias sobre el seguimiento de sus hijos.
+**Misión.** Brindar una formación académica de calidad en Azángaro, con procesos administrativos claros y trazables que den confianza a las familias sobre el seguimiento de sus hijos.
 
 **Visión.** Ser reconocida en la región como una academia que combina exigencia académica con una gestión moderna, digital y transparente de matrícula, pagos y asistencia.
 
@@ -47,7 +49,7 @@
 
 ## 1.4 Identificación del problema
 
-**Definición estructurada del problema.** Academia CERMAT necesitaba centralizar su gestión académica y administrativa (ciclos, matrículas, pagos, asistencia, comunicación con padres) porque operaba con canales dispersos y procesos manuales que generaban duplicidad de datos y baja visibilidad operativa.
+**Definición estructurada del problema.** Academia La Prepa Cermat necesitaba centralizar su gestión académica y administrativa (ciclos, matrículas, pagos, asistencia, comunicación con padres) porque operaba con canales dispersos y procesos manuales que generaban duplicidad de datos y baja visibilidad operativa.
 
 **Causas raíz:** ausencia histórica de un sistema propio; crecimiento de la institución (más sedes, ciclos y alumnos) sin que los procesos administrativos escalaran junto con ese crecimiento; falta de un canal digital único para padres y estudiantes.
 

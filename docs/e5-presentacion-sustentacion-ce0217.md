@@ -9,14 +9,14 @@
 |---|---|
 | Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora |
-| Equipo | Equipo de desarrollo CERMAT |
+| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Fecha | 2026-07-05 |
 | Formato | Presentación ejecutiva + video pitch (1-3 min) + demo funcional del sistema |
 
 ## 2. Resumen Ejecutivo
 
-**Problema abordado:** la Academia Colegio CERMAT operaba su gestión académica y administrativa (matrícula, pagos, asistencia, contenidos públicos, comunicación con padres) sobre canales dispersos, sin un sistema único que centralizara la operación por rol y garantizara trazabilidad.
+**Problema abordado:** la Academia La Prepa Cermat operaba su gestión académica y administrativa (matrícula, pagos, asistencia, contenidos públicos, comunicación con padres) sobre canales dispersos, sin un sistema único que centralizara la operación por rol y garantizara trazabilidad.
 
 **Solución construida:** una plataforma web integral (React + TypeScript + Firebase + Node.js + MySQL + Python/FastAPI) con portales diferenciados para administrador, docente, estudiante y auxiliar, matrícula pública en línea, control de asistencia por QR firmado criptográficamente, gestión de pagos, y un servicio de analítica que detecta riesgo de inasistencia. El sistema está desplegado y operando con datos reales, no es un prototipo.
 
@@ -26,7 +26,7 @@
 
 ### Contexto del problema
 
-CERMAT (Juliaca, Perú) necesitaba una plataforma digital que centralizara su oferta académica, matrícula, control de asistencia, pagos, contenidos públicos y comunicación con padres — descrito en detalle en el [Brief EPE](brief-epe.md).
+CERMAT (Azángaro, Perú) necesitaba una plataforma digital que centralizara su oferta académica, matrícula, control de asistencia, pagos, contenidos públicos y comunicación con padres — descrito en detalle en el [Brief EPE](brief-epe.md).
 
 ### Usuarios o stakeholders
 

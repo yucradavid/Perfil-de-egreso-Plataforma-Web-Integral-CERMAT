@@ -5,7 +5,7 @@
 
 ## Objeto de análisis
 
-Mientras las líneas CE02 y CE03 documentan **el sistema y su infraestructura**, esta línea documenta **la gestión** detrás del proyecto: por qué Academia Colegio CERMAT necesitaba esta plataforma, cómo se justificó como inversión, cómo se planificó y ejecutó como proyecto, qué procesos manuales reemplaza, y cómo encaja dentro del ecosistema de sistemas de información de la institución. Se apoya en el mismo problema, actores y contexto ya declarados en el [Brief EPE](../brief-epe.md), pero bajo la estructura y rúbricas oficiales de gestión de TI.
+Mientras las líneas CE02 y CE03 documentan **el sistema y su infraestructura**, esta línea documenta **la gestión** detrás del proyecto: por qué Academia La Prepa Cermat necesitaba esta plataforma, cómo se justificó como inversión, cómo se planificó y ejecutó como proyecto, qué procesos manuales reemplaza, y cómo encaja dentro del ecosistema de sistemas de información de la institución. Se apoya en el mismo problema, actores y contexto ya declarados en el [Brief EPE](../brief-epe.md), pero bajo la estructura y rúbricas oficiales de gestión de TI.
 
 ## Competencias de Gestión de TI
 

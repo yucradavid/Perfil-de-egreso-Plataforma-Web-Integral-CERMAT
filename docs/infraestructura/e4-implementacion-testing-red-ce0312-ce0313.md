@@ -7,6 +7,8 @@
 | Título | Implementación y testing de red — Sede principal CERMAT |
 | Competencias | CE0312 (implementación de red), CE0313 (testing y control de red) |
 | Semestre | 2 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 !!! warning "Estado de la evidencia"

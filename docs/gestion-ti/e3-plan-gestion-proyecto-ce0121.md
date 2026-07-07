@@ -7,13 +7,15 @@
 | Título | Plan de gestión del proyecto — Plataforma CERMAT |
 | Competencia | CE012 — Gestión de Proyectos |
 | Enfoque | Ágil iterativo (evidencia real en el historial de fases del repositorio) |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## 3.1 Acta de constitución
 
 | Campo | Detalle |
 |---|---|
-| Sponsor | Dirección de Academia Colegio CERMAT |
+| Sponsor | Dirección de Academia La Prepa Cermat |
 | Objetivo | Ver objetivos SMART en el [Business Case](e2-business-case-ce0113.md#21-justificacion-del-proyecto) |
 | Alcance preliminar | Plataforma web integral: sitio público, matrícula, ciclos/grupos/sedes, pagos, asistencia QR, portales por rol, recursos/blog/talleres, sincronización complementaria — detallado en el [Brief EPE — Alcance](../brief-epe.md#5-alcance) |
 | Restricciones | Equipo de desarrollo reducido; presupuesto de una academia privada mediana; sin pasarela de pagos automatizada ni app móvil nativa en esta fase (ver "No incluye" del Brief EPE) |

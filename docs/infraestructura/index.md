@@ -5,7 +5,7 @@
 
 ## Objeto de diseño
 
-La Plataforma CERMAT usa una **arquitectura técnica híbrida** (ver [Brief EPE](../brief-epe.md#7-enfoque-de-solucion)): una capa cloud (Firebase) para la operación web en tiempo real, y una capa **local**, on-premise, en la sede principal de Academia Colegio CERMAT (Juliaca), que aloja:
+La Plataforma CERMAT usa una **arquitectura técnica híbrida** (ver [Brief EPE](../brief-epe.md#7-enfoque-de-solucion)): una capa cloud (Firebase) para la operación web en tiempo real, y una capa **local**, on-premise, en la sede principal de Academia La Prepa Cermat (Azángaro), que aloja:
 
 - La API REST complementaria (Node.js + Express).
 - La base de datos relacional complementaria (MySQL) para reportes y continuidad operativa.

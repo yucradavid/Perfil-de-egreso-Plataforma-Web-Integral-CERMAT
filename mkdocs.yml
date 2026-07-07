@@ -1,6 +1,6 @@
 site_name: Plataforma CERMAT — Perfil de Egreso EPE
-site_description: Documentación técnica académica EPE para la Plataforma Web Integral de Gestión Académica CERMAT — Academia Colegio CERMAT, Juliaca.
-site_author: Equipo de desarrollo CERMAT
+site_description: Documentación técnica académica EPE para la Plataforma Web Integral de Gestión Académica CERMAT — Academia La Prepa Cermat, Azángaro.
+site_author: David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo
 docs_dir: docs
 
 theme:
@@ -43,8 +43,24 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+plugins:
+  - search
+  - print-site:
+      add_to_navigation: true
+      print_page_title: "Documentación completa (imprimir / PDF)"
+      add_print_site_banner: true
+      add_full_urls: false
+      enumerate_headings: true
+      enumerate_figures: true
+      add_table_of_contents: true
+      toc_title: "Tabla de contenidos"
+      toc_depth: 3
+
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/print-toc-fix.js
 
 markdown_extensions:
   - admonition
@@ -75,7 +91,7 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Brief EPE: brief-epe.md
-  - "Anexo: Topics de repositorios": anexo-topics-repositorios.md
+  
   - A. Gestión de Tecnologías de Información (CE01):
     - Resumen del área: gestion-ti/index.md
     - "E1 — Diagnóstico Organizacional (CE0111-CE0115)": gestion-ti/e1-diagnostico-organizacional-ce0111.md
@@ -102,4 +118,4 @@ extra:
   social:
     - icon: fontawesome/solid/school
       link: "#"
-      name: Academia CERMAT
+      name: Academia La Prepa Cermat

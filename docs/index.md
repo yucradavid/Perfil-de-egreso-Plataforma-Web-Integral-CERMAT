@@ -1,9 +1,12 @@
 # Perfil de Egreso - Plataforma Web Integral CERMAT
 
 !!! abstract "EPE — Sistema funcional en producción"
-    Esta documentación organiza las evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT** bajo la estructura de Perfil de Egreso (**EPE**). El sistema no es un prototipo: está implementado, desplegado y operando con datos reales de la Academia Colegio CERMAT, Juliaca, Perú.
+    Esta documentación organiza las evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT** bajo la estructura de Perfil de Egreso (**EPE**). El sistema no es un prototipo: está implementado, desplegado y operando con datos reales de la Academia La Prepa Cermat, Azángaro, Perú.
 
     Link del [Repositorio](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) 
+
+<!-- [:material-file-download: Descargar toda la documentación en PDF](assets/perfil-egreso-completo.pdf){ .md-button .md-button--primary }
+[:material-printer: Ver / imprimir todo en una sola página](print_page/){ .md-button } -->
 
 ## Presentacion
 
@@ -21,7 +24,9 @@ El sistema documentado corresponde a una plataforma escolar web construida con *
 |---|---|
 | Nombre | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | EPE |
-| Organizacion | Academia Colegio CERMAT |
+| Organizacion | Academia La Prepa Cermat |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo academico | 9° ciclo |
 | Fecha de documentacion | 2026-06-22 (actualizado 2026-07-05) |
 | Alcance academico | Perfil de egreso completo: CE01 (Gestion de TI), CE02 (Ingenieria de Software) y CE03 (Infraestructura) |
 | Base tecnica principal | SPA React + Firebase |

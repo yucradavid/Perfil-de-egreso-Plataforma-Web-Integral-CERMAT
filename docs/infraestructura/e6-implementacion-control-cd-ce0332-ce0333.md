@@ -7,6 +7,8 @@
 | Título | Implementación y control del centro de datos local — Plataforma CERMAT |
 | Competencias | CE0332 (implementación de centro de datos), CE0333 (control y operación) |
 | Semestre | 2 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## Resumen ejecutivo

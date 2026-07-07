@@ -7,6 +7,8 @@
 | Título | Implementación de controles de seguridad, monitoreo y ética — Plataforma CERMAT |
 | Competencias | CE0322 (implementación de controles), CE0323 (monitoreo y mejora), CE0324 (ética ACM) |
 | Semestre | 2 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## Resumen ejecutivo

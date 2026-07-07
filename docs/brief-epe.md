@@ -11,16 +11,16 @@
 |---|---|
 | Nombre del proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Integracion de evidencias profesionales |
-| Equipo | Equipo de desarrollo CERMAT |
+| Curso / Ciclo | Perfil de Egreso - Integracion de evidencias profesionales (9° ciclo) |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Fecha | 2026-06-22 |
 
 ## 2. Problema
 
 !!! danger "Problema real — evidencia EPE"
-    El problema es real, verificable en el contexto de una institución educativa activa en Juliaca, Perú. El sistema desarrollado responde a necesidades operativas concretas identificadas con los actores involucrados.
+    El problema es real, verificable en el contexto de una institución educativa activa en Azángaro, Perú. El sistema desarrollado responde a necesidades operativas concretas identificadas con los actores involucrados.
 
-La Academia Colegio CERMAT requiere una plataforma digital integral para administrar de forma centralizada su oferta academica, matriculas, alumnos, docentes, auxiliares, asistencia, pagos, recursos, talleres, sedes, contenidos publicos y comunicacion con padres.
+La Academia La Prepa Cermat requiere una plataforma digital integral para administrar de forma centralizada su oferta academica, matriculas, alumnos, docentes, auxiliares, asistencia, pagos, recursos, talleres, sedes, contenidos publicos y comunicacion con padres.
 
 Antes del sistema, los procesos academicos y administrativos tienden a depender de canales dispersos: formularios no integrados, gestion manual de alumnos, control de asistencia poco trazable, seguimiento de pagos separado de la matricula, informacion publica dificil de mantener y ausencia de portales diferenciados por rol. Esto genera duplicidad de datos, baja visibilidad operativa, riesgo de errores en cupos/matriculas, demora en la atencion a padres y poca trazabilidad para decisiones administrativas.
 
@@ -36,7 +36,7 @@ Como proyecto **EPE**, el problema es real, verificable en el contexto de una in
 
 ### Organizacion / entorno
 
-La plataforma opera en el entorno de la **Academia Colegio CERMAT**, una institucion educativa que ofrece ciclos academicos, talleres, recursos formativos y servicios de seguimiento a estudiantes y padres.
+La plataforma opera en el entorno de la **Academia La Prepa Cermat**, una institucion educativa que ofrece ciclos academicos, talleres, recursos formativos y servicios de seguimiento a estudiantes y padres.
 
 El sistema funciona como una aplicacion web SPA, con datos operativos en Firebase y un backend Node.js + MySQL complementario para integracion y reportes.
 

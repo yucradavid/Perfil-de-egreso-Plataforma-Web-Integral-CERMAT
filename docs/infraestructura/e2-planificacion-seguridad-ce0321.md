@@ -7,6 +7,8 @@
 | Título | Planificación de seguridad de la información — Plataforma CERMAT |
 | Competencia | CE032 — Gestión de la Seguridad de la Información |
 | Semestre | 1 |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## Resumen ejecutivo

@@ -4,9 +4,11 @@
 
 | Campo | Detalle |
 |---|---|
-| Título | Modelado de procesos: matrícula académica — Academia Colegio CERMAT |
+| Título | Modelado de procesos: matrícula académica — Academia La Prepa Cermat |
 | Competencia | CE013 — Gestión de Procesos |
 | Proceso analizado | Matrícula de un alumno a un ciclo/grupo |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 Se elige el proceso de **matrícula** por ser el de mayor impacto directo en el problema declarado en el [Diagnóstico Organizacional](e1-diagnostico-organizacional-ce0111.md#14-identificacion-del-problema): duplicidad de datos, riesgo de errores en cupos y demora en la atención.

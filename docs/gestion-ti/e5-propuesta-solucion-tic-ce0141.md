@@ -6,6 +6,8 @@
 |---|---|
 | Título | Solución TIC integrada — Plataforma CERMAT en el ecosistema de SI de la institución |
 | Competencia | CE014 — Gestión de Sistemas de Información |
+| Integrantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Ciclo académico | 9° ciclo |
 | Fecha | 2026-07-06 |
 
 ## 5.1 Arquitectura de la solución
@@ -14,7 +16,7 @@ Ver arquitectura completa y justificada en el [Brief EPE — Enfoque de solució
 
 ## 5.2 Ecosistema de sistemas de información de la organización
 
-**Mapa de sistemas actuales:** a diferencia de una empresa con múltiples sistemas heredados (contabilidad, ERP, CRM independientes), Academia CERMAT **no operaba ningún sistema de información propio antes de esta plataforma** — su "ecosistema" previo eran hojas de cálculo, cuadernos y mensajería informal (ver [Diagnóstico Organizacional, sección 1.3](e1-diagnostico-organizacional-ce0111.md#13-diagnostico-digital-ti)). Esto significa que la Plataforma CERMAT **es**, hoy, la totalidad del ecosistema formal de sistemas de información de la institución — no un componente más que deba integrarse con sistemas externos preexistentes.
+**Mapa de sistemas actuales:** a diferencia de una empresa con múltiples sistemas heredados (contabilidad, ERP, CRM independientes), Academia La Prepa Cermat **no operaba ningún sistema de información propio antes de esta plataforma** — su "ecosistema" previo eran hojas de cálculo, cuadernos y mensajería informal (ver [Diagnóstico Organizacional, sección 1.3](e1-diagnostico-organizacional-ce0111.md#13-diagnostico-digital-ti)). Esto significa que la Plataforma CERMAT **es**, hoy, la totalidad del ecosistema formal de sistemas de información de la institución — no un componente más que deba integrarse con sistemas externos preexistentes.
 
 **Integración propuesta e interoperabilidad:** dentro de la propia plataforma, la integración ocurre entre sus capas (cloud ↔ local) mediante el servicio de sincronización (`syncService`, fire-and-forget) descrito en el Brief EPE. No existen, a la fecha, integraciones con sistemas de terceros (bancos, gobierno, ERP externos) — declarado explícitamente como **fuera de alcance** en el Brief EPE, sección "No incluye".
 

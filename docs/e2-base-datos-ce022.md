@@ -9,8 +9,8 @@
 |---|---|
 | Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora |
-| Equipo | Equipo de desarrollo CERMAT |
+| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
+| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Fecha | 2026-07-05 |
 
 ## 2. Resumen Ejecutivo
