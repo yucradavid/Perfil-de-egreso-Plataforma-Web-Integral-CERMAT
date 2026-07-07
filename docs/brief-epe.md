@@ -265,19 +265,6 @@ flowchart TD
 
 El brief alcanza nivel excelente porque el problema es real, el alcance esta delimitado, los stakeholders estan identificados, la arquitectura existe en codigo y los datos principales estan definidos por modulos, reglas y esquemas.
 
-## Como usarlo
-
-### En PS
-
-Puede reducirse a una version guiada enfocada solo en matricula, ciclos o asistencia.
-
-### En PI
-
-Puede revisarse como proyecto integrado entre cursos, priorizando requerimientos, base de datos, programacion y pruebas.
-
-### En EPE
-
-Debe revisarse formalmente como evidencia integradora, validando que el sistema responde a un problema institucional real y que sus entregables CE021 y CE022 se conectan con implementacion, calidad y datos.
 
 ## Frase clave
 

@@ -1,140 +1,184 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 660" width="1040" height="660" font-family="Arial, sans-serif">
-  <rect width="1040" height="660" fill="#f8f9fa" rx="12"/>
-
-  <!-- Title -->
-  <text x="520" y="34" font-size="19" font-weight="bold" text-anchor="middle" fill="#1a1a2e">Arquitectura técnica híbrida de la solución</text>
-  <text x="520" y="54" font-size="11.5" text-anchor="middle" fill="#666">Sistema web para la gestión de matrícula, asistencia y seguimiento académico — Academia Colegio CERMAT, Juliaca</text>
-
-  <!-- ===================== USUARIOS (left column) ===================== -->
-  <rect x="16" y="75" width="150" height="24" fill="#1a1a2e" rx="5"/>
-  <text x="91" y="91" font-size="11" font-weight="bold" text-anchor="middle" fill="white">USUARIOS</text>
-
-  <g font-size="10.5" fill="#1a1a2e">
-    <rect x="16" y="107" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="126" text-anchor="middle">Administrador</text>
-
-    <rect x="16" y="143" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="162" text-anchor="middle">Docente</text>
-
-    <rect x="16" y="179" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="198" text-anchor="middle">Auxiliar</text>
-
-    <rect x="16" y="215" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="234" text-anchor="middle">Alumno</text>
-
-    <rect x="16" y="251" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="270" text-anchor="middle">Padre / apoderado</text>
-
-    <rect x="16" y="287" width="150" height="30" fill="#e9ecef" stroke="#ced4da" rx="5"/>
-    <text x="91" y="306" text-anchor="middle">Visitante / postulante</text>
-  </g>
-  <line x1="166" y1="99" x2="190" y2="330" stroke="#adb5bd" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <!-- ===================== SALIDAS (right column) ===================== -->
-  <rect x="874" y="75" width="150" height="24" fill="#1a1a2e" rx="5"/>
-  <text x="949" y="91" font-size="11" font-weight="bold" text-anchor="middle" fill="white">SALIDAS DEL SISTEMA</text>
-
-  <g font-size="9.7" fill="#1a1a2e">
-    <rect x="874" y="107" width="150" height="34" fill="#e6fcf5" stroke="#63e6be" rx="5"/>
-    <text x="949" y="121" text-anchor="middle">Reportes</text>
-    <text x="949" y="134" text-anchor="middle">académicos</text>
-
-    <rect x="874" y="147" width="150" height="34" fill="#e6fcf5" stroke="#63e6be" rx="5"/>
-    <text x="949" y="161" text-anchor="middle">Indicadores</text>
-    <text x="949" y="174" text-anchor="middle">administrativos</text>
-
-    <rect x="874" y="187" width="150" height="34" fill="#e6fcf5" stroke="#63e6be" rx="5"/>
-    <text x="949" y="201" text-anchor="middle">Alertas de riesgo</text>
-    <text x="949" y="214" text-anchor="middle">de inasistencia</text>
-
-    <rect x="874" y="227" width="150" height="34" fill="#e6fcf5" stroke="#63e6be" rx="5"/>
-    <text x="949" y="241" text-anchor="middle">Consulta de asistencia</text>
-    <text x="949" y="254" text-anchor="middle">para padres (código)</text>
-
-    <rect x="874" y="267" width="150" height="34" fill="#e6fcf5" stroke="#63e6be" rx="5"/>
-    <text x="949" y="281" text-anchor="middle">Auditoría técnica</text>
-    <text x="949" y="294" text-anchor="middle">y trazabilidad</text>
-  </g>
-  <line x1="850" y1="330" x2="874" y2="99" stroke="#adb5bd" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <!-- ===================== CENTER: capas ===================== -->
-
-  <!-- Presentación -->
-  <rect x="190" y="75" width="660" height="48" fill="#3b5bdb" rx="8"/>
-  <text x="520" y="94" font-size="12.5" font-weight="bold" text-anchor="middle" fill="white">CAPA DE PRESENTACIÓN</text>
-  <text x="520" y="111" font-size="10.5" text-anchor="middle" fill="#c5d8ff">Aplicación web SPA — React 18 + TypeScript + Vite · Despliegue: Vercel · Interfaz diferenciada por rol</text>
-
-  <!-- Portales -->
-  <g font-size="9.7" fill="white">
-    <rect x="190" y="130" width="122" height="26" fill="#4c6ef5" rx="5"/><text x="251" y="147" text-anchor="middle">Portal Admin</text>
-    <rect x="323" y="130" width="122" height="26" fill="#4c6ef5" rx="5"/><text x="384" y="147" text-anchor="middle">Portal Docente</text>
-    <rect x="456" y="130" width="122" height="26" fill="#4c6ef5" rx="5"/><text x="517" y="147" text-anchor="middle">Portal Estudiante</text>
-    <rect x="589" y="130" width="122" height="26" fill="#4c6ef5" rx="5"/><text x="650" y="147" text-anchor="middle">Portal Auxiliar</text>
-    <rect x="722" y="130" width="128" height="26" fill="#4c6ef5" rx="5"/><text x="786" y="147" text-anchor="middle">Sitio público</text>
-  </g>
-
-  <!-- Autenticación -->
-  <rect x="190" y="167" width="660" height="40" fill="#0ca678" rx="8"/>
-  <text x="520" y="184" font-size="12" font-weight="bold" text-anchor="middle" fill="white">CAPA DE AUTENTICACIÓN CLOUD</text>
-  <text x="520" y="200" font-size="10" text-anchor="middle" fill="#c3fae8">Firebase Authentication · Custom claims por rol (admin / teacher / student / auxiliar) · Guards de ruta</text>
-
-  <!-- Datos cloud (fuente principal) -->
-  <rect x="190" y="218" width="660" height="60" fill="#f59f00" rx="8"/>
-  <text x="520" y="236" font-size="12.5" font-weight="bold" text-anchor="middle" fill="white">CAPA DE DATOS CLOUD — FUENTE DE VERDAD OPERATIVA</text>
-  <text x="520" y="253" font-size="10" text-anchor="middle" fill="#fff9db">Cloud Firestore (21 colecciones: matrícula, pagos, asistencia, usuarios, grupos, ciclos, recursos, talleres...)</text>
-  <text x="520" y="268" font-size="10" text-anchor="middle" fill="#fff9db">Firebase Storage · Reglas de seguridad declarativas · Nuevo: QR firmado (studentQrSignatures) e invitaciones por token</text>
-
-  <!-- Negocio local + Analítica -->
-  <rect x="190" y="290" width="322" height="60" fill="#7048e8" rx="8"/>
-  <text x="351" y="308" font-size="11.5" font-weight="bold" text-anchor="middle" fill="white">CAPA DE NEGOCIO LOCAL</text>
-  <text x="351" y="324" font-size="9.6" text-anchor="middle" fill="#e5dbff">API REST · Node.js + Express</text>
-  <text x="351" y="338" font-size="9.6" text-anchor="middle" fill="#e5dbff">Sincronización no bloqueante (fire-and-forget) hacia MySQL</text>
-
-  <rect x="528" y="290" width="322" height="60" fill="#e64980" rx="8"/>
-  <text x="689" y="308" font-size="11.5" font-weight="bold" text-anchor="middle" fill="white">CAPA ANALÍTICA</text>
-  <text x="689" y="324" font-size="9.6" text-anchor="middle" fill="#ffd6e7">Servicio Python + FastAPI</text>
-  <text x="689" y="338" font-size="9.6" text-anchor="middle" fill="#ffd6e7">Riesgo de inasistencia · alertas · tendencias, sobre MySQL</text>
-
-  <!-- Datos local (complementaria) -->
-  <rect x="190" y="362" width="660" height="52" fill="#e8590c" rx="8"/>
-  <text x="520" y="380" font-size="12.5" font-weight="bold" text-anchor="middle" fill="white">CAPA DE DATOS LOCAL — COMPLEMENTARIA (NO BLOQUEANTE)</text>
-  <text x="520" y="397" font-size="10" text-anchor="middle" fill="#ffe8cc">MySQL · 6 tablas (alumnos, ciclos, matrículas, pagos, asistencia, alertas) para reportes y analítica relacional</text>
-
-  <!-- Infraestructura -->
-  <rect x="190" y="426" width="660" height="46" fill="#495057" rx="8"/>
-  <text x="520" y="444" font-size="12" font-weight="bold" text-anchor="middle" fill="white">INFRAESTRUCTURA LOCAL ADMINISTRADA</text>
-  <text x="520" y="461" font-size="10" text-anchor="middle" fill="#ced4da">PM2 (gestión de procesos) · Backups automáticos de MySQL · Servidor local — sin Docker ni Nginx configurados aún</text>
-
-  <!-- Flujo Firestore -> API -> MySQL -->
-  <path d="M 520 278 L 520 290" stroke="#495057" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-  <path d="M 351 350 L 460 362" stroke="#495057" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-  <path d="M 689 350 L 620 362" stroke="#495057" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 980" width="1440" height="980" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif">
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#495057"/>
+    <filter id="cardShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#1B2559" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1B2559"/>
     </marker>
+
+    <!-- Iconografia (pictogramas monocromo, estilo Azure/AWS) -->
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c4.4 0 8 2.6 8 7v1H4v-1c0-4.4 3.6-7 8-7z"/></symbol>
+    <symbol id="i-browser" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 3.2V4h16v3.2H4zm0 2V17h16V9.2H4z"/><circle cx="4.9" cy="5.6" r="0.7"/><circle cx="7" cy="5.6" r="0.7"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3H9zm3 4a1.6 1.6 0 0 1 1 2.86V19h-2v-2.14A1.6 1.6 0 0 1 12 14z"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 3.34 4 5v14c0 1.66 3.6 3 8 3s8-1.34 8-3V5c0-1.66-3.6-3-8-3zm6 7.9c0 .77-2.4 2.1-6 2.1S6 10.67 6 9.9V7.2c1.4.9 3.6 1.4 6 1.4s4.6-.5 6-1.4v2.7zm0 5c0 .77-2.4 2.1-6 2.1s-6-1.33-6-2.1v-2.7c1.4.9 3.6 1.4 6 1.4s4.6-.5 6-1.4v2.7z"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2.5 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 12h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1zm2.5 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3a1 1 0 0 1 1 1v15h15a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M20.7 6.3a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.4 0L12 10.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0L15 10.6l4.3-4.3a1 1 0 0 1 1.4 0z"/></symbol>
+    <symbol id="i-cog" viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm9.4 2.1-1.6-.3a7.8 7.8 0 0 0-.6-1.5l1-1.3a1 1 0 0 0-.1-1.3l-1.4-1.4a1 1 0 0 0-1.3-.1l-1.3 1a7.8 7.8 0 0 0-1.5-.6l-.3-1.6A1 1 0 0 0 13.3 2h-2a1 1 0 0 0-1 .8l-.3 1.6c-.5.2-1 .4-1.5.6l-1.3-1a1 1 0 0 0-1.3.1L4.5 5.5a1 1 0 0 0-.1 1.3l1 1.3c-.2.5-.4 1-.6 1.5l-1.6.3a1 1 0 0 0-.8 1v2a1 1 0 0 0 .8 1l1.6.3c.2.5.4 1 .6 1.5l-1 1.3a1 1 0 0 0 .1 1.3l1.4 1.4a1 1 0 0 0 1.3.1l1.3-1c.5.2 1 .4 1.5.6l.3 1.6a1 1 0 0 0 1 .8h2a1 1 0 0 0 1-.8l.3-1.6c.5-.2 1-.4 1.5-.6l1.3 1a1 1 0 0 0 1.3-.1l1.4-1.4a1 1 0 0 0 .1-1.3l-1-1.3c.2-.5.4-1 .6-1.5l1.6-.3a1 1 0 0 0 .8-1v-2a1 1 0 0 0-.8-1z"/></symbol>
+    <symbol id="i-report" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.6H7V12zm0 3.4h10V17H7v-1.6zm0-6.8h5V10H7V8.6z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 2 1 21h22L12 2zm0 5.5a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zM12 17.2a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a5 5 0 0 1-1-9.9A6 6 0 0 1 17.8 9 4.5 4.5 0 0 1 17 18H7z"/></symbol>
   </defs>
 
-  <!-- Nota de honestidad tecnica -->
-  <rect x="190" y="480" width="660" height="34" fill="#fff5f5" stroke="#ffc9c9" rx="6"/>
-  <text x="520" y="494" font-size="9.3" text-anchor="middle" fill="#c92a2a" font-weight="bold">Nota: si la API REST o MySQL se caen, la operación principal en Firestore continúa sin interrupción.</text>
-  <text x="520" y="508" font-size="9.3" text-anchor="middle" fill="#c92a2a">MySQL nunca es requisito para que un flujo académico (matrícula, pago, asistencia) se complete.</text>
+  <rect width="1440" height="980" fill="#F5F7FA" rx="20"/>
 
-  <!-- Novedades desde el baseline 2026-06-22 -->
-  <text x="520" y="530" font-size="9.2" text-anchor="middle" fill="#495057" font-style="italic">Novedades 2026-07-05: invitaciones por token (docente/auxiliar/alumno) · QR firmado con firma opaca · transacciones anti-condición de carrera en asistencia · carga masiva por Excel</text>
+  <!-- Titulo -->
+  <text x="720" y="86" font-size="24" font-weight="700" text-anchor="middle" fill="#1B2559">Arquitectura técnica híbrida de la solución</text>
+  <text x="720" y="112" font-size="13" text-anchor="middle" fill="#5B6472">Sistema web para la gestión de matrícula, asistencia y seguimiento académico — Academia Colegio CERMAT, Juliaca</text>
+
+  <!-- ===================== ZONA CLOUD (contenedor) ===================== -->
+  <rect x="328" y="150" width="784" height="304" rx="18" fill="#EAF2FC" fill-opacity="0.55" stroke="#2B6CB0" stroke-opacity="0.38" stroke-width="2" stroke-dasharray="7 6"/>
+  <rect x="352" y="136" width="252" height="28" rx="14" fill="#2B6CB0"/>
+  <use href="#i-cloud" x="364" y="143" width="14" height="14" fill="#ffffff"/>
+  <text x="384" y="154" font-size="11" font-weight="700" fill="#ffffff">ZONA CLOUD — Firebase + Vercel</text>
+
+  <!-- ===================== ZONA LOCAL / ON-PREMISES (contenedor) ===================== -->
+  <rect x="328" y="474" width="784" height="254" rx="18" fill="#EEF0F2" fill-opacity="0.55" stroke="#495057" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="7 6"/>
+  <rect x="352" y="460" width="252" height="28" rx="14" fill="#495057"/>
+  <use href="#i-server" x="364" y="467" width="14" height="14" fill="#ffffff"/>
+  <text x="384" y="478" font-size="11" font-weight="700" fill="#ffffff">ZONA LOCAL — Servidor On-Premises</text>
+
+  <!-- ===================== USUARIOS (columna izquierda) ===================== -->
+  <rect x="70" y="150" width="210" height="32" fill="#1B2559" rx="9"/>
+  <use href="#i-user" x="84" y="158" width="15" height="15" fill="#ffffff"/>
+  <text x="108" y="171" font-size="11.5" font-weight="700" fill="#ffffff">USUARIOS</text>
+
+  <g font-size="10.8" fill="#1B2559">
+    <rect x="70" y="196" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="206" width="14" height="14" fill="#495057"/><text x="106" y="217">Administrador</text>
+
+    <rect x="70" y="242" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="252" width="14" height="14" fill="#495057"/><text x="106" y="263">Docente</text>
+
+    <rect x="70" y="288" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="298" width="14" height="14" fill="#495057"/><text x="106" y="309">Auxiliar</text>
+
+    <rect x="70" y="334" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="344" width="14" height="14" fill="#495057"/><text x="106" y="355">Alumno</text>
+
+    <rect x="70" y="380" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="390" width="14" height="14" fill="#495057"/><text x="106" y="401">Padre / apoderado</text>
+
+    <rect x="70" y="426" width="210" height="34" fill="#EDEFF2" stroke="#495057" stroke-opacity="0.18" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-user" x="82" y="436" width="14" height="14" fill="#495057"/><text x="106" y="447">Visitante / postulante</text>
+  </g>
+
+  <!-- ===================== SALIDAS (columna derecha) ===================== -->
+  <rect x="1160" y="150" width="210" height="32" fill="#1B2559" rx="9"/>
+  <use href="#i-report" x="1174" y="158" width="15" height="15" fill="#ffffff"/>
+  <text x="1198" y="171" font-size="10.8" font-weight="700" fill="#ffffff">SALIDAS DEL SISTEMA</text>
+
+  <g font-size="10" fill="#0B4F3F">
+    <rect x="1160" y="196" width="210" height="40" fill="#E9FBF5" stroke="#0E8A6D" stroke-opacity="0.25" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-report" x="1172" y="204" width="13" height="13" fill="#0E8A6D"/>
+    <text x="1196" y="212">Reportes</text><text x="1196" y="226">académicos</text>
+
+    <rect x="1160" y="248" width="210" height="40" fill="#E9FBF5" stroke="#0E8A6D" stroke-opacity="0.25" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-report" x="1172" y="256" width="13" height="13" fill="#0E8A6D"/>
+    <text x="1196" y="264">Indicadores</text><text x="1196" y="278">administrativos</text>
+
+    <rect x="1160" y="300" width="210" height="40" fill="#E9FBF5" stroke="#0E8A6D" stroke-opacity="0.25" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-report" x="1172" y="308" width="13" height="13" fill="#0E8A6D"/>
+    <text x="1196" y="316">Alertas de riesgo</text><text x="1196" y="330">de inasistencia</text>
+
+    <rect x="1160" y="352" width="210" height="40" fill="#E9FBF5" stroke="#0E8A6D" stroke-opacity="0.25" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-report" x="1172" y="360" width="13" height="13" fill="#0E8A6D"/>
+    <text x="1196" y="368">Consulta de asistencia</text><text x="1196" y="382">para padres (código)</text>
+
+    <rect x="1160" y="404" width="210" height="40" fill="#E9FBF5" stroke="#0E8A6D" stroke-opacity="0.25" rx="10" filter="url(#cardShadow)"/>
+    <use href="#i-report" x="1172" y="412" width="13" height="13" fill="#0E8A6D"/>
+    <text x="1196" y="420">Auditoría técnica</text><text x="1196" y="434">y trazabilidad</text>
+  </g>
+
+  <!-- ===================== CENTRO: capas de arquitectura ===================== -->
+
+  <!-- Presentacion -->
+  <rect x="350" y="184" width="740" height="58" fill="#EAF2FC" stroke="#2B6CB0" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="196" width="28" height="28" rx="8" fill="#2B6CB0"/>
+  <use href="#i-browser" x="369" y="203" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="211" font-size="13.5" font-weight="700" fill="#1B2559">CAPA DE PRESENTACIÓN</text>
+  <text x="404" y="229" font-size="10.2" fill="#4A5568">Aplicación web SPA — React 18 + TypeScript + Vite · Despliegue: Vercel · Interfaz diferenciada por rol</text>
+
+  <!-- Portales -->
+  <g font-size="10" fill="#ffffff" font-weight="600">
+    <rect x="350" y="256" width="140" height="30" fill="#3B7DD8" rx="9" filter="url(#cardShadow)"/><text x="420" y="275" text-anchor="middle">Portal Admin</text>
+    <rect x="500" y="256" width="140" height="30" fill="#3B7DD8" rx="9" filter="url(#cardShadow)"/><text x="570" y="275" text-anchor="middle">Portal Docente</text>
+    <rect x="650" y="256" width="140" height="30" fill="#3B7DD8" rx="9" filter="url(#cardShadow)"/><text x="720" y="275" text-anchor="middle">Portal Estudiante</text>
+    <rect x="800" y="256" width="140" height="30" fill="#3B7DD8" rx="9" filter="url(#cardShadow)"/><text x="870" y="275" text-anchor="middle">Portal Auxiliar</text>
+    <rect x="950" y="256" width="140" height="30" fill="#3B7DD8" rx="9" filter="url(#cardShadow)"/><text x="1020" y="275" text-anchor="middle">Sitio público</text>
+  </g>
+
+  <!-- Autenticacion -->
+  <rect x="350" y="300" width="740" height="48" fill="#E6F7F1" stroke="#0E8A6D" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="310" width="28" height="28" rx="8" fill="#0E8A6D"/>
+  <use href="#i-lock" x="369" y="317" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="324" font-size="13" font-weight="700" fill="#1B2559">CAPA DE AUTENTICACIÓN CLOUD</text>
+  <text x="404" y="340" font-size="10" fill="#4A5568">Firebase Authentication · Custom claims por rol (admin / teacher / student / auxiliar) · Guards de ruta</text>
+
+  <!-- Datos cloud (fuente de verdad) -->
+  <rect x="350" y="362" width="740" height="70" fill="#FFF7E3" stroke="#B7791F" stroke-opacity="0.35" stroke-width="1.8" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="374" width="28" height="28" rx="8" fill="#B7791F"/>
+  <use href="#i-database" x="369" y="381" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="388" font-size="13.5" font-weight="700" fill="#1B2559">CAPA DE DATOS CLOUD — FUENTE DE VERDAD OPERATIVA</text>
+  <text x="404" y="406" font-size="10" fill="#4A5568">Cloud Firestore (21 colecciones: matrícula, pagos, asistencia, usuarios, grupos, ciclos, recursos, talleres...)</text>
+  <text x="404" y="422" font-size="10" fill="#4A5568">Firebase Storage · Reglas de seguridad declarativas · Nuevo: QR firmado (studentQrSignatures) e invitaciones por token</text>
+
+  <!-- Negocio local + Analitica -->
+  <rect x="350" y="508" width="362" height="66" fill="#F1ECFC" stroke="#6741D9" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="520" width="28" height="28" rx="8" fill="#6741D9"/>
+  <use href="#i-server" x="369" y="527" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="534" font-size="12.5" font-weight="700" fill="#1B2559">CAPA DE NEGOCIO LOCAL</text>
+  <text x="404" y="550" font-size="9.8" fill="#4A5568">API REST · Node.js + Express</text>
+  <text x="404" y="564" font-size="9.8" fill="#4A5568">Sincronización no bloqueante (fire-and-forget) hacia MySQL</text>
+
+  <rect x="728" y="508" width="362" height="66" fill="#FCEAF1" stroke="#D6336C" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
+  <rect x="740" y="520" width="28" height="28" rx="8" fill="#D6336C"/>
+  <use href="#i-chart" x="747" y="527" width="15" height="15" fill="#ffffff"/>
+  <text x="782" y="534" font-size="12.5" font-weight="700" fill="#1B2559">CAPA ANALÍTICA</text>
+  <text x="782" y="550" font-size="9.8" fill="#4A5568">Servicio Python + FastAPI</text>
+  <text x="782" y="564" font-size="9.8" fill="#4A5568">Riesgo de inasistencia · alertas · tendencias, sobre MySQL</text>
+
+  <!-- Datos local (complementaria) -->
+  <rect x="350" y="588" width="740" height="54" fill="#FFEEE6" stroke="#D9480F" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="599" width="28" height="28" rx="8" fill="#D9480F"/>
+  <use href="#i-database" x="369" y="606" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="613" font-size="13.5" font-weight="700" fill="#1B2559">CAPA DE DATOS LOCAL — COMPLEMENTARIA (NO BLOQUEANTE)</text>
+  <text x="404" y="631" font-size="10" fill="#4A5568">MySQL · 6 tablas (alumnos, ciclos, matrículas, pagos, asistencia, alertas) para reportes y analítica relacional</text>
+
+  <!-- Infraestructura -->
+  <rect x="350" y="656" width="740" height="50" fill="#EEF0F2" stroke="#495057" stroke-opacity="0.25" rx="12" filter="url(#cardShadow)"/>
+  <rect x="362" y="666" width="28" height="28" rx="8" fill="#495057"/>
+  <use href="#i-cog" x="369" y="673" width="15" height="15" fill="#ffffff"/>
+  <text x="404" y="680" font-size="13" font-weight="700" fill="#1B2559">INFRAESTRUCTURA LOCAL ADMINISTRADA</text>
+  <text x="404" y="697" font-size="10" fill="#4A5568">PM2 (gestión de procesos) · Backups automáticos de MySQL · Servidor local — sin Docker ni Nginx configurados aún</text>
+
+  <!-- ===================== Flechas / relaciones (mismas que el original, mas visibles) ===================== -->
+  <path d="M 280 236 C 308 236 308 397 350 397" stroke="#1B2559" stroke-width="2.6" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 1090 397 C 1118 397 1118 236 1160 236" stroke="#1B2559" stroke-width="2.6" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 720 432 L 720 508" stroke="#1B2559" stroke-width="2.6" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 531 574 C 531 582 560 582 560 588" stroke="#1B2559" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 909 574 C 909 582 880 582 880 588" stroke="#1B2559" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Nota de honestidad tecnica -->
+  <rect x="350" y="754" width="740" height="52" fill="#FFF5F5" stroke="#FFC9C9" stroke-width="1.3" rx="11" filter="url(#cardShadow)"/>
+  <use href="#i-alert" x="364" y="766" width="17" height="17" fill="#E03131"/>
+  <text x="392" y="774" font-size="10.2" font-weight="700" fill="#C92A2A">Nota: si la API REST o MySQL se caen, la operación principal en Firestore continúa sin interrupción.</text>
+  <text x="392" y="792" font-size="10.2" fill="#C92A2A">MySQL nunca es requisito para que un flujo académico (matrícula, pago, asistencia) se complete.</text>
+
+  <!-- Novedades -->
+  <text x="720" y="824" font-size="9.6" text-anchor="middle" fill="#5B6472" font-style="italic">Novedades 2026-07-05: invitaciones por token (docente/auxiliar/alumno) · QR firmado con firma opaca · transacciones anti-condición de carrera en asistencia · carga masiva por Excel</text>
 
   <!-- Footer chips -->
-  <g font-size="10.5" fill="#1a1a2e" font-weight="bold">
-    <text x="230" y="555" text-anchor="middle">Seguridad</text>
-    <text x="360" y="555" text-anchor="middle">Disponibilidad</text>
-    <text x="490" y="555" text-anchor="middle">Escalabilidad</text>
-    <text x="620" y="555" text-anchor="middle">Mantenibilidad</text>
-    <text x="750" y="555" text-anchor="middle">Trazabilidad</text>
-    <text x="880" y="555" text-anchor="middle">Bajo costo operativo</text>
+  <g font-size="11" fill="#1B2559" font-weight="700" text-anchor="middle">
+    <rect x="160" y="854" width="40" height="3" rx="1.5" fill="#2B6CB0"/><text x="180" y="870">Seguridad</text>
+    <rect x="376" y="854" width="40" height="3" rx="1.5" fill="#0E8A6D"/><text x="396" y="870">Disponibilidad</text>
+    <rect x="592" y="854" width="40" height="3" rx="1.5" fill="#B7791F"/><text x="612" y="870">Escalabilidad</text>
+    <rect x="808" y="854" width="40" height="3" rx="1.5" fill="#6741D9"/><text x="828" y="870">Mantenibilidad</text>
+    <rect x="1024" y="854" width="40" height="3" rx="1.5" fill="#D9480F"/><text x="1044" y="870">Trazabilidad</text>
+    <rect x="1240" y="854" width="40" height="3" rx="1.5" fill="#495057"/><text x="1260" y="870">Bajo costo operativo</text>
   </g>
-  <line x1="60" y1="570" x2="980" y2="570" stroke="#dee2e6" stroke-width="1"/>
+  <line x1="90" y1="892" x2="1350" y2="892" stroke="#E1E5EA" stroke-width="1"/>
 
-  <text x="520" y="600" font-size="10" text-anchor="middle" fill="#aaa">Academia Colegio CERMAT · Juliaca, Perú · Perfil de Egreso EPE 2026</text>
-  <text x="520" y="616" font-size="9" text-anchor="middle" fill="#bbb">Diagrama corregido para reflejar la arquitectura real verificada en el repositorio (Cloud Firestore como fuente de verdad; MySQL como copia complementaria)</text>
+  <text x="720" y="918" font-size="10.5" text-anchor="middle" fill="#8A93A3">Academia Colegio CERMAT · Juliaca, Perú · Perfil de Egreso EPE 2026</text>
+  <text x="720" y="936" font-size="9.5" text-anchor="middle" fill="#A3AAB8">Diagrama corregido para reflejar la arquitectura real verificada en el repositorio (Cloud Firestore como fuente de verdad; MySQL como copia complementaria)</text>
 </svg>
