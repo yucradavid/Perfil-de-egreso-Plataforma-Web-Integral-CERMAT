@@ -58,9 +58,47 @@ El proyecto se ejecutó de forma **iterativa**, no en una única entrega: el rep
 | Calidad | Higiene de lint, tipado seguro, auditoría global (fases `FASE_H2_*`) |
 | Cierre EPE | Este perfil de egreso (Brief + E1-E5 de CE02 + CE01 + CE03) |
 
+**Lista de actividades por hito:**
+
+- **Fundacional:** estructurar layout base (header, footer, navegación) → construir home pública → conectar secciones informativas (ciclos, sedes).
+- **Académico:** modelar ciclos/grupos/sedes en Firestore → construir panel de administración académica → habilitar categorías, modalidad y turno.
+- **Matrícula y estados:** diseñar máquina de estados de matrícula → implementar validación de cupo → conectar pre-matrícula pública con aprobación administrativa.
+- **Crítico/seguridad:** endurecer reglas de Firestore por rol → implementar deduplicación de matrículas → auditar el payload de matrícula contra condiciones de carrera.
+- **UX administrativa:** rediseñar sidebar responsivo → migrar formularios clave del panel → construir KPIs de matrícula y pagos.
+- **Calidad:** ejecutar auditoría global de lint/tipado → documentar deuda técnica conocida → cerrar advertencias priorizadas.
+- **Cierre EPE:** redactar Brief + entregables CE01/CE02/CE03 → generar diagramas y PDF exportable → preparar sustentación.
+
+**Cronograma (vista Gantt, macro-fases sobre el ciclo académico):**
+
+```mermaid
+gantt
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b
+    title Cronograma real por macro-fase (evidenciado en docs/FASE_*.md)
+    section Ejecución
+    Fundacional           :done,    f1, 2026-02-01, 20d
+    Académico              :done,    f2, after f1, 25d
+    Matrícula y estados     :done,    f3, after f2, 30d
+    Crítico / seguridad     :done,    f4, after f3, 20d
+    UX administrativa       :done,    f5, after f4, 20d
+    Calidad                :done,    f6, after f5, 15d
+    Cierre EPE              :active,  f7, after f6, 20d
+```
+
+*(Fechas aproximadas para fines de visualización del cronograma; la evidencia verificable y cronológica real está en el historial de commits y en `docs/FASE_*.md`.)*
+
 ## 3.4 Gestión de costos
 
-Línea base de costos: ver [Business Case — Estimación de costos](e2-business-case-ce0113.md#24-estimacion-de-costos). No se maneja un presupuesto de terceros/consultoría externa: el costo principal es el tiempo de desarrollo del equipo propio y los servicios cloud de uso variable (Firebase).
+**Línea base de costos del proyecto** (adaptada del [Business Case — Estimación de costos](e2-business-case-ce0113.md#24-estimacion-de-costos) como presupuesto propio de este plan):
+
+| Partida | Peso relativo | Detalle |
+|---|---|---|
+| Desarrollo (equipo propio) | ~70% | Horas de desarrollo distribuidas en las 7 macro-fases del cronograma; sin licencias de software (stack de código abierto). |
+| Servicios cloud variables (Firebase) | ~15% | Firestore, Storage y Authentication, facturados según uso real, no por licencia fija. |
+| Infraestructura local (línea CE03) | ~10% | Servidor local, UPS y conectividad de respaldo — ver [Diseño de Centro de Datos](../infraestructura/e3-diseno-centro-datos-ce0331.md#seccion-3-dimensionamiento-de-capacidad). |
+| Mantenimiento y evolución continua | ~5% | Horas de soporte, auditorías incrementales (`docs/AUDITORIA_*.md`) y corrección de deuda técnica. |
+
+No se maneja un presupuesto de terceros/consultoría externa: el costo principal es el tiempo de desarrollo del equipo propio, no un desembolso monetario directo de la institución más allá del uso variable de servicios cloud. Los pesos relativos son estimaciones para fines de sustentación, consistentes con las cifras del Business Case, no un presupuesto contable formal.
 
 ## 3.5 Gestión de riesgos
 

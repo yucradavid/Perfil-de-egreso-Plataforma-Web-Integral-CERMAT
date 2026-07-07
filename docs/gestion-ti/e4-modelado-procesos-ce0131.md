@@ -55,6 +55,7 @@ flowchart LR
 | Riesgo de sobre-cupo | Real (dos registros manuales pueden desincronizarse) | Eliminado (validación transaccional de cupo) | Mejora de calidad/confiabilidad |
 | Trazabilidad de pagos | Desconectada del registro de matrícula | Vinculada 1:1 con la matrícula, con historial de cuotas | Mejora de calidad y auditoría |
 | Canal de confirmación al padre | Ninguno formal | Automático (activación + código de asistencia) | Mejora de experiencia y reducción de llamadas a secretaría |
+| Costo operativo de gestión | Horas de secretaría dedicadas a verificar cupo manualmente, conciliar pagos en efectivo contra el cuaderno/Excel, y resolver casos de sobre-cupo detectados tarde | Verificación y conciliación automáticas; el tiempo de secretaría se redirige de tareas repetitivas a atención directa al padre | Reducción de horas administrativas semanales — ver [Business Case, sección 2.3](e2-business-case-ce0113.md#23-evaluacion-de-beneficios) — y eliminación del costo de corregir sobre-matrículas después del hecho |
 
 ## Rúbricas
 

@@ -57,6 +57,30 @@
 
 **Justificación de la intervención:** una plataforma web integral, con matrícula pública conectada al flujo interno, portales por rol y reglas de seguridad por permisos, resuelve directamente las brechas identificadas — como se sustenta en el [Business Case (CE0113)](e2-business-case-ce0113.md) y se despliega técnicamente en la línea CE02.
 
+## 1.5 Roadmap de tecnología (CE0114)
+
+**Cómo se construyó (evidencia retrospectiva).** El roadmap real de la plataforma queda documentado en el historial de fases del repositorio (`docs/FASE_*.md`, más de 90 documentos): fundacional (sitio público) → académico (ciclos, grupos, sedes) → matrícula y estados → crítico/seguridad (reglas de Firestore, deduplicación) → UX administrativa → calidad (higiene de lint, auditoría global) → este perfil de egreso. El detalle está en el [Plan de Gestión del Proyecto, sección 3.3](e3-plan-gestion-proyecto-ce0121.md#33-gestion-del-cronograma).
+
+**Roadmap prospectivo (próximos incrementos):**
+
+| Horizonte | Iniciativa | Justificación |
+|---|---|---|
+| Corto plazo (próximo ciclo) | Suite de pruebas automatizadas y pipeline CI/CD | Brecha declarada en [E4 — Calidad, Operación y Evolución (CE024)](../e4-calidad-operacion-ce024.md): hoy la verificación es manual. |
+| Mediano plazo | Pasarela de pagos automatizada | Explícitamente fuera de alcance en esta fase (ver [Brief EPE — Alcance](../brief-epe.md#5-alcance)); hoy el registro de pago es manual dentro del panel administrativo. |
+| Mediano-largo plazo | Aplicación móvil nativa | También fuera de alcance actual; la SPA responsiva cubre la necesidad inmediata de acceso desde celular. |
+| Largo plazo | Réplica del modelo a nuevas sedes | Habilitado por la arquitectura multi-sede ya existente (ver FODA, oportunidades) con bajo costo marginal de despliegue. |
+
+## 1.6 Matriz de riesgos estratégicos (CE0115)
+
+A diferencia de la matriz de riesgos **de proyecto** (ver [Plan de Gestión del Proyecto, sección 3.5](e3-plan-gestion-proyecto-ce0121.md#35-gestion-de-riesgos), que cubre riesgos de ejecución), esta matriz cubre riesgos **a nivel organizacional**: qué pasa con la institución si la iniciativa de TI no se sostiene.
+
+| Riesgo estratégico | Probabilidad | Impacto | Respuesta |
+|---|---|---|---|
+| Pérdida del único equipo técnico que mantiene la plataforma | Media | Alto | Documentación exhaustiva (este perfil de egreso) como mitigación explícita; código versionado en repositorio propio de la institución. |
+| Cambios regulatorios sobre protección de datos de menores de edad | Media | Medio | Controles ya definidos en la línea CE03 ([Planificación de Seguridad, CE0321](../infraestructura/e2-planificacion-seguridad-ce0321.md)) alineados a la Ley N° 29733. |
+| Competencia adopta soluciones digitales similares y erosiona la ventaja diferencial actual | Baja-media | Medio | Roadmap prospectivo (sección 1.5) para seguir ampliando funcionalidad en vez de quedar estático. |
+| Dependencia de servicios cloud de terceros (Firebase) fuera del control directo de la institución | Baja | Medio-alto | Capa local (MySQL + servidor propio, línea CE03) como respaldo relacional y punto de continuidad si el proveedor cloud fallara. |
+
 ## Rúbricas
 
 | Criterio | Excelente | Bueno | Regular | Deficiente |

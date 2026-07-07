@@ -28,3 +28,11 @@ Mientras las líneas CE02 y CE03 documentan **el sistema y su infraestructura**,
 
 !!! note "Coherencia con el resto del perfil de egreso"
     Estos 5 entregables reutilizan y reestructuran, bajo la rúbrica oficial de CE01, información ya validada en el Brief EPE y en E1 (CE021): el mismo problema, los mismos stakeholders y la misma arquitectura — vistos ahora desde la gestión, no desde la ingeniería de software.
+
+!!! info "Por qué 5 entregables y no 4"
+    El documento oficial de evaluación trae dos vistas de CE01 que no numeran igual. Una tabla-resumen agrupa la competencia en 4 bloques, uno por sub-competencia (CE011, CE012, CE013, CE014) — ahí el "Caso de Negocio" (CE0113) aparece como una evidencia más dentro del bloque de CE011, junto con el Diagnóstico Organizacional. Pero las plantillas detalladas del mismo documento — las que traen contenido mínimo exigido y rúbrica propia — sí separan esa evidencia en un documento independiente: "Business Case del Proyecto". Esta es la parte del PDF con la que se evalúa realmente, y es la que seguimos aquí. Por eso:
+
+    - **CE011** (Diagnóstico + Alineamiento + Caso de Negocio + Roadmap + Matriz de riesgos) se documenta en **2 entregables**: E1 (Diagnóstico Organizacional) y E2 (Business Case — "Caso de Negocio" en la tabla-resumen, mismo contenido con nombre en inglés).
+    - **CE012** (Plan de Gestión Integral en la tabla-resumen) corresponde a **E3** (Plan de Gestión del Proyecto).
+    - **CE013** (Mejora de Procesos en la tabla-resumen) corresponde a **E4** (Modelado de Procesos AS-IS/TO-BE).
+    - **CE014** (Solución Técnica Integrada en la tabla-resumen) corresponde a **E5** (Propuesta de Solución TIC Integrada).
