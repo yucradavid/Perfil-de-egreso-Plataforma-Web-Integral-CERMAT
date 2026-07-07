@@ -1,0 +1,842 @@
+<title>Sustentación CE01 — Plataforma CERMAT</title>
+<style>
+  :root {
+    --ink: #1b2559;
+    --ink-soft: #454f78;
+    --accent: #3b5bdb;
+    --accent-soft: #dde3fb;
+    --good: #2f9e44;
+    --good-soft: #e3f6e6;
+    --bad: #c92a2a;
+    --bad-soft: #fbe4e4;
+    --paper: #f6f7fb;
+    --paper-raised: #ffffff;
+    --rule: #d8dceb;
+    --note-bg: #eef0f9;
+    --note-ink: #3a4270;
+    --shadow: 0 1px 2px rgba(27,37,89,.06), 0 8px 24px rgba(27,37,89,.07);
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eef0fb;
+    --ink-soft: #b9c0e6;
+    --accent: #93a7ff;
+    --accent-soft: #232a52;
+    --good: #6bd08a;
+    --good-soft: #16321f;
+    --bad: #ff9b9b;
+    --bad-soft: #3a1f21;
+    --paper: #0f1226;
+    --paper-raised: #171b38;
+    --rule: #2b3160;
+    --note-bg: #1b2048;
+    --note-ink: #c7cdf2;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px rgba(0,0,0,.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eef0fb;
+      --ink-soft: #b9c0e6;
+      --accent: #93a7ff;
+      --accent-soft: #232a52;
+      --good: #6bd08a;
+      --good-soft: #16321f;
+      --bad: #ff9b9b;
+      --bad-soft: #3a1f21;
+      --paper: #0f1226;
+      --paper-raised: #171b38;
+      --rule: #2b3160;
+      --note-bg: #1b2048;
+      --note-ink: #c7cdf2;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px rgba(0,0,0,.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .display {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-weight: 400;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .num, .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  code, .mono {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+  }
+
+  /* ---------- chrome: progress + counter + hint ---------- */
+
+  #chrome {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  #progress {
+    height: 3px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 120ms linear;
+  }
+
+  #counter {
+    position: fixed;
+    right: 1.4rem;
+    bottom: 1.2rem;
+    z-index: 20;
+    font-size: .78rem;
+    color: var(--ink-soft);
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: .3rem .6rem;
+    box-shadow: var(--shadow);
+  }
+
+  #hint {
+    position: fixed;
+    left: 1.4rem;
+    bottom: 1.2rem;
+    z-index: 20;
+    font-size: .72rem;
+    color: var(--ink-soft);
+    letter-spacing: .02em;
+  }
+
+  /* ---------- slide scaffolding ---------- */
+
+  .slide {
+    scroll-snap-align: start;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5.6rem clamp(1.4rem, 6vw, 6rem);
+    position: relative;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .kicker {
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: .6rem;
+  }
+
+  .slide h2.title {
+    font-size: clamp(1.5rem, 3.4vw, 2.3rem);
+    color: var(--ink);
+    max-width: 30ch;
+  }
+
+  .slide .lede {
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-top: .7rem;
+  }
+
+  .body {
+    margin-top: 2rem;
+    max-width: 74rem;
+  }
+
+  /* ---------- cover ---------- */
+
+  .cover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .cover .kicker { color: #aab6ff; }
+  .cover h1 {
+    font-size: clamp(2rem, 5.2vw, 3.6rem);
+    color: #fff;
+    max-width: 20ch;
+  }
+  .cover .lede { color: #c7cdf2; max-width: 52ch; font-size: 1.1rem; }
+  .cover .team {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.6rem 2.4rem;
+    max-width: 56rem;
+    border-top: 1px solid #333c74;
+    padding-top: 1.6rem;
+  }
+  .cover .team .role {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #8b96e0;
+  }
+  .cover .team .name { font-size: 1.02rem; margin-top: .2rem; }
+  .cover .meta {
+    margin-top: 2.2rem;
+    font-size: .85rem;
+    color: #9aa4de;
+    display: flex;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- agenda ---------- */
+
+  .agenda-list {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    max-width: 50rem;
+  }
+  .agenda-list li {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr auto;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .agenda-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .agenda-list .code { color: var(--accent); font-weight: 700; }
+  .agenda-list .topic { font-size: 1.08rem; }
+  .agenda-list .topic small { display: block; color: var(--ink-soft); font-size: .82rem; margin-top: .15rem; }
+  .agenda-list .time { color: var(--ink-soft); font-size: .85rem; }
+
+  /* ---------- section dividers ---------- */
+
+  .divider {
+    background: var(--ink);
+    color: var(--paper);
+    align-items: flex-start;
+  }
+  .divider .big-num {
+    font-family: Georgia, serif;
+    font-size: clamp(4rem, 14vw, 9rem);
+    color: #2c3576;
+    line-height: 1;
+    position: absolute;
+    right: clamp(1.4rem, 6vw, 6rem);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .divider .kicker { color: #aab6ff; }
+  .divider h2 {
+    font-size: clamp(1.8rem, 4.4vw, 3rem);
+    color: #fff;
+    max-width: 22ch;
+  }
+  .divider .evidencia {
+    margin-top: 1.2rem;
+    color: #9aa4de;
+    font-size: .92rem;
+    max-width: 50ch;
+  }
+
+  /* ---------- content helpers ---------- */
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem;
+  }
+  @media (max-width: 860px) {
+    .grid-2, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.2rem 1.3rem;
+    box-shadow: var(--shadow);
+  }
+  .card h4 {
+    margin: 0 0 .5rem;
+    font-family: inherit;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ink-soft);
+  }
+  .card p { margin: 0; font-size: .95rem; }
+
+  .card.good { border-left: 3px solid var(--good); }
+  .card.bad { border-left: 3px solid var(--bad); }
+  .card.pick { border: 1px solid var(--accent); background: var(--accent-soft); }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .88rem;
+  }
+  th, td {
+    text-align: left;
+    padding: .55rem .8rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .table-wrap { overflow-x: auto; }
+  td.hero-score, th.hero-score { text-align: center; }
+  .pick-col { background: var(--accent-soft); }
+
+  ul.plain { margin: 0; padding-left: 1.1rem; }
+  ul.plain li { margin-bottom: .4rem; font-size: .95rem; }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-top: .6rem;
+  }
+  .flow .step {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: .75rem .9rem;
+    font-size: .84rem;
+    max-width: 12rem;
+    box-shadow: var(--shadow);
+  }
+  .flow .arrow {
+    align-self: center;
+    color: var(--ink-soft);
+    padding: 0 .5rem;
+    font-size: 1.1rem;
+  }
+  .flow.tobe .step { border-left: 3px solid var(--good); }
+  .flow.asis .step { border-left: 3px solid var(--bad); }
+
+  .thesis {
+    font-family: Georgia, serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    border-left: 3px solid var(--accent);
+    padding-left: 1.2rem;
+    max-width: 52rem;
+    margin-top: 1.4rem;
+  }
+
+  .foda {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+  @media (max-width: 860px) { .foda { grid-template-columns: 1fr; } }
+
+  .kpi-row { display: flex; gap: 1.4rem; margin-top: 1.4rem; flex-wrap: wrap; }
+  .kpi { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 4px; padding: .9rem 1.2rem; box-shadow: var(--shadow); min-width: 11rem; }
+  .kpi .n { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .kpi .l { font-size: .74rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ---------- speaker note ---------- */
+
+  .note {
+    margin-top: 2.2rem;
+  }
+  .note .box {
+    background: var(--note-bg);
+    color: var(--note-ink);
+    border-radius: 4px;
+    padding: .9rem 1.2rem;
+    font-size: .86rem;
+    max-width: 62rem;
+    display: flex;
+    gap: .8rem;
+  }
+  .note .tag {
+    flex: none;
+    font-size: .66rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 700;
+    color: var(--accent);
+    padding-top: .1rem;
+  }
+  .note p { margin: 0; }
+
+  /* ---------- closing ---------- */
+
+  .closing {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .closing h2 { color: #fff; font-size: clamp(1.8rem, 4vw, 2.8rem); }
+  .closing .lede { color: #c7cdf2; }
+  .closing .repo {
+    margin-top: 2rem;
+    font-size: .85rem;
+    color: #9aa4de;
+  }
+
+  @media print {
+    #chrome, #counter, #hint { display: none !important; }
+    html, body { scroll-snap-type: none; }
+    .slide {
+      min-height: 100vh;
+      page-break-after: always;
+      break-after: page;
+    }
+  }
+</style>
+
+<div id="chrome"><div id="progress"></div></div>
+<div id="counter"><span class="num" id="counter-n">1</span> / <span class="num" id="counter-total">1</span></div>
+<div id="hint">↓ / espacio — avanzar &nbsp;·&nbsp; ↑ — retroceder</div>
+
+<section class="slide cover">
+  <div class="kicker">Sustentación · Línea CE01 — Gestión de Tecnologías de Información</div>
+  <h1>Diagnóstico, Business Case,<br>Plan de Gestión y Modelado de Procesos</h1>
+  <p class="lede">Plataforma Web Integral de Gestión Académica CERMAT — un sistema en producción, no un prototipo.</p>
+  <div class="team">
+    <div>
+      <div class="role">Líder</div>
+      <div class="name">David Robert Yucra Mamani</div>
+    </div>
+    <div>
+      <div class="role">Integrante</div>
+      <div class="name">Gladys Rosaura Yana Pari</div>
+    </div>
+    <div>
+      <div class="role">Integrante</div>
+      <div class="name">Denilson Leeke Mamani Flores</div>
+    </div>
+    <div>
+      <div class="role">Integrante</div>
+      <div class="name">Cárdenas Vilca Rennzo</div>
+    </div>
+  </div>
+  <div class="meta">
+    <span>Academia La Prepa Cermat — Azángaro, Perú</span>
+    <span>9° ciclo</span>
+    <span>Perfil de Egreso (EPE) 2026</span>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Agenda</div>
+  <h2 class="title">Cuatro entregables, un mismo hilo: del diagnóstico a la ejecución</h2>
+  <ol class="agenda-list">
+    <li>
+      <span class="code num">E1</span>
+      <span class="topic">Diagnóstico Organizacional y Alineamiento Estratégico<small>CE0111–CE0115 · por qué el proyecto era necesario</small></span>
+      <span class="time">~4 min</span>
+    </li>
+    <li>
+      <span class="code num">E2</span>
+      <span class="topic">Business Case del Proyecto<small>CE0113 · por qué esta solución y no otra</small></span>
+      <span class="time">~4 min</span>
+    </li>
+    <li>
+      <span class="code num">E3</span>
+      <span class="topic">Plan de Gestión del Proyecto<small>CE0121–CE0125 · cómo se organizó y ejecutó</small></span>
+      <span class="time">~4 min</span>
+    </li>
+    <li>
+      <span class="code num">E4</span>
+      <span class="topic">Modelado de Procesos AS-IS / TO-BE<small>CE0131–CE0135 · qué cambió en la práctica</small></span>
+      <span class="time">~4 min</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ E1 ============ -->
+
+<section class="slide divider">
+  <div class="kicker">Entregable 1 · CE0111–CE0115</div>
+  <h2>Diagnóstico Organizacional y Alineamiento Estratégico</h2>
+  <p class="evidencia">Diagnóstico organizacional · Alineamiento estratégico · Caso de negocio · Roadmap de tecnología · Matriz de riesgos estratégicos</p>
+  <div class="big-num">01</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E1 · 1.1 Contexto organizacional</div>
+  <h2 class="title">Una academia privada donde el seguimiento al alumno es el diferenciador comercial</h2>
+  <div class="body">
+    <div class="grid-2">
+      <div class="card">
+        <h4>Estructura</h4>
+        <p>Dirección general → coordinación académica / secretaría → docentes por ciclo → auxiliares → alumnos y padres de familia.</p>
+      </div>
+      <div class="card">
+        <h4>Sector</h4>
+        <p>Educación básica privada en Azángaro, Puno — varias academias compitiendo por matrícula, donde organización y comunicación con padres son el diferenciador.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.2rem;">
+      <h4>Cadena de valor</h4>
+      <div class="flow">
+        <div class="step">Captación (sitio, redes)</div><div class="arrow">→</div>
+        <div class="step">Pre-matrícula</div><div class="arrow">→</div>
+        <div class="step">Matrícula y cobro</div><div class="arrow">→</div>
+        <div class="step">Dictado por sede / grupo / turno</div><div class="arrow">→</div>
+        <div class="step">Seguimiento de asistencia</div><div class="arrow">→</div>
+        <div class="step">Comunicación con padres</div><div class="arrow">→</div>
+        <div class="step">Egreso / renovación</div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Antes de hablar del sistema, hay que entender la academia: es un negocio donde los padres eligen según qué tan organizada se ve la institución. Por eso el seguimiento del alumno no es un detalle técnico, es el argumento de venta de CERMAT."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E1 · 1.2 Análisis estratégico</div>
+  <h2 class="title">FODA: la plataforma ataca justo las debilidades y amenazas del negocio</h2>
+  <div class="body">
+    <div class="foda">
+      <div class="card good"><h4>Fortalezas</h4><p>Plataforma digital propia con portales por rol, control de asistencia por QR, matrícula pública conectada al flujo interno.</p></div>
+      <div class="card good"><h4>Oportunidades</h4><p>Crecimiento de matrícula frente a competidores menos digitales; réplica a nuevas sedes con bajo costo marginal.</p></div>
+      <div class="card bad"><h4>Debilidades</h4><p>Dependencia de un equipo técnico pequeño; procesos históricos aún en transición hacia el flujo digital.</p></div>
+      <div class="card bad"><h4>Amenazas</h4><p>Competencia con marketing agresivo; regulación de protección de datos de menores de edad.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Hicimos este FODA sobre la academia, no sobre el sistema. Lo importante es que las dos fortalezas que mencionamos — portales por rol y QR — ya existen, no son promesas. Y las amenazas, como la protección de datos de menores, las resolvemos en la línea de infraestructura."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E1 · 1.3 Diagnóstico digital</div>
+  <h2 class="title">Antes de la plataforma no existía ningún sistema propio</h2>
+  <div class="body">
+    <div class="grid-2">
+      <div class="card">
+        <h4>Antes del sistema</h4>
+        <ul class="plain">
+          <li>Formularios no integrados</li>
+          <li>Gestión manual de alumnos</li>
+          <li>Asistencia poco trazable</li>
+          <li>Pagos separados de la matrícula</li>
+          <li>Sin portales diferenciados por rol</li>
+        </ul>
+      </div>
+      <div class="card bad">
+        <h4>Consecuencias</h4>
+        <ul class="plain">
+          <li>Duplicidad de datos</li>
+          <li>Baja visibilidad operativa</li>
+          <li>Riesgo de errores en cupos</li>
+          <li>Demora en la atención a padres</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"El nivel de madurez digital era medio-alto para el sector — ya hay una plataforma en producción — pero antes de ella, CERMAT operaba exactamente como el resto de academias de la zona: cuadernos, Excel y mensajería informal."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E1 · 1.4 Identificación del problema</div>
+  <h2 class="title">La tesis del diagnóstico</h2>
+  <div class="body">
+    <p class="thesis">"Academia La Prepa Cermat necesitaba centralizar su gestión académica y administrativa porque operaba con canales dispersos y procesos manuales que generaban duplicidad de datos y baja visibilidad operativa."</p>
+    <div class="grid-2" style="margin-top:1.6rem;">
+      <div class="card"><h4>Causa raíz</h4><p>Sin sistema propio históricamente, crecimiento de sedes/ciclos/alumnos sin que la gestión escalara junto con ese crecimiento.</p></div>
+      <div class="card"><h4>Impacto estratégico</h4><p>Riesgo de perder matrículas frente a competidores mejor organizados; decisiones de dirección con información incompleta.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Esta frase es el punto de partida de todo el perfil de egreso: el Business Case la retoma para justificar la inversión, y la línea de Ingeniería de Software la resuelve técnicamente."</p></div></div>
+</section>
+
+<!-- ============ E2 ============ -->
+
+<section class="slide divider">
+  <div class="kicker">Entregable 2 · CE0113</div>
+  <h2>Business Case del Proyecto</h2>
+  <p class="evidencia">Objetivos SMART · alternativas evaluadas · costos y beneficios · riesgos iniciales</p>
+  <div class="big-num">02</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E2 · 2.1 Objetivos y beneficios</div>
+  <h2 class="title">Tres objetivos medibles, los tres ya cumplidos</h2>
+  <div class="body">
+    <div class="grid-4">
+      <div class="card good"><h4>Objetivo 1</h4><p>Centralizar matrícula, pagos y asistencia — 21 colecciones de datos operativas documentadas.</p></div>
+      <div class="card good"><h4>Objetivo 2</h4><p>4 portales por rol + consulta pública para padres — rutas protegidas verificables en el código.</p></div>
+      <div class="card good"><h4>Objetivo 3</h4><p>Asistencia por código QR — tokens y registros con trazabilidad real.</p></div>
+      <div class="card"><h4>Beneficio esperado</h4><p>Menos horas administrativas perdidas, menor riesgo de error en cobros, más confianza de los padres.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"No son objetivos a futuro: los tres ya están en producción. Eso es lo que hace que este business case sea distinto — no estamos proyectando, estamos evaluando algo que ya funciona."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E2 · 2.2 Análisis de alternativas</div>
+  <h2 class="title">Por qué no un Excel, por qué no un SaaS genérico</h2>
+  <div class="body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Criterio (escala 1–5)</th><th class="hero-score">A. Manual</th><th class="hero-score">B. SaaS de terceros</th><th class="hero-score pick-col">C. Plataforma propia</th></tr></thead>
+        <tbody>
+          <tr><td>Costo total a 3 años</td><td class="hero-score">2</td><td class="hero-score">2</td><td class="hero-score pick-col">4</td></tr>
+          <tr><td>Ajuste al flujo real de CERMAT</td><td class="hero-score">1</td><td class="hero-score">2</td><td class="hero-score pick-col">5</td></tr>
+          <tr><td>Control y propiedad de los datos</td><td class="hero-score">3</td><td class="hero-score">2</td><td class="hero-score pick-col">5</td></tr>
+          <tr><td>Velocidad de evolución futura</td><td class="hero-score">1</td><td class="hero-score">2</td><td class="hero-score pick-col">4</td></tr>
+          <tr><td><strong>Total</strong></td><td class="hero-score"><strong>7</strong></td><td class="hero-score"><strong>8</strong></td><td class="hero-score pick-col"><strong>18</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"La diferencia no está en el costo — el SaaS incluso pesa parecido en costo aparente. Está en el ajuste al flujo real: sedes, ciclos, turnos y grupos de CERMAT no son genéricos, y una plataforma propia es la única opción que se adapta al 100% y deja los datos en manos de la institución."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E2 · 2.4 Estimación de costos</div>
+  <h2 class="title">Sin licencias recurrentes, con costo operativo variable</h2>
+  <div class="body">
+    <div class="grid-2">
+      <div class="card"><h4>Inversión inicial</h4><p>Horas de desarrollo del equipo propio, stack de código abierto (React, Node.js, MySQL, Python) — sin licencias de software.</p></div>
+      <div class="card"><h4>Costos recurrentes</h4><p>Plan de Firebase según uso (Firestore / Storage / Auth), dominio y hosting de la SPA.</p></div>
+      <div class="card"><h4>Mantenimiento</h4><p>Horas de soporte y evolución — más de 90 documentos de fase y auditoría respaldan ese trabajo continuo.</p></div>
+      <div class="card"><h4>Capa local</h4><p>Servidor local, UPS y conectividad de respaldo, dimensionados en la línea de Infraestructura.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Aclaramos siempre que estas cifras son estimadas para fines de sustentación, no reemplazan la contabilidad formal de la institución — eso es parte de la honestidad técnica de todo este perfil de egreso."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E2 · 2.5 Riesgos iniciales</div>
+  <h2 class="title">Riesgos identificados desde el negocio, no solo desde la técnica</h2>
+  <div class="body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Riesgo</th><th>Impacto preliminar</th></tr></thead>
+        <tbody>
+          <tr><td>Dependencia de un equipo técnico reducido</td><td>Medio-alto — mitigado documentando el sistema exhaustivamente (este mismo perfil de egreso).</td></tr>
+          <tr><td>Cambios regulatorios de protección de datos de menores</td><td>Medio — mitigado con las políticas de la línea de Infraestructura (CE0321).</td></tr>
+          <tr><td>Resistencia al cambio del personal</td><td>Bajo-medio — mitigado por la simplicidad de los portales por rol.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"El riesgo más real es el primero: somos un equipo pequeño. Por eso insistimos tanto en documentar todo — este perfil de egreso es, literalmente, la mitigación de ese riesgo."</p></div></div>
+</section>
+
+<!-- ============ E3 ============ -->
+
+<section class="slide divider">
+  <div class="kicker">Entregable 3 · CE0121–CE0125</div>
+  <h2>Plan de Gestión del Proyecto</h2>
+  <p class="evidencia">Acta de constitución · alcance (EDT) · cronograma · costos · riesgos · enfoque ágil</p>
+  <div class="big-num">03</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E3 · 3.1 Acta de constitución</div>
+  <h2 class="title">Quién lo pidió, qué se prometió, qué quedó fuera</h2>
+  <div class="body">
+    <div class="grid-2">
+      <div class="card"><h4>Sponsor</h4><p>Dirección de Academia La Prepa Cermat.</p></div>
+      <div class="card"><h4>Alcance preliminar</h4><p>Sitio público, matrícula, ciclos/grupos/sedes, pagos, asistencia QR, portales por rol, recursos/blog/talleres, sincronización complementaria.</p></div>
+      <div class="card bad"><h4>Restricciones</h4><p>Equipo de desarrollo reducido, presupuesto de academia privada mediana; sin pasarela de pagos automatizada ni app móvil nativa en esta fase.</p></div>
+      <div class="card"><h4>Supuestos</h4><p>Los administradores validan las reglas de negocio; Firestore es la fuente principal de datos operativos.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Marcamos con claridad qué NO incluye esta fase — pasarela de pagos automática y app móvil nativa — para que el jurado vea que el alcance fue una decisión consciente, no un olvido."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E3 · 3.2 Gestión del alcance (EDT / WBS)</div>
+  <h2 class="title">Siete ramas de trabajo, cada una trazable a código real</h2>
+  <div class="body">
+    <div class="grid-4">
+      <div class="card"><h4>Sitio público</h4><p>Inicio, ciclos, sedes, blog, contacto.</p></div>
+      <div class="card"><h4>Gestión académica</h4><p>Ciclos, categorías, grupos, cupos, turno.</p></div>
+      <div class="card"><h4>Matrícula y pagos</h4><p>Matrícula pública, estados, cuotas.</p></div>
+      <div class="card"><h4>Usuarios y roles</h4><p>Admin, docente, estudiante, auxiliar.</p></div>
+      <div class="card"><h4>Asistencia QR</h4><p>Tokens, registros, consulta para padres.</p></div>
+      <div class="card"><h4>Contenidos</h4><p>Recursos, blog, talleres.</p></div>
+      <div class="card"><h4>Infraestructura</h4><p>Reglas Firestore, API REST, MySQL, PM2.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Cada rama de esta EDT no es teórica: corresponde uno a uno con una carpeta features/ real del repositorio, con su propio esquema de datos y sus propias pantallas."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E3 · 3.3 Gestión del cronograma</div>
+  <h2 class="title">Ejecución iterativa por fases, documentada en el repositorio</h2>
+  <div class="body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Hito</th><th>Contenido representativo</th></tr></thead>
+        <tbody>
+          <tr><td>Fundacional</td><td>Home público, header/navegación, hero, footer.</td></tr>
+          <tr><td>Académico</td><td>Ciclos, grupos, sedes, categorías, modalidad/turno.</td></tr>
+          <tr><td>Matrícula y estados</td><td>Máquina de estados de matrícula, cupos, activación.</td></tr>
+          <tr><td>Crítico / seguridad</td><td>Reglas de Firestore, deduplicación, payload de matrícula.</td></tr>
+          <tr><td>UX administrativa</td><td>Sidebar responsivo, formularios, KPIs de matrícula/pagos.</td></tr>
+          <tr><td>Calidad</td><td>Higiene de lint, tipado seguro, auditoría global.</td></tr>
+          <tr><td>Cierre EPE</td><td>Este perfil de egreso completo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Más de 90 documentos de fase y auditoría respaldan este cronograma — no es una promesa retroactiva, es historial real verificable por control de versiones."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E3 · 3.5–3.6 Riesgos y enfoque ágil</div>
+  <h2 class="title">Ágil iterativo por fases, no Scrum forzado</h2>
+  <div class="body">
+    <div class="grid-2">
+      <div class="card bad"><h4>Riesgo principal</h4><p>Regresiones al modificar reglas de seguridad de Firestore — probabilidad media, impacto alto. Se mitiga con verificación manual documentada antes de publicar.</p></div>
+      <div class="card"><h4>Enfoque de trabajo</h4><p>Sin sprints de calendario fijo: fases temáticas cerradas, cada una un incremento entregado y documentado antes de iniciar la siguiente.</p></div>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Decidimos ser honestos: no forzamos una notación Scrum que no usamos de verdad. Nuestro backlog priorizado por dominio funciona igual, solo que con otro nombre — fases, no sprints."</p></div></div>
+</section>
+
+<!-- ============ E4 ============ -->
+
+<section class="slide divider">
+  <div class="kicker">Entregable 4 · CE0131–CE0135</div>
+  <h2>Modelado de Procesos AS-IS / TO-BE</h2>
+  <p class="evidencia">Proceso analizado: matrícula de un alumno a un ciclo/grupo</p>
+  <div class="big-num">04</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E4 · 4.1 Proceso actual (AS-IS)</div>
+  <h2 class="title">Antes: todo manual, nada conectado</h2>
+  <div class="body">
+    <div class="flow asis">
+      <div class="step">Padre/postulante consulta</div><div class="arrow">→</div>
+      <div class="step">Secretaría anota en cuaderno/Excel</div><div class="arrow">→</div>
+      <div class="step">Verificación manual de cupo</div><div class="arrow">→</div>
+      <div class="step">Pago en efectivo + recibo físico</div><div class="arrow">→</div>
+      <div class="step">Dirección aprueba presencialmente</div><div class="arrow">→</div>
+      <div class="step">Matriculado sin confirmación digital</div>
+    </div>
+    <div class="card bad" style="margin-top:1.4rem; max-width:52rem;">
+      <h4>Problemas detectados</h4>
+      <p>Duplicidad de registros, riesgo real de sobre-cupo (dos registros manuales pueden desincronizarse), pago desconectado del estado de matrícula, nula trazabilidad para auditoría.</p>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Antes, confirmar una matrícula tomaba de un día a varios días, y el padre no recibía ninguna confirmación formal — todo dependía de una llamada o de la memoria de secretaría."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E4 · 4.2 Proceso propuesto (TO-BE)</div>
+  <h2 class="title">Ahora: validación automática de principio a fin</h2>
+  <div class="body">
+    <div class="flow tobe">
+      <div class="step">Pre-matrícula pública en línea</div><div class="arrow">→</div>
+      <div class="step">Validación automática: ciclo abierto + cupo</div><div class="arrow">→</div>
+      <div class="step">Registro "pendiente" sin duplicados</div><div class="arrow">→</div>
+      <div class="step">Admin revisa y aprueba en el panel</div><div class="arrow">→</div>
+      <div class="step">Pago con trazabilidad de cuotas</div><div class="arrow">→</div>
+      <div class="step">Activación automática + código para el padre</div>
+    </div>
+    <div class="card good" style="margin-top:1.4rem; max-width:52rem;">
+      <h4>Automatizaciones incorporadas</h4>
+      <p>Validación transaccional de cupo (evita sobre-matrícula), deduplicación por alumno/ciclo, generación automática del acceso y del código de consulta de asistencia.</p>
+    </div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Esto no es diagrama de intención: está implementado en features/enrollments del repositorio, con auditoría propia documentando la deduplicación."</p></div></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">E4 · 4.3 Análisis comparativo</div>
+  <h2 class="title">La mejora, en cuatro dimensiones</h2>
+  <div class="body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimensión</th><th>AS-IS</th><th>TO-BE</th><th>Mejora</th></tr></thead>
+        <tbody>
+          <tr><td>Tiempo de confirmación</td><td>Horas a días</td><td>Minutos</td><td>Reducción drástica de espera</td></tr>
+          <tr><td>Riesgo de sobre-cupo</td><td>Real (desincronización manual)</td><td>Eliminado (validación transaccional)</td><td>Mejora de confiabilidad</td></tr>
+          <tr><td>Trazabilidad de pagos</td><td>Desconectada</td><td>Vinculada 1:1 con historial</td><td>Mejora de auditoría</td></tr>
+          <tr><td>Confirmación al padre</td><td>Ninguna formal</td><td>Automática</td><td>Menos llamadas a secretaría</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="n">0</div><div class="l">Incidentes de sobre-cupo (meta)</div></div>
+    <div class="kpi"><div class="n">Min.</div><div class="l">vs. días, tiempo de aprobación</div></div>
+  </div>
+  <div class="note"><div class="box"><span class="tag">Qué decir</span><p>"Este cuadro es el cierre de la línea CE01: el diagnóstico identificó el problema, el business case lo justificó económicamente, el plan lo organizó, y este modelado prueba, dimensión por dimensión, que el proceso realmente mejoró."</p></div></div>
+</section>
+
+<section class="slide closing">
+  <div class="kicker">Cierre · Línea CE01</div>
+  <h2 class="title">De un diagnóstico honesto a un sistema que ya opera</h2>
+  <p class="lede">Diagnóstico, business case, plan de gestión y modelado de procesos: cuatro entregables que explican por qué se construyó la Plataforma CERMAT, no solo cómo.</p>
+  <p class="repo">Academia La Prepa Cermat · Azángaro, Perú · 9° ciclo · Perfil de Egreso 2026</p>
+</section>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var counterN = document.getElementById('counter-n');
+  var counterTotal = document.getElementById('counter-total');
+  var progress = document.getElementById('progress');
+  counterTotal.textContent = slides.length;
+
+  function currentIndex() {
+    var mid = window.scrollY + window.innerHeight / 2;
+    var idx = 0;
+    slides.forEach(function (s, i) {
+      if (s.offsetTop <= mid) idx = i;
+    });
+    return idx;
+  }
+
+  function update() {
+    var idx = currentIndex();
+    counterN.textContent = idx + 1;
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - doc.clientHeight;
+    var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    progress.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== ' ' && e.key !== 'PageDown' && e.key !== 'PageUp') return;
+    e.preventDefault();
+    var idx = currentIndex();
+    var next = idx;
+    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') next = Math.min(slides.length - 1, idx + 1);
+    if (e.key === 'ArrowUp' || e.key === 'PageUp') next = Math.max(0, idx - 1);
+    slides[next].scrollIntoView({ behavior: 'smooth' });
+  });
+})();
+</script>
