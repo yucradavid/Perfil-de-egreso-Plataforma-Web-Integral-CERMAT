@@ -17,7 +17,7 @@
 
 Los datos sostienen tres decisiones de la academia: quién está matriculado y cuánto debe, quién asiste y quién está en riesgo de abandonar, y qué se cobró y por qué medio. La operación diaria escribe en **Firestore** (22 colecciones protegidas por reglas por rol). Cada matrícula, pago y marca de asistencia se replica en **MySQL 8.0** mediante una API que **solo escribe a través de procedimientos almacenados**.
 
-En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones.
+En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones. Desde el 2026-10-24 la base real `cermat_db` tiene estas migraciones y sus cuentas de servicio, con el mínimo privilegio verificado en ella (secciones 2.3 y 4.1).
 
 ## Sección 1: Modelo de Datos
 
@@ -197,6 +197,13 @@ El script se niega a ejecutarse si la base contiene matrículas reales: una tabl
 
 Migración aplicada sobre una base que ya tenía datos replicados con la versión anterior de la API (pagos sin alumno, ciclos inexistentes y un pago huérfano). Resultado: las 3 migraciones se registran en `schema_migraciones`, los vacíos pasan a `NULL`, se crean las filas padre faltantes y el pago huérfano queda en una matrícula provisional visible en `v_conciliacion_pagos`.
 
+**Base real (`cermat_db`, 2026-10-24, de 16:29 a 16:40 UTC−5):**
+
+1. Respaldo previo `cermat_db_2026-10-24T16-29-23_antes-migracion.sql`, con su SHA-256.
+2. Revisión previa sin conflictos: estaban todas las columnas que usan las migraciones y el único pago cumple los CHECK.
+3. Migraciones 02, 03 y 04 aplicadas: 3 FK, 7 CHECK, 4 funciones, 5 procedimientos, 6 triggers, 3 vistas y 4 roles; `schema_migraciones` con 3 filas.
+4. La matrícula del único pago no existía, así que la migración creó una provisional (`completa = 0`). `v_conciliacion_pagos` la muestra hasta que llegue la real, como está diseñado.
+
 !!! note "Capturas a adjuntar"
     `SHOW CREATE TABLE pagos;` · `SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='cermat_db';` · `SELECT * FROM schema_migraciones;` (comandos en `server/src/db/README.md`).
 
@@ -299,6 +306,13 @@ Q1 y Q4 resuelven por índice, sin recorrer la tabla completa. En Q2, con pocos 
 
 Las cuentas se crean con `server/scripts/db-crear-usuarios.js`, que lee las contraseñas solo de variables de entorno (mínimo 12 caracteres). **Ninguna contraseña queda escrita en el repositorio.**
 
+**En la base real (2026-10-24):**
+
+- Se crearon `cermat_api`, `cermat_analitica` y `cermat_respaldo`, cada una con su rol por defecto. `cermat_reportes` queda opcional.
+- Las contraseñas son aleatorias, de 32 caracteres, y están solo en `server/.env.local` y `analytics/.env.local`. Esos archivos no se versionan (regla `*.local`) y tienen prioridad sobre los `.env`, que siguen versionados y sin contraseñas.
+- Mínimo privilegio verificado en la base real: `cermat_api` usa funciones y procedimientos, pero `INSERT` en `pagos` y `DELETE` en `matriculas` dan error 1142; `cermat_analitica` lee `v_asistencia_diaria`, pero `UPDATE` en `alumnos` da error 1142.
+- La API y la analítica se conectan cada una con su cuenta, según `performance_schema`; `root` queda solo para administración.
+
 La capa de aplicación aplica además estas reglas en la API:
 
 | Ruta | Regla |
@@ -316,21 +330,23 @@ La tabla `auditoria` registra cada alta, cambio de estado o monto y anulación d
 | Elemento | Implementación |
 |---|---|
 | Respaldo | `server/scripts/backup.js`: `mysqldump --single-transaction --routines --triggers --events` con la cuenta de solo lectura. La contraseña viaja por `MYSQL_PWD`, no por la línea de comandos. Genera `.sha256` y conserva 7. |
-| Programación | `pm2 start scripts/backup.js --name cermat-backup --cron "0 2 * * *" --no-autorestart` |
+| Programación | **Pendiente de activar** (RPO objetivo ≤ 24 h): `pm2 start scripts/backup.js --name cermat-backup --cron "0 2 * * *" --no-autorestart`, más `pm2 save` y el inicio automático de PM2 con Windows |
 | Recuperación | `server/scripts/restore.js`: verifica el hash, restaura en `cermat_db_verificacion`, mide el RTO y compara filas, rutinas, triggers y vistas. Restaurar sobre producción exige `--confirmar-produccion`. |
 | Registro | Cada prueba se anota en `backups/registro-restauraciones.jsonl` |
 
 En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verificación SHA-256 y se restauró en `cermat_db_verificacion` con un RTO medido de 0,38 s. Las filas, rutinas, triggers y vistas restaurados coincidieron con el origen. También se verificó que la restauración rechaza un archivo alterado ("no coincide con su .sha256") y que se niega a escribir sobre la base productiva sin confirmación.
 
+**En la base real (REC-05, 2026-10-24):** `backup.js` generó el respaldo con la cuenta de solo lectura `cermat_respaldo` y su SHA-256. `restore.js` lo restauró en `cermat_db_verificacion` con un **RTO de 0,23 s**; las tablas y filas coincidieron con el origen y las 9 rutinas, 6 triggers y 3 vistas quedaron completos. La prueba quedó anotada en `backups/registro-restauraciones.jsonl`. Los respaldos tienen datos personales, por eso `backups/` está en `.gitignore`.
+
 !!! note "Captura a adjuntar"
-    Salida de `node scripts/restore.js` ejecutado sobre la base real del equipo, junto con la línea correspondiente de `backups/registro-restauraciones.jsonl`.
+    Salida de `node scripts/restore.js` de la prueba REC-05 (base real, 2026-10-24), junto con su línea de `backups/registro-restauraciones.jsonl`.
 
 ### 4.4 Evidencias de monitoreo
 
 | Indicador | Fuente |
 |---|---|
 | Disponibilidad de MySQL | `GET /health` de la API y de la analítica (ping a MySQL), mostrado en el panel admin "Infraestructura" |
-| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas |
+| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas. Hoy devuelve 1: el pago que espera su matrícula real |
 | Trazabilidad | `SELECT … FROM auditoria ORDER BY id DESC` |
 | Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO y objetos completos por prueba) |
 

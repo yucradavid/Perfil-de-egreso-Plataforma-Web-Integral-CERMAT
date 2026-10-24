@@ -204,6 +204,8 @@ academia-school-platform/
 3. Aplicar las migraciones de MySQL.
 4. Reiniciar la API y la analítica, que ya llaman a los procedimientos almacenados.
 
+Los cuatro pasos se cumplieron en este orden el 2026-10-24. Los pasos 1 y 2 se verificaron en producción ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)). Los pasos 3 y 4 se hicieron entre las 16:29 y las 16:40 (UTC−5): migraciones en la base real con respaldo previo, y la API y la analítica en línea con PM2, cada una con su cuenta de mínimo privilegio ([E2 §2.3](e2-base-datos-ce022.md#23-evidencias-de-creacion)). Después de cada publicación se verifica la versión en producción (bundle y cabeceras), porque Vercel puede bloquear un despliegue sin que el push lo muestre.
+
 ### 4.2 Configuración requerida (solo nombres de variables)
 
 | Componente | Variables |
@@ -213,15 +215,17 @@ academia-school-platform/
 | Analítica | `MYSQL_*` (`cermat_analitica`), `ALLOWED_ORIGINS`, `FIREBASE_SERVICE_ACCOUNT_PATH` |
 | Respaldo | `BACKUP_MYSQL_USER` (`cermat_respaldo`), `BACKUP_MYSQL_PASSWORD`, `RESTORE_MYSQL_USER`, `MYSQLDUMP_PATH`, `MYSQL_PATH` |
 
+Las contraseñas de MySQL van en `server/.env.local` y `analytics/.env.local`. No se versionan (regla `*.local`) y tienen prioridad sobre los `.env`, que siguen versionados sin contraseñas.
+
 ### 4.3 Evidencia de despliegue y ejecución
 
 | Evidencia | Resultado |
 |---|---|
-| Frontend publicado | [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) responde 200 (capturas del 2026-10-24). La versión publicada es del 15-oct-2026; los cambios de esta iteración se publican con el siguiente despliegue. |
+| Frontend publicado | [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) responde 200 (capturas del 2026-10-24). Desde el 2026-10-24 producción corre la versión de esta iteración, con las cabeceras de seguridad ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)). |
 | Build de producción | `vite build` correcto (aviso de chunk mayor de 500 kB, registrado en el plan de mejora del E4) |
 | Tipos | `tsc --noEmit` sin errores |
 | Pruebas | 34 unitarias, 18 de API, 19 de reglas y 19 de base de datos: 90 en verde |
-| Respaldo y restauración | Restauración verificada con SHA-256 y RTO medido de 0,27 s en base de prueba ([E2](e2-base-datos-ce022.md)) |
+| Respaldo y restauración | Restauración verificada con SHA-256: RTO de 0,23 s en la base real (REC-05) y de 0,27 s en la base de prueba ([E2](e2-base-datos-ce022.md)) |
 
 ## Anexos
 

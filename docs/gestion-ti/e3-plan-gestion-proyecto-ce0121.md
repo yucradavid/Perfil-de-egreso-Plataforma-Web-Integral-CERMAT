@@ -16,7 +16,7 @@
 
 ## Resumen ejecutivo
 
-El proyecto empezó el **2026-01-02** (primer commit de desarrollo, "Implement Admin & Public MVP") y termina, según este plan, el **2027-04-09**. Lo ejecutado está evidenciado: desarrollo intensivo en enero de 2026 (43 commits), operación piloto entre el 2026-01-27 y el 2026-07-07, auditorías y fases documentadas entre el 2026-06-07 y el 2026-07-07, y el Sprint 1 de calidad desde el 2026-10-24, con 9 de 11 tareas hechas. Lo pendiente es el cierre técnico (Sprints 1 a 3), la capacitación, el acompañamiento en la campaña de matrícula 2027 y un **hito de continuidad el 2027-03-31**.
+El proyecto empezó el **2026-01-02** (primer commit de desarrollo, "Implement Admin & Public MVP") y termina, según este plan, el **2027-04-09**. Lo ejecutado está evidenciado: desarrollo intensivo en enero de 2026 (43 commits), operación piloto entre el 2026-01-27 y el 2026-07-07, auditorías y fases documentadas entre el 2026-06-07 y el 2026-07-07, y el Sprint 1 de calidad desde el 2026-10-24, con 12 de 13 tareas hechas. Lo pendiente es el cierre técnico (Sprints 1 a 3), la capacitación, el acompañamiento en la campaña de matrícula 2027 y un **hito de continuidad el 2027-03-31**.
 
 | Cifra del plan | Valor |
 |---|---|
@@ -26,7 +26,7 @@ El proyecto empezó el **2026-01-02** (primer commit de desarrollo, "Implement A
 | Desembolso de CERMAT en el año 0 | S/ 1 166 (tiempo de su personal; el equipo EPE aporta S/ 4 180 de trabajo planificado) |
 | Paquetes de trabajo | 35 en 6 entregables más el aporte de CERMAT |
 | Hitos | 3 reales y 9 planificados |
-| Riesgos del proyecto | 12 (exposición total P×I = 117; meta al cierre ≤ 40) |
+| Riesgos del proyecto | 12, de los que 2 se cerraron el 2026-10-24 (exposición total P×I de los abiertos = 89, antes 117; meta al cierre ≤ 40) |
 
 ## 3.1 Acta de constitución
 
@@ -122,9 +122,9 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 | 4.5 | Tipado de dinero y asistencia (PB-09) | Usos de `any` < 120 | Equipo | 8 | S/ 200 | Planificado |
 | 4.6 | Pruebas de componentes (PB-12) | ≥ 20 casos de matrícula y pagos | Equipo | 12 | S/ 300 | Planificado |
 | 5.1 | Primer CI en verde | 6 de 6 trabajos en verde en GitHub | Líder | 2 | S/ 50 | Planificado |
-| 5.2 | Publicar reglas (PB-04) | 19 de 19 pruebas contra lo publicado y una matrícula sin sesión verificada | Líder | 4 | S/ 100 | Planificado |
-| 5.3 | Migraciones en la base real (PB-05) | Migraciones aplicadas y 19 pruebas de BD en verde | Equipo | 4 | S/ 100 | Planificado |
-| 5.4 | Retirar secretos (PB-06) | 0 archivos sensibles en el historial; clave rotada | Líder | 6 | S/ 150 | Planificado |
+| 5.2 | Publicar reglas (PB-04) | 19 de 19 pruebas contra lo publicado y una matrícula sin sesión verificada | Líder | 4 | S/ 100 | Planificado; ejecutado el 2026-10-24 |
+| 5.3 | Migraciones en la base real (PB-05) | Migraciones aplicadas y 19 pruebas de BD en verde | Equipo | 4 | S/ 100 | Planificado; ejecutado el 2026-10-24 (migraciones 02–04 en `cermat_db`, cuentas de mínimo privilegio y restauración REC-05 verificadas) |
+| 5.4 | Retirar secretos (PB-06) | 0 archivos sensibles en el historial; clave rotada | Líder | 6 | S/ 150 | Planificado; clave rotada el 2026-10-24 (los `.env`, sin contraseñas, siguen versionados por decisión del equipo) |
 | 5.5 | Capa relacional continua (PB-13) | Servicio continuo en VM-APP01 o VPS puente; 30 días sin diferencias de conciliación | Equipo | 16 | S/ 400 | Planificado |
 | 5.6 | Monitor con alertas (PB-08) | Alertas sobre la URL y `/health` | Equipo | 4 | S/ 100 | Planificado |
 | 5.7 | Carga diferida (PB-10) | JS inicial < 1 MB | Equipo | 8 | S/ 200 | Planificado |
@@ -166,10 +166,10 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 | A03 | Mejoras incrementales y capa local (3.5) | A01 | 2026-02-01 | 2026-05-26 | Real: commits de feb, abr y may | Líder |
 | A04 | Auditorías y fases documentadas (3) | A03 | 2026-06-07 | 2026-07-07 | Real: fechas en `docs/AUDITORIA_*` y `docs/FASE_*` | Líder |
 | A05 | Documentación EPE inicial (2) | A04 | 2026-06-22 | 2026-07-06 | Real | Equipo |
-| A06 | Sprint 1 Calidad y seguridad (4.1 a 4.4, 5.1 a 5.4) | A04 | 2026-10-24 | 2026-11-06 | En curso: 9 de 11 tareas | Equipo |
+| A06 | Sprint 1 Calidad y seguridad (4.1 a 4.4, 5.1 a 5.4) | A04 | 2026-10-24 | 2026-11-06 | En curso: 12 de 13 tareas | Equipo |
 | A07 | Actualización de diagnóstico, business case y plan (1.1, 1.2, 2) | A05 | 2026-10-24 | 2026-10-24 | Real | Equipo |
-| A08 | Publicar reglas y verificar la matrícula sin sesión (5.1, 5.2) | A06 (pruebas en verde) | 2026-10-26 | 2026-11-06 | Planificado (crítica) | Líder y sponsor |
-| A09 | Migraciones en la base real y retiro de secretos (5.3, 5.4) | A08 | 2026-11-02 | 2026-11-06 | Planificado | Equipo |
+| A08 | Publicar reglas y verificar la matrícula sin sesión (5.1, 5.2) | A06 (pruebas en verde) | 2026-10-26 | 2026-11-06 | Real: ejecutada el 2026-10-24, antes de lo planificado | Líder y sponsor |
+| A09 | Migraciones en la base real y retiro de secretos (5.3, 5.4) | A08 | 2026-11-02 | 2026-11-06 | Real: ejecutada el 2026-10-24, antes de lo planificado (los `.env`, sin contraseñas, siguen versionados por decisión del equipo) | Equipo |
 | A10 | Sprint 2 Operación continua (5.5, 5.6, 5.7, 4.5, 6.1) | A08 | 2026-11-09 | 2026-11-20 | Planificado (crítica) | Equipo |
 | A11 | Sprint 3 Adopción y respaldo (5.8, 4.6, 4.5, 6.2, 6.3, 6.4) | A10 | 2026-11-23 | 2026-12-04 | Planificado (crítica) | Equipo |
 | A12 | Capacitación por rol y transferencia de conocimiento (6.4, C.3 a C.5) | A11 | 2026-12-07 | 2026-12-18 | Planificado (crítica) | Equipo y CERMAT |
@@ -196,13 +196,14 @@ gantt
     A02 Operación piloto                        :done, a02, 2026-01-27, 2026-07-07
     A03 Mejoras y capa local                    :done, a03, 2026-02-01, 2026-05-26
     A04 Auditorías y fases documentadas         :done, a04, 2026-06-07, 2026-07-07
-    Reglas vigentes publicadas                  :milestone, h0b, 2026-06-22, 0d
+    Reglas de junio publicadas                  :milestone, h0b, 2026-06-22, 0d
     A05 Documentación EPE inicial               :done, a05, 2026-06-22, 2026-07-06
-    Última publicación del frontend             :milestone, h0c, 2026-10-15, 0d
+    Frontend anterior en producción             :milestone, h0c, 2026-10-15, 0d
     A06 Sprint 1 Calidad y seguridad            :active, a06, 2026-10-24, 2026-11-06
+    A08 Publicar frontend y reglas y verificar  :done, a08, 2026-10-24, 1d
+    A09 Migraciones en la base real             :done, a09, 2026-10-24, 1d
+    H2 Reglas corregidas publicadas             :milestone, h2, 2026-10-24, 0d
     section Planificado
-    A08 Publicar reglas y verificar             :crit, a08, 2026-10-26, 2026-11-06
-    H2 Reglas corregidas publicadas             :milestone, crit, h2, 2026-11-06, 0d
     A10 Sprint 2 Operación continua             :crit, a10, 2026-11-09, 2026-11-20
     A11 Sprint 3 Adopción y respaldo            :crit, a11, 2026-11-23, 2026-12-04
     H5 Acta de aceptación                       :milestone, h5, 2026-12-04, 0d
@@ -221,7 +222,7 @@ gantt
 | H0b | Publicación de las reglas vigentes (con 3 fallas) | 2026-06-22 | Real | Ruleset de producción identificado en el [E4 de Software](../e4-calidad-operacion-ce024.md#26-analisis-del-incidente-reglas-sin-publicar-desde-junio) |
 | H0c | Última publicación del frontend | 2026-10-15 | Real | Historial de despliegues de Vercel |
 | H1 | Acta de constitución firmada | 2026-11-06 | Planificado | Firma del sponsor |
-| H2 | Reglas corregidas publicadas y matrícula sin sesión verificada | 2026-11-06 | Planificado, crítico | 19 de 19 pruebas contra lo publicado |
+| H2 | Reglas corregidas publicadas y matrícula sin sesión verificada | 2026-11-06 (cumplido el 2026-10-24) | Real | Consulta sin sesión denegada (403) y pre-matrícula de prueba exitosa ([E4 de Software, 2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 | H3 | Capa relacional en servicio continuo con monitor | 2026-11-20 | Planificado | Alertas activas y 0 diferencias de conciliación |
 | H4 | Línea base AS-IS medida | 2026-11-20 | Planificado | 10 trámites cronometrados |
 | H5 | Acta de aceptación de los flujos críticos | 2026-12-04 | Planificado | Firma de la Dirección |
@@ -230,7 +231,7 @@ gantt
 | H8 | Hito de continuidad | 2027-03-31 | Planificado, crítico | Criterios del [E2, 2.4.6](e2-business-case-ce0113.md#246-recomendacion-y-criterios-del-hito-de-continuidad) |
 | H9 | Cierre del proyecto | 2027-04-09 | Planificado | Acta de cierre y lecciones aprendidas |
 
-**Ruta crítica:** A06 → A08 → A10 → A11 → A12 → A13 → A14 → A15 → A16. A09 y la tarea operativa RM-04 tienen holgura dentro de sus sprints. Un retraso en A08 (publicar las reglas) mueve todo el plan porque sin matrícula pública no hay campaña en línea que acompañar.
+**Ruta crítica:** A06 → A08 → A10 → A11 → A12 → A13 → A14 → A15 → A16. A09 también se ejecutó el 2026-10-24, y la tarea operativa RM-04 tiene holgura dentro de su sprint. A08 (publicar las reglas) era el punto más sensible, porque sin matrícula pública no hay campaña en línea que acompañar, y se cumplió el 2026-10-24, antes de lo planificado.
 
 ## 3.4 Gestión de costos
 
@@ -284,11 +285,11 @@ Escala de 1 a 5; nivel por P × I: Bajo 1–4, Medio 5–9, Alto 10–14, Críti
 
 | ID | Riesgo (causa → evento → efecto) | P | I | P×I | Prioridad | Estrategia | Respuesta | Responsable | Disparador | Estado |
 |---|---|---|---|---|---|---|---|---|---|---|
-| R-01 | Decisión postergada → las reglas corregidas no se publican → matrícula pública bloqueada y datos expuestos | 4 | 5 | 20 | Crítico | Evitar | Publicar en el Sprint 1 vía CI (entorno `produccion`, aprobación del sponsor) y verificar una matrícula sin sesión | Líder y sponsor | Sin aprobación al 2026-11-04 | Abierto |
+| R-01 | Decisión postergada → las reglas corregidas no se publican → matrícula pública bloqueada y datos expuestos | 4 | 5 | 20 | Crítico | Evitar | Publicar en el Sprint 1 vía CI (entorno `produccion`, aprobación del sponsor) y verificar una matrícula sin sesión | Líder y sponsor | Sin aprobación al 2026-11-04 | Cerrado (2026-10-24): reglas publicadas desde la consola y verificadas en producción |
 | R-02 | Fin de semestre → poca disponibilidad del equipo → tareas de los Sprints 2 y 3 incompletas | 4 | 3 | 12 | Alto | Mitigar | Capacidad fija de ≈ 40 h por sprint, orden por prioridad; PB-09 y PB-10 pasan a mantenimiento si hace falta | Scrum Master | Más de 25 % pendiente a mitad de sprint | Abierto |
 | R-03 | Product Owner sin designar o sin tiempo → aceptación y priorización demoradas | 3 | 4 | 12 | Alto | Mitigar | Solicitar la designación en la revisión del Sprint 1; el sponsor actúa como interino | Sponsor | Sin Product Owner al 2026-11-06 | Abierto |
 | R-04 | Sin alojamiento continuo para la capa relacional (host sin presupuesto, VPS reservado) → la sincronización sigue intermitente | 3 | 3 | 9 | Medio | Mitigar | VPS puente del mismo plan (US$ 35,99 al año) hasta que exista VM-APP01 | Líder | Sin decisión al 2026-11-13 | Abierto |
-| R-05 | La rotación de la clave de servicio rompe la sincronización o el CI | 2 | 4 | 8 | Medio | Mitigar | Rotación en ventana acordada, prueba en CI y procedimiento de reversión | Líder | `/health` falla tras la rotación | Abierto |
+| R-05 | La rotación de la clave de servicio rompe la sincronización o el CI | 2 | 4 | 8 | Medio | Mitigar | Rotación en ventana acordada, prueba en CI y procedimiento de reversión | Líder | `/health` falla tras la rotación | Cerrado (2026-10-24): clave rotada y la nueva comprobada como válida; la API local la toma al reiniciarse |
 | R-06 | Resistencia del personal o capacitación insuficiente → baja adopción en la campaña | 3 | 4 | 12 | Alto | Mitigar | Manual de una página por rol, práctica guiada, registro rápido y acompañamiento en enero | Product Owner | Menos de 50 % de matrículas en la plataforma en la segunda semana de enero | Abierto |
 | R-07 | Pedidos nuevos durante los sprints → crecimiento del alcance | 3 | 3 | 9 | Medio | Mitigar | Control de cambios (3.2); los pedidos van al backlog | Product Owner | Más de 8 h de cambios no planificados en un sprint | Abierto |
 | R-08 | Falsos positivos del antivirus → scripts SQL en cuarentena → retraso de migraciones | 3 | 2 | 6 | Medio | Mitigar | Ejecutar desde Git Bash y excepción para `server/src/db` | Equipo | Archivo en cuarentena | Abierto |
@@ -316,7 +317,7 @@ Escala de 1 a 5; nivel por P × I: Bajo 1–4, Medio 5–9, Alto 10–14, Críti
 | Medio | Respuesta planificada y vigilancia del disparador | Quincenal |
 | Bajo | Aceptación y monitoreo | Mensual |
 
-**Métrica de seguimiento:** exposición total (suma de P × I de los riesgos abiertos) = **117** al 2026-10-24; meta al cierre ≤ 40. Se recalcula en cada revisión de sprint y se informa junto con el valor ganado.
+**Métrica de seguimiento:** exposición total (suma de P × I de los riesgos abiertos) = **89** al 2026-10-24 (era 117 antes de cerrar ese día R-01 y R-05); meta al cierre ≤ 40. Se recalcula en cada revisión de sprint y se informa junto con el valor ganado.
 
 ## 3.6 Gestión ágil
 
@@ -340,7 +341,7 @@ El backlog del producto (PB-01 a PB-12, con prioridad y estado) está en el [E4 
 
 | Sprint | Fechas | Objetivo | Ítems | Capacidad | Incremento esperado |
 |---|---|---|---|---|---|
-| Sprint 1 | 2026-10-24 a 2026-11-06 | Que ningún defecto crítico llegue a producción sin ser detectado | PB-01, PB-02, PB-03 y PB-07 (hechos); PB-04, PB-05 y PB-06 | 9 de 11 tareas hechas ([E4 de Software, 3.4](../e4-calidad-operacion-ce024.md#34-sprint-backlog-sprint-1-calidad-y-seguridad)) | Reglas corregidas publicadas y CI en verde |
+| Sprint 1 | 2026-10-24 a 2026-11-06 | Que ningún defecto crítico llegue a producción sin ser detectado | PB-01 a PB-07 (hechos) | 12 de 13 tareas hechas ([E4 de Software, 3.4](../e4-calidad-operacion-ce024.md#34-sprint-backlog-sprint-1-calidad-y-seguridad)) | Reglas corregidas publicadas y CI en verde |
 | Sprint 2 | 2026-11-09 a 2026-11-20 | Operación continua y observable | PB-13, PB-08, PB-10, PB-09 (parte) y PB-14 | 40 h | Capa relacional continua, monitor con alertas, carga diferida y línea base medida |
 | Sprint 3 | 2026-11-23 a 2026-12-04 | Lista para la campaña 2027 | PB-11, PB-12, PB-09 (resto), PB-16, PB-17 y PB-15 (manuales) | ≈ 42 h | Respaldo de Firestore, pruebas de componentes, privacidad, oferta 2027 y manuales |
 | Transición | 2026-12-07 a 2026-12-18 | Personal capacitado | PB-15 (sesiones) y C.3 a C.5 | 14 h del equipo y 23 h de CERMAT (la transferencia continúa 8 h en enero) | Personal capacitado y responsable técnico autónomo |
@@ -351,12 +352,12 @@ El backlog del producto (PB-01 a PB-12, con prioridad y estado) está en el [E4 
 
 | Métrica | Fórmula | Valor al 2026-10-24 | Meta |
 |---|---|---|---|
-| Avance del sprint | Tareas hechas ÷ tareas del sprint | 9 de 11 (82 %) en el Sprint 1 | 100 % al cierre de cada sprint |
+| Avance del sprint | Tareas hechas ÷ tareas del sprint | 12 de 13 (92 %) en el Sprint 1 | 100 % al cierre de cada sprint |
 | Velocidad | Horas de ítems terminados por sprint | Sin registro (empieza en el Sprint 2) | Estable ±15 % |
 | Desvío de estimación | Horas reales ÷ horas estimadas por ítem | Sin registro | Entre 0,85 y 1,15 |
 | Defectos escapados a producción | Defectos encontrados en producción por sprint | 3 críticos heredados de junio | 0 |
 | Pruebas automáticas | Total en CI | 90 | En aumento cada sprint |
-| Exposición de riesgo | Suma de P × I abiertos | 117 | ≤ 40 al cierre |
+| Exposición de riesgo | Suma de P × I abiertos | 89 (117 antes de cerrar R-01 y R-05 el 2026-10-24) | ≤ 40 al cierre |
 
 Las ceremonias (planificación, seguimiento diario asíncrono, revisión con la Dirección y retrospectiva) y la retrospectiva del Sprint 1 están en el [E4 de Software, 3.5](../e4-calidad-operacion-ce024.md#35-ceremonias-y-metricas-de-avance).
 

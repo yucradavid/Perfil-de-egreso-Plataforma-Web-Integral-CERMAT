@@ -28,7 +28,7 @@
 | Informe de implementación, gestión y control de centro de datos | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
 | Evidencias técnicas de configuración | Configuraciones sanitizadas y salidas de comandos | Secciones 3, 4, 5 y 7 | Incluye nube (VPC/EC2/SG/NACL/IAM equivalentes) e hipervisor (vSwitch/VLAN/VM equivalentes) | Parcial: nube con evidencia; hipervisor con procedimiento pendiente |
 | Registro de prueba de recuperación | XLSX y sección 7.7 | [s2-e3-registro-prueba-recuperacion.xlsx](../assets/infraestructura/s2-e3-registro-prueba-recuperacion.xlsx) | Al menos un ejercicio de recuperación completo, documentado | **Cumplido**: 4 ejercicios ejecutados (REC-01 a REC-04); 8 pendientes |
-| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: scripts versionados; carpeta `infra/` por crear; secretos en el historial (NC-03) |
+| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: scripts versionados; carpeta `infra/` por crear; secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
 
 ## 1. Resumen ejecutivo de la implementación del centro de datos
 
@@ -36,7 +36,7 @@
 |---|---|---|
 | Nube IaaS: VPS (equivalente a EC2) con UFW (equivalente a Security Group), Nginx, TLS y PostgreSQL local | **Implementado** | Manual del propietario (2026-10-17); verificaciones PR-01 a PR-09 |
 | Nube PaaS: Vercel y Firebase | **Implementado** | PR-13; 22 colecciones con reglas; último despliegue del frontend el 2026-10-15 |
-| Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04: RTO de 0,27–0,38 s en una base de prueba |
+| Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04 en una base de prueba (RTO de 0,27–0,38 s) y REC-05 en la base real (RTO de 0,23 s); falta programar el respaldo diario |
 | Identidades de mínimo privilegio en las bases | **Implementado** | 4 roles MySQL (error 1142 ante DML directo); usuario PostgreSQL sin superusuario |
 | Host Proxmox, bridges con VLAN, bond y VM | Pendiente de ejecución | Procedimiento en la sección 3 |
 | Red interna del VPS, strongSwan y NACL | Pendiente de ejecución | Sección 4.4 y S2-E2 §3 |
@@ -52,7 +52,7 @@ La capa local de la academia sigue en una PC con PM2 (CD-36) hasta que exista VM
 | CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; se propone un laboratorio (fase 1b) para ensayar el procedimiento |
 | CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Sin cambios |
 | CD-28 (strongSwan y `dum0`) | Pendiente | Requiere OPNsense en la sede |
-| CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas y sin publicar (NC-01) |
+| CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas publicadas y frontend con cabeceras de seguridad, verificados el 2026-10-24 (NC-01 cerrada) |
 | CD-33 (GitHub y CI) | Implementado en código | La primera ejecución en GitHub está pendiente |
 | CD-34 (DNS) | Implementado | Se agregan CAA, SPF y DMARC (PR-12) |
 | CD-35 (túnel) | Pendiente | Requiere OPNsense |
@@ -201,7 +201,7 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 |---|---|---|
 | Vercel (SPA) | En producción; último despliegue el 2026-10-15; redirección 308 a HTTPS y HSTS con preload | PR-13; panel de Vercel |
 | Firebase Authentication | En producción; administradores por claim; invitaciones de un solo uso | `firestore.rules`; 8 perfiles |
-| Cloud Firestore | 22 colecciones con reglas por rol; versión corregida probada 19/19 y sin publicar | `tests/firestore-rules/reglas.test.ts` |
+| Cloud Firestore | 22 colecciones con reglas por rol; versión corregida probada 19/19 y publicada el 2026-10-24 | `tests/firestore-rules/reglas.test.ts`; verificación sin sesión en producción ([E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 | Firebase Storage | En producción | Consola de Firebase |
 
 ### 4.4 Pendiente en la nube
@@ -263,11 +263,11 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | VPS | SSH solo con llaves y sin root | Por verificar | `sshd -T` (S2-E2 §4.3) |
 | VPS | Secretos de Laravel en `.env` con permisos 640 | Implementado | Manual |
 | PostgreSQL | Usuario de aplicación propietario de su base, sin superusuario | Implementado | Manual (`\du`) |
-| MySQL | 4 roles de mínimo privilegio; `cermat_api` sin DML directo | Implementado en la base de prueba; pendiente en la base real | `server/src/db/04_seguridad.sql`; error 1142 |
+| MySQL | 4 roles de mínimo privilegio; `cermat_api` sin DML directo | Implementado en la base de prueba y en la base real (2026-10-24): cuentas `cermat_api`, `cermat_analitica` y `cermat_respaldo`, con contraseñas solo en `.env.local` no versionados | `server/src/db/04_seguridad.sql`; error 1142 verificado en la base real |
 | MySQL | Contraseñas solo en variables de entorno, con un mínimo de 12 caracteres | Implementado en los scripts | `server/scripts/db-crear-usuarios.js` |
-| Firebase | Claim de administrador; roles solo con invitación vigente | Implementado en código; reglas sin publicar | `firestore.rules` y 8 pruebas de roles |
+| Firebase | Claim de administrador; roles solo con invitación vigente | Implementado y publicado (2026-10-24) | `firestore.rules` y 8 pruebas de roles |
 | Google Cloud | Cuenta de servicio del CI con rol mínimo (*Firebase Rules Admin*), en el entorno protegido `produccion` | Definido en el CI; configuración del secreto por confirmar | `.github/workflows/ci.yml` |
-| Google Cloud | Rotación de la clave expuesta en copias ZIP | **Pendiente** | NC-03 |
+| Google Cloud | Rotación de la clave expuesta en copias ZIP | Hecho (2026-10-24): clave `283b43c3…` eliminada y reemplazada por `ddf50bfe…` | NC-03 |
 | Proveedores | MFA en Google, GitHub, Vercel, RackNerd y Punto.pe | No verificado | NC-07 |
 | Proxmox, OPNsense y Wazuh | Usuarios nominativos con TOTP; root solo por consola | Planificado | Sección 3 |
 | VPN | Certificados X.509 propios; llaves privadas fuera de Git | Planificado | S2-E2 §3 |
@@ -293,10 +293,10 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | ACT-03 | Registros de asistencia (attendanceLogs, attendanceDayState, parentAttendance; tabla asistencia) | Dirección de la academia | Firestore y MySQL | Alta | Operativo | 7 registros (conteo agregado); sp_registrar_asistencia idempotente |
 | ACT-04 | Contenido público (ciclos, sedes, posts, recursos y talleres) | Dirección de la academia | Firestore y Storage | Media | Operativo | Sitio público en Vercel (200 OK, 2026-10-24) |
 | ACT-05 | Configuración de servicios (config/services) | Líder técnico | Firestore | Alta | Operativo | src/lib/syncService.ts lee config/services |
-| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (versión corregida sin publicar) | firestore.rules y 19 pruebas; ruleset publicado el 22-jun-2026 |
+| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (publicada 2026-10-24) | firestore.rules y 19 pruebas; versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026) |
 | ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos); 90 pruebas |
-| ACT-08 | Secretos y credenciales (cuenta de servicio, contraseñas de BD, llaves SSH, credenciales de VPN) | Líder técnico | Gestor de contraseñas y servidores | Alta | Operativo (con hallazgo NC-03) | db-crear-usuarios.js lee contraseñas del entorno; hallazgo H-03 |
-| ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | PC local, VPS, PBS y disco externo | Crítica | Parcial (solo MySQL) | backup.js y restore.js; REC-01 y REC-02 |
+| ACT-08 | Secretos y credenciales (cuenta de servicio, contraseñas de BD, llaves SSH, credenciales de VPN) | Líder técnico | Gestor de contraseñas y servidores | Alta | Operativo (clave rotada 2026-10-24) | db-crear-usuarios.js lee contraseñas del entorno; clave de servicio rotada (H-03 corregido) |
+| ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | PC local, VPS, PBS y disco externo | Crítica | Parcial (solo MySQL) | backup.js y restore.js; REC-01, REC-02 y REC-05 (base real) |
 | ACT-10 | Datos del sistema del colegio (PostgreSQL cermat_produccion) | Dirección del colegio | VPS (New York) | Crítica | Operativo | Manual del VPS (2026-10-17): 116 migraciones, base solo en loopback |
 | ACT-11 | Registros de eventos (API, Nginx, autenticación, firewall, IDS y SIEM) | Responsable de seguridad | VPS, PC local y VM-SIEM01 | Alta | Parcial (sin centralizar) | morgan en server/src/index.ts; registros de Nginx en el VPS |
 | ACT-12 | Documentación técnica y del SGSI | Líder técnico | Repositorio público de documentación | Baja | Operativo | Este sitio de documentación |
@@ -322,7 +322,7 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | ACT-32 | Personal clave (administrador del sistema, encargado de TI y equipo técnico) | Dirección | Sede y trabajo remoto | Alta | Operativo | Matriz RACI (S2-E1 §4.2) |
 | ACT-33 | Cuarto de equipos, rack y UPS | Dirección de la academia | Sede principal, Azángaro | Media | Planificado | Diseño de rack (S1-E2 §5) |
 
-Estado del inventario: 15 activos operativos sin observaciones, 3 transitorios (PC local, API y MySQL locales), 9 planificados (infraestructura de la sede) y 6 operativos con observaciones (reglas sin publicar, secretos, respaldos y registros parciales, MFA no verificado y equipos por inventariar).
+Estado del inventario: 17 activos operativos sin observaciones, 3 transitorios (PC local, API y MySQL locales), 9 planificados (infraestructura de la sede) y 4 operativos con observaciones (respaldos y registros parciales, MFA no verificado y equipos por inventariar). Las reglas de Firestore (ACT-06) y los secretos (ACT-08) dejaron de tener observaciones el 2026-10-24.
 
 ## 7. Continuidad: respaldo, restauración y recuperación
 
@@ -341,7 +341,15 @@ Registro real de las dos ejecuciones del 2026-10-24, en una instancia MySQL 8.0.
 {"fecha":"2026-10-24T07:47:35.344Z","respaldo":"cermat_db_2026-10-24T07-47-34.sql","integridad":"sha256 verificado","destino":"cermat_db_verificacion","rto_segundos":0.27,"filas":{"alertas":0,"alumnos":1,"asistencia":2,"auditoria":1,"ciclos":1,"matriculas":3,"pagos":3,"schema_migraciones":3},"rutinas":9,"triggers":6,"vistas":3,"objetos_completos":true}
 ```
 
-El origen cambió entre las dos ejecuciones porque se ajustaron las migraciones (de ahí la diferencia en rutinas y filas); en ambas, la base restaurada coincidió con su origen. También se verificó que la restauración rechaza un archivo alterado y que no escribe sobre la base productiva sin confirmación (REC-03 y REC-04). **Limitación:** son bases de prueba con pocas filas; el RTO de la base real se medirá en REC-05.
+El origen cambió entre las dos ejecuciones porque se ajustaron las migraciones (de ahí la diferencia en rutinas y filas); en ambas, la base restaurada coincidió con su origen. También se verificó que la restauración rechaza un archivo alterado y que no escribe sobre la base productiva sin confirmación (REC-03 y REC-04). **Limitación:** son bases de prueba con pocas filas.
+
+**REC-05, base real (2026-10-24, 16:35 en Perú):** después de aplicar las migraciones en `cermat_db`, `backup.js` generó el respaldo con la cuenta de solo lectura `cermat_respaldo` y `restore.js` lo restauró en `cermat_db_verificacion`. Registro de la ejecución (solo conteos):
+
+```json
+{"fecha":"2026-10-24T21:35:08.790Z","respaldo":"cermat_db_2026-10-24T21-35-08.sql","integridad":"sha256 verificado","destino":"cermat_db_verificacion","rto_segundos":0.23,"filas":{"alertas":0,"alumnos":0,"asistencia":0,"auditoria":0,"ciclos":0,"matriculas":1,"pagos":1,"schema_migraciones":3},"rutinas":9,"triggers":6,"vistas":3,"objetos_completos":true}
+```
+
+La base real tiene hoy muy pocas filas porque la réplica solo recibe eventos cuando la capa local está encendida. Por eso el RTO de 0,23 s mide sobre todo la estructura y debe volver a medirse cuando la réplica tenga volumen.
 
 ### 7.3 Recuperación de una VM (REC-07)
 
@@ -407,7 +415,7 @@ sudo -u postgres dropdb cermat_verificacion
 | REC-02 | 2026-10-24 02:47 (UTC−5) | Igual que REC-01, tras las migraciones finales | MySQL 8.0.30 de prueba | node scripts/backup.js y node scripts/restore.js | < 1 h | ≤ 24 h | 0,27 s | SHA-256 verificado. Asistencia 2 filas; 9 rutinas, 6 triggers y 3 vistas; objetos completos | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-24T07-47-34.sql) |
 | REC-03 | 2026-10-24 | Respaldo alterado (prueba negativa) | restore.js | Modificar el .sql y ejecutar restore.js | Rechazo | — | — | Mensaje: no coincide con su .sha256 | Rechazado correctamente | Ejecutado | E2 §4.3 |
 | REC-04 | 2026-10-24 | Restauración accidental sobre producción (prueba negativa) | restore.js | --destino cermat_db sin --confirmar-produccion | Rechazo | — | — | Se niega a restaurar sobre la base productiva | Rechazado correctamente | Ejecutado | E2 §4.3 |
-| REC-05 | Pendiente | Restauración con la base real del equipo | MySQL (PC local) | restore.js hacia cermat_db_verificacion | < 1 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: salida de consola y línea del registro |
+| REC-05 | 2026-10-24 16:35 (UTC−5) | Restauración con la base real del equipo | MySQL 8.0.30 (PC local, `cermat_db`) | node scripts/backup.js (cuenta `cermat_respaldo`) y node scripts/restore.js hacia cermat_db_verificacion | < 1 h | ≤ 24 h | 0,23 s | SHA-256 verificado. Filas: matrículas 1, pagos 1, schema_migraciones 3, resto 0. 9 rutinas, 6 triggers y 3 vistas; objetos completos | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-24T21-35-08.sql); captura de consola por adjuntar |
 | REC-06 | Pendiente | Pérdida de la base del colegio | PostgreSQL 16 (VPS) | pg_dump -Fc y sha256sum; pg_restore --list; restaurar en base de verificación; comparar conteos (116 migraciones) | 2 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: salida de pg_restore y conteos |
 | REC-07 | Pendiente | Pérdida de una VM | VM-APP01 en Proxmox | Restaurar desde PBS con un ID nuevo y red aislada; verificar /health | 2 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: registro de la tarea de PBS |
 | REC-08 | Pendiente | Pérdida total del VPS (recurso de nube) | VPS | Reconstruir en una VM de prueba con el manual y el último respaldo; validar web y API | 8 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: bitácora con tiempos por paso |
@@ -420,8 +428,8 @@ sudo -u postgres dropdb cermat_verificacion
 
 | Servicio | RTO objetivo | RTO obtenido | RPO objetivo | RPO evidenciado | Conclusión |
 |---|---|---|---|---|---|
-| MySQL (base de prueba) | < 1 h | 0,38 s (REC-01) y 0,27 s (REC-02) | ≤ 24 h | Respaldo bajo demanda; programación diaria por verificar | Cumple en la base de prueba; falta medir con la base real |
-| MySQL (base real) | < 1 h | Pendiente (REC-05) | ≤ 24 h | Pendiente | — |
+| MySQL (base de prueba) | < 1 h | 0,38 s (REC-01) y 0,27 s (REC-02) | ≤ 24 h | Respaldo bajo demanda | Cumple en la base de prueba |
+| MySQL (base real) | < 1 h | 0,23 s (REC-05) | ≤ 24 h | Respaldo bajo demanda; el respaldo diario falta programarlo, así que hoy el RPO no está acotado | RTO cumple; RPO pendiente de programar |
 | PostgreSQL del colegio | 2 h | Pendiente (REC-06) | ≤ 24 h | Sin respaldos implantados: hoy el RPO no está acotado | **No cumple** (NC-04) |
 | VM en PBS | 2 h | Pendiente (REC-07) | ≤ 24 h | Pendiente | — |
 | VPS completo | 8 h | Pendiente (REC-08) | ≤ 24 h | Pendiente | — |
@@ -506,11 +514,12 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 
 | Fecha | Cambio | Componente | Evidencia |
 |---|---|---|---|
-| 2026-06-22 | Última publicación de las reglas de Firestore (versión que sigue en producción) | Firestore | Ruleset identificado por id y fecha (E4 §1.6) |
+| 2026-06-22 | Publicación de las reglas de Firestore que estuvieron en producción hasta el 2026-10-24 | Firestore | Ruleset identificado por id y fecha (E4 §1.6) |
 | 2026-06-22 | Respaldo de MySQL `cermat_db_2026-06-22T16-29-01.sql` | MySQL (PC local) | Carpeta `backups/` del repositorio |
-| 2026-10-15 | Último despliegue del frontend | Vercel | Historial de despliegues |
+| 2026-10-15 | Frontend que estuvo en producción hasta el 2026-10-24 (fecha de su cabecera Last-Modified) | Vercel | Historial de despliegues |
 | 2026-10-17 | Despliegue del sistema del colegio: Nginx, TLS, UFW y PostgreSQL | VPS | Manual del propietario |
-| 2026-10-24 | Migraciones MySQL 02 a 04, scripts de respaldo y restauración, CI y corrección de reglas (sin publicar) | Repositorio de la aplicación | Commit `05fbe9e` |
+| 2026-10-24 | Migraciones MySQL 02 a 04, scripts de respaldo y restauración, CI y corrección de reglas (publicada el mismo día, ver la fila siguiente) | Repositorio de la aplicación | Commit `05fbe9e` |
+| 2026-10-24 | Frontend publicado (commit `c06f5a2`) con cabeceras de seguridad, tras dos despliegues bloqueados en Vercel; reglas de Firestore publicadas; clave de servicio rotada; `www.cermatschool.edu.pe` retirado del proyecto de Vercel | Vercel, Firebase y Google Cloud | [E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24) |
 | 2026-10-24 | Reestructuración de la documentación de infraestructura, matrices y diagramas | Repositorio de documentación | Este conjunto de documentos |
 
 ### 10.3 PRO-02 · Procedimiento de gestión de cambios
@@ -529,9 +538,10 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 - Un solo autor en el historial y mensajes de commit genéricos ("mejoras").
 - Sin revisiones registradas en la plantilla de PR.
 - El CI aún no se ejecutó en GitHub.
-- Secretos en el historial.
+- Secretos en el historial: revocados el 2026-10-24; los `.env`, sin contraseñas, siguen versionados por decisión del equipo.
+- Dos despliegues bloqueados en Vercel que el push no mostraba; se resolvió el 2026-10-24 y desde entonces se verifica la versión en producción tras cada cambio.
 
-Se tratan como NC-02, NC-03 y NC-08 del SGSI.
+Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SGSI.
 
 ## 11. Resultados, conclusiones, limitaciones, mejoras futuras y referencias
 
@@ -541,21 +551,21 @@ Se tratan como NC-02, NC-03 y NC-08 del SGSI.
 |---|---|
 | Componentes del CD en el diseño | 36 (los de nube, operativos; los de la sede, pendientes) |
 | Activos en el inventario final con evidencia | 33 |
-| Ejercicios de recuperación ejecutados / pendientes | 4 / 8 |
-| RTO medido de MySQL (base de prueba) | 0,27–0,38 s (objetivo < 1 h) |
+| Ejercicios de recuperación ejecutados / pendientes | 5 / 7 |
+| RTO medido de MySQL | 0,23 s en la base real (REC-05) y 0,27–0,38 s en la base de prueba (objetivo < 1 h) |
 | Servicios con RPO actualmente no acotado | 2 (PostgreSQL del colegio y Firestore) |
 
 ### 11.2 Conclusiones
 
 1. La nube del diseño está operativa y con evidencia: el VPS equivale a EC2 con Security Group, TLS y la base no expuesta, y la plataforma PaaS funciona con HTTPS y HSTS.
-2. La recuperación está demostrada para la base relacional con verificación de integridad y RTO medido. Es el ejercicio completo que exige la guía, con la limitación de haberse hecho sobre una base de prueba.
+2. La recuperación está demostrada para la base relacional con verificación de integridad y RTO medido, primero en una base de prueba y después en la base real (REC-05). Es el ejercicio completo que exige la guía; falta programar el respaldo diario para acotar el RPO.
 3. Las dos mayores brechas de continuidad son reales y prioritarias: el colegio y Firestore no tienen respaldo implantado, así que su RPO no está acotado.
 4. El entorno on-premise tiene un procedimiento reproducible (red, VM, PBS y migración), listo para ejecutarse en cuanto exista el hardware.
 
 ### 11.3 Limitaciones
 
 - Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN.
-- Los RTO medidos corresponden a una base de prueba.
+- La base real tiene hoy muy pocas filas, así que su RTO (0,23 s) debe volver a medirse cuando la réplica tenga volumen.
 - Parte de la evidencia del VPS proviene del manual del propietario y faltan las capturas.
 
 ### 11.4 Mejoras futuras

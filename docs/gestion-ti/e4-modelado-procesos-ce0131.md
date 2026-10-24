@@ -316,7 +316,7 @@ flowchart TB
 | Trazabilidad de la aprobación | No sistemática | 100 %: autor y fecha en cada matrícula | Campos `approvedBy` y `approvedAt` |
 | Conciliación de pagos | Manual | Automática; meta de 0 filas en la vista | Pruebas de BD de conciliación |
 | Confirmación al padre | Verbal | 100 % de las pagadas con enlace de activación y código de padres | Indicador IP-03 |
-| Protección de datos | Papel sin control de acceso | Acceso por rol verificado con 19 pruebas (pendiente de publicar) | [E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales) |
+| Protección de datos | Papel sin control de acceso | Acceso por rol verificado con 19 pruebas y publicado en producción el 2026-10-24 | [E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales) |
 
 ### 4.3.4 Plan de medición
 

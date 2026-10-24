@@ -18,7 +18,7 @@
 
 La solución es la **Plataforma Web Integral CERMAT**: una SPA en Vercel con Firebase como capa operativa y una capa relacional (API, MySQL y analítica) para réplica, auditoría y reportes. Hoy convive, sin integración, con el **sistema de gestión del colegio** (Angular, Laravel y PostgreSQL en un VPS) y con herramientas informales. La propuesta tiene tres ejes:
 
-1. **Estabilizar y adoptar** (2026–2027): publicar las reglas corregidas, dar servicio continuo a la capa relacional, respaldar Firestore, monitorear y medir.
+1. **Estabilizar y adoptar** (2026–2027): publicar las reglas corregidas (hecho el 2026-10-24), dar servicio continuo a la capa relacional, respaldar Firestore, monitorear y medir.
 2. **Integrar por niveles** (2027–2028): enlace desde el sitio del colegio, que es la decisión vigente de la institución (N0), y un subdominio institucional solo si la Dirección lo aprueba (N1), intercambio de datos por API REST/JSON con la API Laravel del colegio (N2), identidad compartida para el personal con la cuenta institucional de Google (N3) y notificaciones desde el dominio institucional (N4).
 3. **Gobernar y sostener**: accesos por rol, cumplimiento de la Ley N.° 29733, corrección de hallazgos reales (reglas, cabeceras, DNS), costos de S/ 2 438 al año coherentes con el [E2](e2-business-case-ce0113.md) y 22 indicadores de uso, valor y mejora con línea base real.
 
@@ -75,7 +75,7 @@ flowchart LR
 |---|---|---|---|---|
 | SPA multi-portal | React 18, TypeScript, Vite, TanStack Query, Tailwind | Sitio público y portales admin, docente, alumno, auxiliar y consulta de padres | Vercel (plan Hobby; plan comercial presupuestado) | Implementado |
 | Identidad | Firebase Authentication con claims de administrador | Sesión y rol | Google Cloud | Implementado |
-| Datos operativos | Cloud Firestore, 22 colecciones | Fuente de verdad de la operación | Google Cloud | Implementado; reglas corregidas sin publicar |
+| Datos operativos | Cloud Firestore, 22 colecciones | Fuente de verdad de la operación | Google Cloud | Implementado; reglas corregidas publicadas el 2026-10-24 |
 | Archivos | Firebase Storage | Imágenes y recursos | Google Cloud | Implementado |
 | API de sincronización | Node.js/Express con helmet, CORS por lista y morgan | Recibe eventos y escribe en MySQL solo por procedimientos | PC con PM2 (transitorio) → VM-APP01 o VPS puente | Implementado; servicio continuo propuesto (PB-13) |
 | Base relacional | MySQL 8 con 3 FK, 7 CHECK, 6 triggers, 4 funciones, 5 procedimientos, 3 vistas y 4 roles | Réplica auditable, conciliación y reportes | Ídem | Implementado ([E2 de Software](../e2-base-datos-ce022.md)) |
@@ -129,7 +129,7 @@ flowchart TB
 
 | Proceso | SI-01 Plataforma | SI-02 Capa local | SI-03 Colegio | SI-04 Correo | SI-05 Informales |
 |---|---|---|---|---|---|
-| Captación y admisión | ◐ sitio y pre-matrícula (bloqueada en producción) | — | — | — | ● llamadas y WhatsApp |
+| Captación y admisión | ◐ sitio y pre-matrícula (operativa desde el 2026-10-24) | — | — | — | ● llamadas y WhatsApp |
 | Matrícula | ◐ 8 matrículas | ◐ réplica | — | — | ● cuaderno y hojas |
 | Cobranza | ◐ 2 pagos | ◐ estado de cuenta | — | — | ● caja manual |
 | Asistencia | ◐ 7 marcas (ene–abr) | ◐ riesgo | — | — | ● listas |
@@ -205,7 +205,7 @@ Contrato de ejemplo (fragmento; la versión completa se publicará como OpenAPI 
 | Alumno | Invitación de activación tras la matrícula pagada (hash SHA-256, 7 días) | Sus cursos, recursos, matrícula y asistencia | Reglas por titularidad | 3 pruebas de tokens |
 | Padre | Código CERMAT, sin cuenta | Lectura de la asistencia resumida de su hijo | Colección `parentAttendance` de solo lectura por código | 4 pruebas del código |
 | Visitante | Sin sesión | Oferta pública y pre-matrícula con reglas de cupo | Reglas de matrícula pública | 6 pruebas |
-| Servicio (API) | Cuenta MySQL `cermat_api`; clave de servicio de Firebase | Solo ejecutar procedimientos; verificar tokens | Mínimo privilegio en MySQL; rotación de la clave pendiente (PB-06) | 19 pruebas de BD |
+| Servicio (API) | Cuenta MySQL `cermat_api`; clave de servicio de Firebase | Solo ejecutar procedimientos; verificar tokens | Mínimo privilegio en MySQL; clave rotada el 2026-10-24 (PB-06) | 19 pruebas de BD |
 | Servidor del colegio | Usuario Linux no root con sudo; usuario de BD sin superusuario | Administración del VPS | UFW (22, 80 y 443), PostgreSQL solo en loopback | Manual del propietario |
 
 **Ciclo de vida de accesos:** alta solo por invitación o claim; baja al cerrar el ciclo o al cesar el personal; revisión trimestral de los claims de administrador; evaluar MFA para cuentas de administrador en Firebase.
@@ -217,7 +217,7 @@ Contrato de ejemplo (fragmento; la versión completa se publicará como OpenAPI 
 | Consentimiento de padres o tutores para datos de menores | Sin aviso de consentimiento en los formularios (búsqueda en `src/` sin resultados) | Aviso y casilla en la pre-matrícula y el registro rápido, con versión aceptada registrada (PB-16) | Dirección y equipo |
 | Información de la finalidad (política de privacidad) | No publicada | Publicar finalidad, plazo de conservación, derechos y canal de atención | Dirección |
 | Inscripción de los bancos de datos | No realizada | Inscribir los bancos "alumnos y apoderados" y "pagos" en el Registro Nacional de Protección de Datos Personales | Dirección |
-| Medidas de seguridad | Parciales: reglas probadas pero no publicadas, roles de BD, TLS | Publicar reglas, respaldo, monitoreo y cabeceras (sección siguiente) | Equipo técnico |
+| Medidas de seguridad | Parciales: reglas probadas y publicadas (2026-10-24), cabeceras de la SPA, roles de BD, TLS | Respaldo, monitoreo y cabeceras del sitio del colegio (sección siguiente) | Equipo técnico |
 | Transferencia internacional | Datos en Firebase, Vercel y VPS en EE. UU., sin informar | Declararla en la política y en el consentimiento | Dirección |
 | Derechos de acceso, rectificación, cancelación y oposición | Sin procedimiento | Canal y plazo de respuesta | Dirección |
 | Conservación y minimización | Sin regla | Eliminar pre-matrículas no concretadas al cierre de cada ciclo; conservar matrículas y pagos durante el plazo contable | Dirección |
@@ -228,10 +228,10 @@ El análisis de riesgos, la declaración de aplicabilidad y los procedimientos d
 
 | Hallazgo (fecha de verificación) | Riesgo | Corrección | Estado |
 |---|---|---|---|
-| Reglas publicadas el 22-jun-2026: cualquier cuenta se asigna rol de auxiliar o docente, cualquiera lista matrículas pagadas sin sesión y la matrícula pública está bloqueada; 10 de 19 pruebas fallan (2026-10-24) | Escalamiento de privilegios, exposición de datos de menores y pérdida del canal en línea | Reglas corregidas (19 de 19 en el emulador) y publicación solo vía CI tras las pruebas | Corregido en código; **publicación pendiente** (decisión del equipo, hito H2) |
-| Causa raíz: la línea 1 de `firestore.rules` (`#`) impedía compilar y cada despliegue fallaba sin aviso | Versiones probadas que nunca llegan a producción | Comentario válido y trabajo de CI `desplegar-reglas` condicionado | Corregido en código |
-| Secretos (ZIP y `.env`) en el historial del repositorio | Exposición de credenciales | Retirar del historial y rotar la clave de servicio (PB-06) | Pendiente |
-| La SPA de la academia solo envía HSTS (2026-10-24) | Clickjacking y otros ataques de navegador | `vercel.json` ya define `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors` limitado al colegio (cambio local); falta publicarlo y añadir una política de contenido completa | Preparado, sin publicar |
+| Reglas publicadas el 22-jun-2026: cualquier cuenta se asigna rol de auxiliar o docente, cualquiera lista matrículas pagadas sin sesión y la matrícula pública está bloqueada; 10 de 19 pruebas fallan (2026-10-24) | Escalamiento de privilegios, exposición de datos de menores y pérdida del canal en línea | Reglas corregidas (19 de 19 en el emulador) y publicación solo vía CI tras las pruebas | **Corregido en producción (2026-10-24):** publicado desde la consola; listar matrículas pagadas sin sesión → 403 y pre-matrícula de prueba exitosa (hito H2 cumplido) |
+| Causa raíz: la línea 1 de `firestore.rules` (`#`) impedía compilar y cada despliegue fallaba sin aviso | Versiones probadas que nunca llegan a producción | Comentario válido y trabajo de CI `desplegar-reglas` condicionado | Corregido y publicado (2026-10-24); falta el secreto del CI |
+| Secretos (ZIP y `.env`) en el historial del repositorio | Exposición de credenciales | Retirar del historial y rotar la clave de servicio (PB-06) | **Tratado (2026-10-24):** clave revocada y reemplazada; contraseñas de `teachers.json` restablecidas; los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
+| La SPA de la academia solo envía HSTS (2026-10-24) | Clickjacking y otros ataques de navegador | `vercel.json` con `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors` limitado al colegio; falta añadir una política de contenido completa | **Publicado y verificado (2026-10-24)** |
 | El sitio del colegio no envía cabeceras de seguridad y muestra la versión de nginx (2026-10-24) | Clickjacking, detección de tipos y reconocimiento de versión | `server_tokens off` y cabeceras equivalentes en Nginx | Pendiente (RM-04) |
 | El dominio no tiene CAA, SPF, DMARC ni DNSSEC (2026-10-24) | Suplantación del correo institucional y emisión de certificados no autorizada | SPF con el remitente de Google, DKIM, DMARC en modo de monitoreo y luego cuarentena, CAA para la autoridad de los certificados; DNSSEC si el registro lo permite | Pendiente (RM-04) |
 | API del colegio con CORS sin restringir, correo saliente en modo registro y respaldos sin implantar | Acceso entre orígenes y pérdida de datos | Restringir CORS antes de N2; respaldos con `pg_dump` y restauración probada ([S2-E3](../infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md)) | Pendiente |
@@ -334,7 +334,7 @@ Estimación de lecturas (supuesto a validar con la pestaña de uso de Firebase):
 | Mensual | Restauración de prueba, revisión de claims de administrador, tablero de indicadores y costos de proveedores |
 | Por ciclo | Configurar la oferta, cerrar el ciclo anterior y depurar pre-matrículas no concretadas |
 
-**Continuidad:** SPA RTO de 15 min promoviendo el despliegue anterior en Vercel; MySQL RTO de 1 h y RPO de 24 h (diseño CE03; restauración ya medida en 0,27–0,38 s en base de prueba); Firestore RPO ≤ 24 h cuando exista la exportación programada (PB-11).
+**Continuidad:** SPA RTO de 15 min promoviendo el despliegue anterior en Vercel; MySQL RTO de 1 h y RPO de 24 h (diseño CE03; restauración ya medida en 0,23 s en la base real y en 0,27–0,38 s en la base de prueba; el respaldo diario falta programarlo); Firestore RPO ≤ 24 h cuando exista la exportación programada (PB-11).
 
 ## 5.6 Indicadores de uso, valor y mejora (CE0145)
 
@@ -359,14 +359,14 @@ Línea base real: conteos agregados de Firestore al 2026-10-24, sin datos person
 | IV-06 | Morosidad | Saldo vencido ÷ ingreso del ciclo | Por medir; 2 pagos confirmados y 0 anulados en la plataforma | −0,5 puntos | `v_estado_cuenta` | Mensual |
 | IV-07 | VAN recalculado (vista A) | Libro del E2 con datos reales | S/ 1 247 (proyectado) | ≥ 0 | `business-case.xlsx` | 31-03-2027 y anual |
 | **Mejora** | | | | | | |
-| IM-01 | Seguridad de las reglas publicadas | Pruebas de reglas que pasan contra la versión publicada | 9 de 19 | 19 de 19 | CI y emulador | Cada publicación |
+| IM-01 | Seguridad de las reglas publicadas | Pruebas de reglas que pasan contra la versión publicada | 9 de 19 con las reglas de junio; tras publicar la versión corregida (2026-10-24), 0 fallas observadas en producción | 19 de 19 | CI y emulador | Cada publicación |
 | IM-02 | Cumplimiento de privacidad | Ítems cumplidos: política, consentimiento, inscripción, transferencia informada y procedimiento de derechos | 0 de 5 | 5 de 5 | Lista de verificación | Trimestral |
 | IM-03 | Disponibilidad | Minutos disponibles ÷ minutos del mes | No medida | ≥ 99 % | Monitor externo | Mensual |
-| IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL restaurado en 0,27–0,38 s (base de prueba); Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
+| IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL: base real restaurada en 0,23 s (REC-05, 2026-10-24) y base de prueba en 0,27–0,38 s; Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
 | IM-05 | Integridad de la réplica | Filas en `v_conciliacion_pagos` | Vista disponible; sincronización intermitente | 0 | MySQL | Semanal |
 | IM-06 | Integración con el colegio | Niveles de integración activos y procesos con datos compartidos | 0 | N0 y N1 activos en 2027; ≥ 2 procesos en 2028 | Inventario de integraciones | Semestral |
 | IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 90 pruebas; 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
-| IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA solo con HSTS; colegio sin cabeceras; 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
+| IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA con cabeceras publicadas el 2026-10-24 (antes solo HSTS); colegio sin cabeceras; 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
 
 **Ciclo de revisión:** el Product Owner prepara el tablero mensual con conteos agregados de Firestore y las vistas de MySQL (`v_estado_cuenta`, `v_asistencia_diaria`, `v_conciliacion_pagos`); la Dirección lo revisa en el comité mensual; cada trimestre se revisan costos y proveedores y cada año se recalcula el business case. Los indicadores de proceso IP-01 a IP-03 del [E4](e4-modelado-procesos-ce0131.md#nuevos-indicadores) complementan esta tabla.
 

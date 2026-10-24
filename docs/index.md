@@ -64,6 +64,7 @@ Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustent
 | Pruebas automáticas | 90 (34 unitarias, 18 de API, 19 de reglas de seguridad y 19 de base de datos) |
 | Integración continua | 6 trabajos en GitHub Actions |
 | Uso en piloto | 8 matrículas, 2 pagos, 7 marcas de asistencia y 8 usuarios con perfil |
+| Estado de producción | Frontend y reglas corregidas publicados el 2026-10-24 y verificados como visitante sin sesión ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 
 ## Arquitectura
 
@@ -95,11 +96,14 @@ flowchart LR
 | Pipeline de CI | `.github/workflows/ci.yml` |
 | Respaldo y restauración | `server/scripts/backup.js`, `server/scripts/restore.js` |
 
+!!! success "Cerrado en producción el 2026-10-24"
+    Frontend y reglas de Firestore corregidas publicados y verificados; pre-matrícula pública operativa; clave de servicio de Firebase rotada y contraseñas expuestas restablecidas. Base MySQL real migrada, con cuentas de mínimo privilegio y restauración probada en 0,23 s ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)).
+
 !!! warning "Pendientes que solo puede cerrar el equipo"
-    - Publicar el frontend y luego las reglas corregidas, en ese orden; después, probar una matrícula sin sesión en producción.
-    - Aplicar las migraciones MySQL en la base real y crear las cuentas de mínimo privilegio.
+    - Programar el respaldo diario de MySQL y el arranque automático de PM2 con Windows.
+    - Configurar el secreto `FIREBASE_SERVICE_ACCOUNT` en GitHub para que el CI publique las reglas.
     - Firmar las actas de validación con la academia y la declaración de ética de seguridad.
     - Ejecutar el laboratorio de infraestructura (Semestre 2) y adjuntar sus evidencias.
     - Validar con la Dirección los supuestos del business case.
-    - Rotar la clave de servicio de Firebase y dar acceso al jurado al repositorio.
+    - Dar acceso al jurado al repositorio.
     - Preparar la sustentación individual ([guía](e5-presentacion-sustentacion-ce0217.md)).

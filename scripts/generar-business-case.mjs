@@ -183,7 +183,7 @@ const PARAMS = [
   ['__grupo', 'Ingresos protegidos y adicionales'],
   ['precio', 'S23', 'Ingreso promedio por matrícula', 'S/', [400, 400, 400], FMT.soles, 'Supuesto; validar con el tarifario vigente de la academia.', 'Supuesto a validar'],
   ['margen', 'S24', 'Margen de contribución de una matrícula adicional', '%', [0.6, 0.6, 0.6], FMT.pct0, 'Docente y aula son costos fijos del grupo; el costo variable son materiales y atención.', 'Supuesto a validar'],
-  ['add', 'S25', 'Matrículas adicionales por ciclo captadas por el canal en línea', 'matrículas', [0, 2, 4], FMT.num1, 'Pre-matrícula 24/7 desde el sitio público (hoy bloqueada en producción por las reglas desactualizadas). Medir con el origen de cada matrícula.', 'Supuesto a validar'],
+  ['add', 'S25', 'Matrículas adicionales por ciclo captadas por el canal en línea', 'matrículas', [0, 2, 4], FMT.num1, 'Pre-matrícula 24/7 desde el sitio público (desbloqueada en producción el 2026-10-24 al publicar las reglas corregidas). Medir con el origen de cada matrícula.', 'Supuesto a validar'],
   ['ret', 'S26', 'Alumnos retenidos por ciclo gracias a las alertas de inasistencia', 'alumnos', [0, 1, 2], FMT.num1, 'Seguimiento con sp_riesgo_inasistencia y la analítica de riesgo.', 'Supuesto a validar'],
   ['frac', 'S27', 'Fracción del ingreso del ciclo que se conserva por alumno retenido', '%', [0.5, 0.5, 0.5], FMT.pct0, 'El abandono ocurre a mitad de ciclo en promedio (supuesto).', 'Supuesto a validar'],
   ['moro', 'S28', 'Reducción de la morosidad', 'puntos del ingreso', [0, 0.005, 0.01], FMT.pct, 'Visibilidad del saldo por cuota en el panel. Medir con el saldo vencido mensual.', 'Supuesto a validar'],

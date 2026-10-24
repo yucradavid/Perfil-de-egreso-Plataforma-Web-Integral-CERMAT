@@ -23,7 +23,7 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 | 3–4 | Aprobación y pago | `/admin/matriculas`, `/admin/pagos` | Máquina de estados; un pago no se borra, se anula con autor |
 | 4–5 | Asistencia por QR | Portal auxiliar | QR firmado; entrada y salida alternan por día |
 | 5–6 | Consulta de padres | `/consulta-asistencia` | Código sin caracteres ambiguos, solo lectura |
-| 6–8 | Calidad | Pestaña *Actions* o terminal | 90 pruebas; las reglas publicadas fallan 10 de 19 y las corregidas pasan todas |
+| 6–8 | Calidad | Pestaña *Actions* o terminal | 90 pruebas; las reglas de junio fallaban 10 de 19, las corregidas pasan todas y están publicadas desde el 2026-10-24 |
 | 8–9 | Datos | Salida de `92_pruebas_bd.sql` y de `restore.js` | Integridad en la base, auditoría y RTO medido |
 | 9–10 | Cierre | Plan de mejora del E4 | Qué falta, por qué y con qué métrica se medirá |
 
@@ -46,8 +46,8 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 |---|---|
 | ¿Por qué Firestore y además MySQL? | Firestore da tiempo real y reglas por rol sin servidor propio. MySQL resuelve reportes, conciliación y auditoría, que Firestore no hace bien. La réplica nunca bloquea la operación. |
 | ¿Qué pasa si se cae la API o MySQL? | La matrícula, los pagos y la asistencia siguen funcionando: la sincronización no bloquea y es idempotente. Los eventos perdidos aparecen en `v_conciliacion_pagos`. |
-| ¿Cómo saben que las reglas de seguridad funcionan? | Con 19 pruebas en el emulador que corren en el CI. Contra las reglas publicadas fallan 10: así encontramos 3 fallas reales en producción. |
-| ¿Por qué las reglas de producción estaban desactualizadas? | La línea 1 del archivo tenía un `#`, que no es sintaxis válida, y el despliegue fallaba sin que nadie lo viera. Ahora la publicación solo ocurre desde el CI y después de las pruebas. |
+| ¿Cómo saben que las reglas de seguridad funcionan? | Con 19 pruebas en el emulador que corren en el CI. Contra las reglas que estaban publicadas fallaban 10: así encontramos 3 fallas reales en producción. Publicamos la versión corregida el 2026-10-24 y lo verificamos como visitante sin sesión: listar matrículas pagadas ahora devuelve 403. |
+| ¿Por qué las reglas de producción estaban desactualizadas? | La línea 1 del archivo tenía un `#`, que no es sintaxis válida, y el despliegue fallaba sin que nadie lo viera. La versión corregida se publicó el 2026-10-24 desde la consola, después de pasar las 19 pruebas; cuando se configure el secreto del CI, la publicación será automática y solo tras las pruebas. |
 | ¿Cómo evitan que se falsifique un QR? | El QR lleva una firma opaca que la regla compara con `studentQrSignatures`. La marca corre en una transacción que impide dobles registros. |
 | ¿Quién puede escribir en MySQL? | Solo los procedimientos almacenados. La cuenta de la API recibe "permiso denegado" si intenta un INSERT directo; lo comprobamos. |
 | ¿El sistema se usa de verdad? | Está desplegado y en piloto con volumen bajo: 8 matrículas, 2 pagos, 7 marcas y 8 usuarios. No lo presentamos como adopción masiva; las metas de uso están en Gestión TI E5. |

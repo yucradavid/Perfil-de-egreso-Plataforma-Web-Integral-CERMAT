@@ -18,9 +18,13 @@
 
 CERMAT opera un colegio y una academia preuniversitaria con varias sedes. Su ecosistema digital tiene tres sistemas formales que no se comunican entre sí: la **plataforma de la academia** (React y Firebase, publicada en Vercel), una **capa local** (API, MySQL y analítica en una PC) y el **sistema de gestión del colegio** (Angular, Laravel y PostgreSQL en un VPS). Junto a ellos siguen en uso cuadernos, hojas de cálculo y WhatsApp.
 
-La plataforma está desplegada y tiene buena base técnica (90 pruebas automáticas, CI con 6 trabajos, reglas por rol en 22 colecciones), pero opera como **piloto con volumen bajo**: 8 matrículas, 2 pagos, 7 marcas de asistencia y 0 consultas de padres en diez meses. Hay tres brechas que explican buena parte de ese uso bajo: las reglas publicadas el 22-jun-2026 **bloquean la matrícula pública** y **exponen el listado de matrículas pagadas**, no existe una disposición institucional de canal único ni capacitación, y la capa relacional solo sincroniza cuando su PC está encendida.
+La plataforma está desplegada y tiene buena base técnica (90 pruebas automáticas, CI con 6 trabajos, reglas por rol en 22 colecciones), pero opera como **piloto con volumen bajo**: 8 matrículas, 2 pagos, 7 marcas de asistencia y 0 consultas de padres en diez meses. Hay tres brechas que explican buena parte de ese uso bajo:
 
-La madurez digital medida con un modelo de 8 dimensiones es **1,75 de 5** (inicial a gestionado). El problema central y sus causas raíz se analizan en la sección 1.4. El roadmap (1.5) prioriza estabilizar y adoptar antes de integrar con el colegio. La matriz de riesgos (1.6) ubica como críticos la dependencia de una sola persona, la exposición de datos de menores y la baja adopción.
+- Las reglas publicadas el 22-jun-2026 **bloqueaban la matrícula pública** y **exponían el listado de matrículas pagadas**. Se corrigió en producción el 2026-10-24.
+- No existe una disposición institucional de canal único ni capacitación.
+- La capa relacional solo sincroniza cuando su PC está encendida.
+
+La madurez digital medida con un modelo de 8 dimensiones es **1,75 de 5** (inicial a gestionado). El problema central y sus causas raíz se analizan en la sección 1.4. El roadmap (1.5) prioriza estabilizar y adoptar antes de integrar con el colegio. La matriz de riesgos (1.6) ubica como críticos la dependencia de una sola persona, la exposición de datos de menores (tratada el 2026-10-24) y la baja adopción.
 
 ## 1.1 Contexto organizacional
 
@@ -66,7 +70,7 @@ Cadena de valor adaptada a un servicio educativo [1], con el sistema que soporta
 
 | Tipo | Actividad | Sistema que la soporta hoy | Evidencia de uso (al 2026-10-24) | Brecha |
 |---|---|---|---|---|
-| Primaria | Captación y admisión | Sitio público de la plataforma, redes sociales y WhatsApp | 7 mensajes de contacto; 1 post | La pre-matrícula en línea está bloqueada en producción por las reglas vigentes |
+| Primaria | Captación y admisión | Sitio público de la plataforma, redes sociales y WhatsApp | 7 mensajes de contacto; 1 post | La pre-matrícula en línea estuvo bloqueada en producción hasta el 2026-10-24; desde entonces funciona |
 | Primaria | Matrícula y cobranza | Plataforma (matrículas y pagos) y, sobre todo, cuaderno y hojas de cálculo | 8 matrículas (2 pendientes, 5 pagadas, 1 cancelada) y 2 pagos | La mayor parte del proceso sigue siendo manual |
 | Primaria | Planificación académica | Plataforma (ciclos, grupos, sedes, turnos) | 1 ciclo, 1 grupo y 1 sede cargados | La oferta real no está cargada |
 | Primaria | Dictado y recursos | Plataforma (recursos y talleres) | 6 recursos, 1 taller | Uso marginal |
@@ -139,10 +143,10 @@ CERMAT no tiene un plan estratégico escrito que el equipo haya podido revisar. 
 | **F1** | Plataforma propia desplegada con portales por rol | 6 portales (público, admin, docente, alumno, auxiliar y consulta para padres); 22 colecciones con reglas por rol; [E3 de Software](../e3-sistema-funcional-ce023.md) |
 | **F2** | Calidad técnica verificable | 90 pruebas automáticas (34 unitarias, 18 de API, 19 de reglas, 19 de base de datos) y CI con 6 trabajos ([E4 de Software](../e4-calidad-operacion-ce024.md)) |
 | **F3** | Control de cupos y duplicados por diseño | Matrícula en una transacción con id determinístico `grupo__teléfono` (`src/features/enrollments/api.ts`) |
-| **F4** | Datos con integridad y recuperación probada | MySQL con 3 FK, 7 CHECK, 6 triggers y 4 roles; restauración con RTO de 0,27–0,38 s en base de prueba ([E2 de Software](../e2-base-datos-ce022.md)) |
+| **F4** | Datos con integridad y recuperación probada | MySQL con 3 FK, 7 CHECK, 6 triggers y 4 roles, aplicados en la base real el 2026-10-24; restauración de la base real con RTO de 0,23 s ([E2 de Software](../e2-base-datos-ce022.md)) |
 | **F5** | Infraestructura del colegio ya profesionalizada | VPS con UFW, TLS con renovación automática y PostgreSQL solo local; dominio `.edu.pe` |
 | **D1** | Adopción muy baja | 8 matrículas, 2 pagos, 7 marcas de asistencia y 0 consultas de padres en diez meses |
-| **D2** | Producción desactualizada e insegura | Las reglas del 22-jun-2026 fallan 10 de 19 pruebas: auto-asignación de rol, listado público de matrículas pagadas y matrícula pública bloqueada |
+| **D2** | Producción desactualizada sin detección | Las reglas del 22-jun-2026 fallaban 10 de 19 pruebas (auto-asignación de rol, listado público de matrículas pagadas y matrícula pública bloqueada) y nadie lo detectó en 4 meses. Se corrigió en producción el 2026-10-24; la publicación automática por CI sigue pendiente |
 | **D3** | Conocimiento concentrado en una persona | 49 de 52 commits de un único autor; sin revisiones registradas |
 | **D4** | Capa relacional intermitente y sin respaldo de Firestore | La API y MySQL corren en una PC que solo sincroniza encendida; no hay respaldo programado de Firestore ni monitor con alertas |
 | **D5** | Gestión sin medición | No hay registro de esfuerzo ni tiempos de proceso; auditoría CMMI en nivel 1 ([E4 de Software](../e4-calidad-operacion-ce024.md#44-informe-de-auditoria-tecnica)) |
@@ -231,7 +235,7 @@ El mapa visual del ecosistema y la integración propuesta están en el [E5, secc
 | Datos y analítica | 2 ■■□□□ | Réplica MySQL con integridad en el motor y analítica de riesgo; sincronización intermitente; sin respaldo de Firestore | 3 |
 | Aplicaciones y sistemas de información | 3 ■■■□□ | Plataforma con 6 portales y sistema del colegio en producción, ambos documentados | 4 |
 | Infraestructura y operación | 2 ■■□□□ | PaaS y VPS endurecido; capa local en una PC sin UPS; sin monitor con alertas | 3 |
-| Seguridad y cumplimiento | 2 ■■□□□ | 19 pruebas de reglas y roles de mínimo privilegio, pero reglas de producción con 3 fallas, secretos en el historial, sin política de privacidad ni registros SPF/DMARC/CAA/DNSSEC | 3 |
+| Seguridad y cumplimiento | 2 ■■□□□ | 19 pruebas de reglas y roles de mínimo privilegio. Las 3 fallas de las reglas de producción y la clave expuesta en el historial se corrigieron el 2026-10-24; siguen sin política de privacidad ni registros SPF/DMARC/CAA/DNSSEC | 3 |
 | Integración e interoperabilidad | 1 ■□□□□ | Academia y colegio no comparten identidad ni datos; solo existe Firestore → MySQL | 2 |
 | Personas y cultura digital | 1 ■□□□□ | Sin capacitación ni disposición de uso; 0 consultas de padres; conocimiento en una persona | 3 |
 | **Promedio** | **1,75** | Entre inicial y gestionado | **3,0** |
@@ -243,22 +247,22 @@ La versión de julio de este documento calificaba la madurez como "medio-alta"; 
 | ID | Brecha | Estado actual (evidencia) | Estado objetivo | Iniciativa | Prioridad |
 |---|---|---|---|---|---|
 | BR-01 | Adopción institucional | 8 matrículas en la plataforma; trámites mayormente manuales | ≥ 60 % de las matrículas de 2027 en la plataforma | RM-03 | Crítica |
-| BR-02 | Reglas de producción desactualizadas | 10 de 19 pruebas fallan contra lo publicado | 19 de 19 contra lo publicado | RM-01 | Crítica |
+| BR-02 | Reglas de producción desactualizadas | **Cerrada el 2026-10-24:** versión corregida publicada y verificada como visitante sin sesión (antes fallaban 10 de 19 pruebas) | 19 de 19 contra lo publicado | RM-01 | Crítica (cerrada) |
 | BR-03 | Capa relacional sin servicio continuo | PC que sincroniza solo encendida | Servicio continuo en VM-APP01 (diseño CE03) o VPS puente | RM-02 | Alta |
 | BR-04 | Respaldo y monitoreo | Sin respaldo programado de Firestore ni alertas | RPO ≤ 24 h y disponibilidad medida | RM-02 | Alta |
 | BR-05 | Licencia de hosting | Vercel Hobby (uso personal no comercial) | Plan comercial o alternativa evaluada | RM-07 | Media |
 | BR-06 | Medición y gobierno | Sin indicadores de proceso ni registro de esfuerzo | Tablero mensual de uso, valor y mejora | RM-06 | Alta |
 | BR-07 | Integración academia–colegio | Ninguna | Enlace desde el sitio del colegio (decisión vigente), subdominio opcional y API REST | RM-08, RM-11 | Media |
-| BR-08 | Seguridad web y DNS | Sin cabeceras en el colegio; la SPA solo envía HSTS (corrección lista en `vercel.json`, sin publicar); versión de nginx visible; sin SPF, DMARC, CAA ni DNSSEC | Cabeceras publicadas y registros DNS configurados | RM-04 | Alta |
+| BR-08 | Seguridad web y DNS | Sin cabeceras en el colegio; la SPA ya publica sus cabeceras de seguridad (2026-10-24); versión de nginx visible; sin SPF, DMARC, CAA ni DNSSEC | Cabeceras publicadas y registros DNS configurados | RM-04 | Alta |
 | BR-09 | Cumplimiento de protección de datos | Sin política de privacidad ni consentimiento en `src/` (búsqueda del 2026-10-24); banco de datos sin inscribir | Política, consentimiento e inscripción | RM-05 | Alta |
-| BR-10 | Continuidad del conocimiento | Un único autor; secretos en el historial | ≥ 2 personas capaces; historial limpio | RM-01, RM-03 | Crítica |
+| BR-10 | Continuidad del conocimiento | Un único autor; secretos en el historial (revocados el 2026-10-24) | ≥ 2 personas capaces; historial limpio | RM-01, RM-03 | Crítica |
 
 ### Problemas operativos asociados a TI
 
 | Problema | Evidencia | Efecto operativo |
 |---|---|---|
-| La pre-matrícula pública no se completa en producción | Pruebas de reglas contra la versión publicada ([E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales)) | Los postulantes deben acudir o llamar; el canal en línea no capta |
-| Cualquier persona sin sesión puede listar matrículas pagadas con nombre y teléfono | Mismo reporte | Exposición de datos de menores y riesgo legal |
+| La pre-matrícula pública no se completaba en producción (resuelto el 2026-10-24) | Pruebas de reglas contra la versión publicada ([E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales)); cierre en [E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24) | Los postulantes debían acudir o llamar; el canal en línea no captaba |
+| Cualquier persona sin sesión podía listar matrículas pagadas con nombre y teléfono (resuelto el 2026-10-24) | Mismo reporte | Exposición de datos de menores y riesgo legal |
 | Reportes de MySQL incompletos | La sincronización ocurre solo con la PC encendida | Decisiones con datos parciales; la conciliación pierde valor |
 | Asistencia sin registros desde abril | 7 marcas entre el 2026-01-27 y el 2026-04-02 | El cálculo de riesgo de abandono no tiene datos |
 | Re-digitación entre cuaderno, hojas y plataforma | Proceso AS-IS ([E4](e4-modelado-procesos-ce0131.md)) | Tiempo de personal y errores de transcripción |
@@ -272,8 +276,8 @@ La versión de julio de este documento calificaba la madurez como "medio-alta"; 
 | Qué | La matrícula, la cobranza y el seguimiento de asistencia de la academia se gestionan con procesos mayormente manuales, y la plataforma que los digitaliza opera con adopción mínima y brechas técnicas abiertas en producción. |
 | Quién lo sufre | Secretaría y caja (trabajo repetitivo), familias (esperas y poca información), Dirección (sin datos consolidados) y alumnos menores de edad (datos expuestos). |
 | Dónde | Sede principal de la academia en Azángaro y todos los canales de atención. |
-| Desde cuándo | Plataforma en piloto desde enero de 2026; reglas desactualizadas en producción desde el 22-jun-2026. |
-| Magnitud | 8 matrículas y 2 pagos en la plataforma en diez meses; 0 consultas de padres; 3 fallas críticas de seguridad publicadas. |
+| Desde cuándo | Plataforma en piloto desde enero de 2026; reglas desactualizadas en producción entre el 22-jun-2026 y el 2026-10-24. |
+| Magnitud | 8 matrículas y 2 pagos en la plataforma en diez meses; 0 consultas de padres; 3 fallas críticas de seguridad publicadas (corregidas en producción el 2026-10-24). |
 | Consecuencia | Tiempo administrativo, ingresos no captados, decisiones sin datos y riesgo legal y reputacional. |
 
 **Enunciado:** *CERMAT no aprovecha la plataforma que ya construyó porque no existe una decisión institucional de uso, la versión publicada tiene fallas que bloquean el canal en línea y exponen datos, y no hay medición ni capacidad técnica distribuida para sostenerla.*
@@ -333,7 +337,7 @@ flowchart LR
 
 | ID | Horizonte | Iniciativa | Objetivo estratégico | Brecha | Responsable | Indicador de logro |
 |---|---|---|---|---|---|---|
-| RM-01 | H0 (nov-2026) | Publicar las reglas corregidas, retirar secretos y obtener el primer CI en verde (PB-04, PB-06) | OE4 | BR-02, BR-10 | Equipo técnico | 19 de 19 pruebas contra lo publicado |
+| RM-01 | H0 (nov-2026) | Publicar las reglas corregidas (hecho el 2026-10-24), retirar secretos (clave rotada el 2026-10-24) y obtener el primer CI en verde (PB-04, PB-06) | OE4 | BR-02, BR-10 | Equipo técnico | 19 de 19 pruebas contra lo publicado |
 | RM-02 | H0 (nov–dic 2026) | Operación continua de la capa relacional, respaldo de Firestore y monitor con alertas (PB-13, PB-11, PB-08) | OE2, OE4 | BR-03, BR-04 | Equipo técnico | RPO ≤ 24 h; disponibilidad medida |
 | RM-03 | H0 (dic-2026) | Disposición de canal único, manuales y capacitación por rol (PB-15) | OE1, OE2, OE3 | BR-01, BR-10 | Dirección y Product Owner | 100 % del personal capacitado |
 | RM-04 | H0 (nov-2026) | Cabeceras de seguridad en Vercel y Nginx, ocultar la versión de nginx, SPF, DMARC y CAA; DNSSEC si el registro lo permite | OE4 | BR-08 | Responsable técnico | Verificación externa de cabeceras y DNS |
@@ -380,7 +384,7 @@ Escala: probabilidad (P) e impacto (I) de 1 a 5; nivel por P × I: **Bajo** 1–
 |---|---|---|---|---|---|---|---|---|
 | RE-01 | Sin disposición institucional → el personal sigue con cuaderno → la plataforma no genera valor | 4 | 4 | 16 | Crítico | Disposición de canal único, capacitación, registro rápido y metas mensuales (RM-03) | Dirección | Adopción mensual < 50 % dos meses seguidos |
 | RE-02 | Un solo autor mantiene ambos sistemas → se ausenta → nadie puede desplegar ni restaurar | 4 | 5 | 20 | Crítico | Transferencia de conocimiento, revisión por pares, documentación y contrato de mantenimiento | Dirección | Cambios sin revisión > 0 |
-| RE-03 | Reglas de producción desactualizadas → listado público de matrículas pagadas → exposición de datos de menores | 4 | 5 | 20 | Crítico | Publicar las reglas corregidas vía CI (RM-01) | Equipo técnico | Pruebas contra lo publicado < 19 de 19 |
+| RE-03 | Reglas de producción desactualizadas → listado público de matrículas pagadas → exposición de datos de menores | 4 | 5 | 20 | Crítico | Reglas corregidas publicadas y verificadas el 2026-10-24 (desde la consola); falta la publicación vía CI (RM-01) | Equipo técnico | Pruebas contra lo publicado < 19 de 19 |
 | RE-04 | Sin política, consentimiento ni inscripción → fiscalización de la ANPD → sanción y daño reputacional | 3 | 4 | 12 | Alto | RM-05; informar la transferencia internacional de datos | Dirección | Política no publicada al 2026-12-18 |
 | RE-05 | Dominio sin SPF, DMARC, CAA ni DNSSEC y sitios sin cabeceras → suplantación o ataque web → pérdida de confianza | 3 | 3 | 9 | Medio | RM-04 | Responsable técnico | Reporte DMARC con fuentes no autorizadas |
 | RE-06 | Firestore sin respaldo y capa local en una PC → falla o borrado → pérdida de datos operativos | 2 | 5 | 10 | Alto | Respaldo programado y prueba de restauración (RM-02) | Equipo técnico | Último respaldo verificado > 24 h |

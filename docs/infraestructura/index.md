@@ -11,7 +11,7 @@ La línea de infraestructura diseña, implementa, valida y opera una **arquitect
 |---|---|---|
 | **On-premise** (sede principal, Azángaro) | Host de virtualización con OPNsense, servidor de aplicaciones (API Node.js, MySQL y analítica), Wazuh, monitoreo, respaldo, bastión y honeypot, segmentados en 6 VLAN | **Diseñado.** Hoy la capa local corre en una PC con PM2, sin firewall perimetral ni segmentación |
 | **Nube IaaS** (VPS RackNerd, New York) | Sistema de gestión del colegio con Nginx, TLS, UFW y PostgreSQL local; extremo de la VPN | **En producción** desde el 2026-10-17; VPN y respaldos externos pendientes |
-| **Nube PaaS** | Plataforma de la academia en Vercel; identidad y datos en Firebase | **En producción**; reglas de Firestore corregidas en código y sin publicar |
+| **Nube PaaS** | Plataforma de la academia en Vercel; identidad y datos en Firebase | **En producción**; frontend con cabeceras de seguridad y reglas de Firestore corregidas publicados y verificados el 2026-10-24 |
 
 La guía oficial toma como referencia VMware ESXi y AWS y permite ajustar la tecnología "siempre que se mantenga la equivalencia técnica". La tabla de equivalencias de esta página explica cada sustitución.
 
@@ -126,4 +126,4 @@ Las matrices se generan con `perfil-egreso/scripts/generar-matrices-infra.mjs`, 
 | Riesgos evaluados (ISO/IEC 27005) | 29 |
 | Controles del Anexo A en la SoA | 93 (92 aplicables) |
 | Pruebas de red con resultado real / pendientes | 11 conformes y 2 no conformes / 24 pendientes |
-| Pruebas de recuperación ejecutadas / pendientes | 4 / 8 |
+| Pruebas de recuperación ejecutadas / pendientes | 5 / 7 (REC-05 en la base real: RTO de 0,23 s) |

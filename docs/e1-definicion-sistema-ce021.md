@@ -247,7 +247,7 @@ flowchart TB
 | ADR-04 | Muchos dominios que crecen en paralelo | Arquitectura modular por dominio en `src/features/*` | Módulos predecibles y probables por separado. Algunas páginas siguen siendo grandes (deuda registrada en E4). | Aceptada |
 | ADR-05 | Riesgo de sobrecupo y duplicados en la matrícula pública sin sesión | Transacción con id determinístico `grupo__teléfono` y regla que solo permite sumar un cupo junto con la nueva pre-matrícula | Sin sobrecupo aun con solicitudes simultáneas. Para el visitante, un duplicado se ve como permiso denegado (mensaje explicado). | Aceptada |
 | ADR-06 | Un QR con solo el id del alumno puede falsificarse | QR permanente firmado (firma en `studentQrSignatures`) más estado diario transaccional (`attendanceDayState`) | No se aceptan QR reconstruidos ni dobles marcas simultáneas. Requiere regenerar los QR del formato antiguo. | Aceptada |
-| ADR-07 | Las reglas publicadas quedaron 4 meses desactualizadas | Las reglas se prueban en un emulador y se publican solo desde el pipeline de CI | Ninguna regla sin probar llega a producción. Requiere configurar el secreto de despliegue. | Aceptada (2026-10-24) |
+| ADR-07 | Las reglas publicadas quedaron 4 meses desactualizadas | Las reglas se prueban en un emulador y se publican solo desde el pipeline de CI | Ninguna regla sin probar llega a producción. Requiere configurar el secreto de despliegue; mientras falte, la versión corregida se publicó desde la consola el 2026-10-24, después de pasar las 19 pruebas. | Aceptada (2026-10-24) |
 
 ## Sección 4: Diseño Detallado
 

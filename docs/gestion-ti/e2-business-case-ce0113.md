@@ -37,7 +37,7 @@
 
 ### Problema que se resuelve
 
-CERMAT gestiona la matrícula, la cobranza y la asistencia de la academia con procesos mayormente manuales (cuaderno, hojas de cálculo y WhatsApp), mientras la plataforma construida para digitalizarlos opera con adopción mínima y con reglas publicadas que bloquean la matrícula en línea y exponen el listado de matrículas pagadas. El análisis completo del problema, sus causas raíz y su impacto está en el [E1, sección 1.4](e1-diagnostico-organizacional-ce0111.md#14-identificacion-del-problema).
+CERMAT gestiona la matrícula, la cobranza y la asistencia de la academia con procesos mayormente manuales (cuaderno, hojas de cálculo y WhatsApp), mientras la plataforma construida para digitalizarlos opera con adopción mínima. Hasta el 2026-10-24 sus reglas publicadas bloqueaban la matrícula en línea y exponían el listado de matrículas pagadas; ese día se publicó la versión corregida. El análisis completo del problema, sus causas raíz y su impacto está en el [E1, sección 1.4](e1-diagnostico-organizacional-ce0111.md#14-identificacion-del-problema).
 
 ### Objetivos del proyecto (SMART)
 
@@ -46,7 +46,7 @@ CERMAT gestiona la matrícula, la cobranza y la asistencia de la academia con pr
 | OBJ-1 | Registrar en la plataforma las matrículas de la academia | Matrículas en `enrollments` ÷ matrículas del registro de secretaría | 8 matrículas en el piloto (ene–jul 2026); porcentaje no medido | ≥ 60 % en 2027 (promedio anual) y ≥ 80 % en 2028 | 31-12-2027 y 31-12-2028 |
 | OBJ-2 | Reducir el tiempo de personal por matrícula | Minutos cronometrados en 10 trámites | ≈ 40 min (supuesto; se mide en nov-2026) | ≤ 12 min | 31-03-2027 |
 | OBJ-3 | Responder rápido a cada pre-matrícula | Percentil 90 de `approvedAt` o `cancelledAt` − `createdAt` | No medible hoy (2 registros de prueba) | ≤ 24 h | Campaña 2027 |
-| OBJ-4 | Publicar solo versiones seguras y sin errores de cupo | Pruebas de reglas contra lo publicado; incidentes de sobrecupo o duplicado | 10 de 19 pruebas fallan contra lo publicado | 19 de 19 y 0 incidentes | Desde el 06-11-2026 |
+| OBJ-4 | Publicar solo versiones seguras y sin errores de cupo | Pruebas de reglas contra lo publicado; incidentes de sobrecupo o duplicado | 10 de 19 pruebas fallaban contra lo publicado hasta el 2026-10-24; 0 fallas observadas en producción tras publicar la versión corregida | 19 de 19 y 0 incidentes | Desde el 06-11-2026 |
 | OBJ-5 | Confirmar el valor económico con datos reales | VAN de la vista A recalculado con volumen, adopción y tiempos medidos | VAN base proyectado: S/ 1 247 | VAN ≥ 0 | 31-03-2027 y 31-12-2027 |
 
 ### Beneficios esperados
@@ -177,7 +177,7 @@ Los costos **reales conocidos** son: VPS RackNerd US$ 35,99 al año; Vercel en p
 | S22 | Meses con clases por año | meses | 10 | 10 | 10 | Calendario académico supuesto. | Supuesto a validar |
 | S23 | Ingreso promedio por matrícula | S/ | S/ 400 | S/ 400 | S/ 400 | Supuesto; validar con el tarifario vigente de la academia. | Supuesto a validar |
 | S24 | Margen de contribución de una matrícula adicional | % | 60 % | 60 % | 60 % | Docente y aula son costos fijos del grupo; el costo variable son materiales y atención. | Supuesto a validar |
-| S25 | Matrículas adicionales por ciclo captadas por el canal en línea | matrículas | 0 | 2 | 4 | Pre-matrícula 24/7 desde el sitio público (hoy bloqueada en producción por las reglas desactualizadas). Medir con el origen de cada matrícula. | Supuesto a validar |
+| S25 | Matrículas adicionales por ciclo captadas por el canal en línea | matrículas | 0 | 2 | 4 | Pre-matrícula 24/7 desde el sitio público (desbloqueada en producción el 2026-10-24 al publicar las reglas corregidas). Medir con el origen de cada matrícula. | Supuesto a validar |
 | S26 | Alumnos retenidos por ciclo gracias a las alertas de inasistencia | alumnos | 0 | 1 | 2 | Seguimiento con sp_riesgo_inasistencia y la analítica de riesgo. | Supuesto a validar |
 | S27 | Fracción del ingreso del ciclo que se conserva por alumno retenido | % | 50 % | 50 % | 50 % | El abandono ocurre a mitad de ciclo en promedio (supuesto). | Supuesto a validar |
 | S28 | Reducción de la morosidad | puntos del ingreso | 0,0 % | 0,5 % | 1,0 % | Visibilidad del saldo por cuota en el panel. Medir con el saldo vencido mensual. | Supuesto a validar |
@@ -320,7 +320,7 @@ El dominio no genera costo: la institución decidió mantener la plataforma en e
 
 **Conclusiones de la sensibilidad:**
 
-1. Las dos variables que más pesan dependen de **gestión, no de tecnología**: la captación en línea y retención, y la adopción. La primera exige publicar las reglas corregidas (hoy la pre-matrícula pública está bloqueada) y usar las alertas de inasistencia; la segunda, una disposición de la Dirección.
+1. Las dos variables que más pesan dependen de **gestión, no de tecnología**: la captación en línea y retención, y la adopción. La primera exigía publicar las reglas corregidas, lo que se hizo el 2026-10-24 (la pre-matrícula pública volvió a funcionar), y exige usar las alertas de inasistencia; la segunda, una disposición de la Dirección.
 2. El **costo del hosting** es la palanca de ahorro más fuerte: un hosting comercial sin costo de licencia elevaría el VAN base en S/ 1 959 (de S/ 1 247 a S/ 3 206). Se evaluará en el E5 sin cambiar el supuesto de costo del plan Pro.
 3. Tipo de cambio y tasa de descuento casi no cambian la decisión.
 
@@ -329,7 +329,7 @@ El dominio no genera costo: la institución decidió mantener la plataforma en e
 Se recomienda **aprobar la alternativa D** con estas condiciones:
 
 1. La Dirección emite antes del 2026-12-18 una disposición de canal único: toda matrícula se registra en la plataforma, en línea o con el registro rápido de secretaría.
-2. El equipo completa los Sprints 1 a 3 (publicación de reglas, operación continua de la capa relacional, respaldo, monitor y capacitación) según el [E3](e3-plan-gestion-proyecto-ce0121.md).
+2. El equipo completa los Sprints 1 a 3 (publicación de reglas, hecha el 2026-10-24; operación continua de la capa relacional, respaldo, monitor y capacitación) según el [E3](e3-plan-gestion-proyecto-ce0121.md).
 3. CERMAT presupuesta S/ 2 438 al año de operación y mantenimiento (escenario base).
 4. **Hito de continuidad del 2027-03-31.** Se recalcula el libro con datos reales. Se continúa si se cumplen todos estos criterios: adopción del ciclo de verano ≥ 60 %; minutos de personal por matrícula ≤ 12; 0 incidentes de sobrecupo o duplicado; matrículas por ciclo ≥ 40; VAN de la vista A recalculado ≥ 0. Si no se cumplen, se aplican primero las palancas de costo (hosting y horas de mantenimiento) y se revisa el alcance antes de seguir invirtiendo.
 
@@ -340,13 +340,13 @@ Escala 1 a 5 de probabilidad (P) e impacto (I); nivel por P × I: Bajo 1–4, Me
 | ID | Riesgo estratégico | P | I | P×I | Impacto económico preliminar | Mitigación | Responsable |
 |---|---|---|---|---|---|---|---|
 | RB-01 | Adopción como la del piloto: el personal sigue con cuaderno | 4 | 4 | 16 Crítico | VAN base de S/ 1 247 a S/ −2 726 con la adopción pesimista | Disposición de canal único, registro rápido, capacitación y meta mensual | Dirección |
-| RB-02 | La matrícula pública sigue bloqueada o no se usan las alertas | 3 | 4 | 12 Alto | Sin captación ni retención, el VAN base baja a S/ −2 019 | Publicar las reglas corregidas en el Sprint 1 y verificar una matrícula sin sesión | Equipo técnico |
+| RB-02 | La matrícula pública vuelve a bloquearse (por ejemplo, por un despliegue que no llega a producción) o no se usan las alertas | 3 | 4 | 12 Alto | Sin captación ni retención, el VAN base baja a S/ −2 019 | Reglas corregidas publicadas y matrícula sin sesión verificada el 2026-10-24; publicar solo tras las 19 pruebas y verificar producción después de cada cambio | Equipo técnico |
 | RB-03 | El equipo no completa el cierre técnico y CERMAT lo contrata | 2 | 4 | 8 Medio | VAN base de S/ 1 247 a S/ −2 933 | Cierre dentro de los Sprints 1 a 3 y transferencia de conocimiento (C.5) | Líder del proyecto |
 | RB-04 | Mayor esfuerzo de operación y mantenimiento | 3 | 3 | 9 Medio | Con 3 + 5 h al mes, el VAN base baja a S/ −915 | CI con 90 pruebas, monitor con alertas y backlog priorizado | Responsable técnico |
 | RB-05 | Volumen real menor al supuesto | 3 | 4 | 12 Alto | Con 40 matrículas por ciclo, VAN ≈ S/ 0 (S/ −2) | Validar el volumen con secretaría antes del 2026-12-04 | Product Owner |
 | RB-06 | Cambio de precio o de plan del hosting | 2 | 3 | 6 Medio | Con 2 miembros Pro, VAN base S/ −713 | Un solo miembro con permiso de despliegue; evaluar alternativa sin costo | Dirección |
 | RB-07 | Tipo de cambio desfavorable | 2 | 2 | 4 Bajo | Con S/ 3,74 por dólar, VAN base S/ 1 021 | Pago anual o en soles cuando sea posible | Dirección |
-| RB-08 | Incidente de datos personales antes de publicar las reglas corregidas | 3 | 5 | 15 Crítico | No monetizado: multas de hasta 100 UIT según la Ley N.° 29733 y daño reputacional | Publicación inmediata vía CI, política de privacidad y plan de respuesta a incidentes ([SGSI](../infraestructura/s2-e1-sgsi-ce0321-ce0324.md)) | Dirección y equipo técnico |
+| RB-08 | Incidente de datos personales derivado de la exposición que hubo hasta el 2026-10-24 | 3 | 5 | 15 Crítico | No monetizado: multas de hasta 100 UIT según la Ley N.° 29733 y daño reputacional | Reglas corregidas publicadas el 2026-10-24; política de privacidad y plan de respuesta a incidentes ([SGSI](../infraestructura/s2-e1-sgsi-ce0321-ce0324.md)) | Dirección y equipo técnico |
 | RB-09 | Dependencia de una sola persona | 4 | 5 | 20 Crítico | Interrupción de la operación; no monetizado | Revisión por pares, documentación y responsable técnico de CERMAT capacitado | Dirección |
 
 ## Referencias
