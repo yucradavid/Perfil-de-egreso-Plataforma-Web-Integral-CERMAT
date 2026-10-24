@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_MatriculaToBe" targetNamespace="https://academia-school-platform.vercel.app/bpmn" exporter="generar-bpmn.mjs (Plataforma CERMAT)" exporterVersion="1.0">
+  <bpmn:collaboration id="Collaboration_MatriculaToBe">
+    <bpmn:participant id="Participant_AcademiaToBe" name="Academia La Prepa Cermat: matrícula (TO-BE, Plataforma CERMAT)" processRef="Process_MatriculaToBe" />
+    <bpmn:textAnnotation id="Note_Transaccion">
+      <bpmn:text>Cupo y duplicado garantizados por transacción (6 pruebas de reglas de matrícula pública)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Invitacion">
+      <bpmn:text>Token aleatorio con hash SHA-256 como id; vence en 7 días; trazabilidad de la aprobación</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Conciliacion">
+      <bpmn:text>Escritura solo por procedimientos; v_conciliacion_pagos = 0 filas indica que no se perdieron eventos</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_Note_Transaccion" associationDirection="None" sourceRef="Task_T2_Validar" targetRef="Note_Transaccion" />
+    <bpmn:association id="Assoc_Note_Invitacion" associationDirection="None" sourceRef="Task_T4B_Invitacion" targetRef="Note_Invitacion" />
+    <bpmn:association id="Assoc_Note_Conciliacion" associationDirection="None" sourceRef="Task_T6_Replicar" targetRef="Note_Conciliacion" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_MatriculaToBe" name="Matrícula TO-BE" isExecutable="false">
+    <bpmn:documentation>Proceso de matrícula rediseñado sobre la Plataforma CERMAT (implementado en src/features/enrollments/api.ts). Total de personal: 10,5 min por matrícula (supuesto a validar). Automatizaciones: validación transaccional de cupo, deduplicación por id determinístico, activación por invitación y sincronización conciliable. Equipo EPE CERMAT, 2026-10-24.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_MatriculaToBe">
+      <bpmn:lane id="Lane_Postulante" name="Postulante o padre">
+        <bpmn:flowNodeRef>Start_InteresLinea</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T1_PreMatricula</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_R1_Motivo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Rechazada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T8_Activar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Activo</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Plataforma" name="Plataforma CERMAT (automático)">
+        <bpmn:flowNodeRef>Gateway_Canal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T2_Validar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Valida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T2B_Crear</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T4B_Invitacion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Paralelo</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Secretaria" name="Secretaría (panel)">
+        <bpmn:flowNodeRef>Start_EnSede</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T1B_RegistroRapido</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T3_Revisar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Pago</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T3B_Cancelar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Cancelada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T4_Aprobar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_T5_EnviarEnlace</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Relacional" name="Capa relacional (API y MySQL)">
+        <bpmn:flowNodeRef>Task_T6_Replicar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Replica</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_InteresLinea" name="Interés en matricular">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_T1_PreMatricula" name="T1 Registrar la pre-matrícula en línea">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="Start_EnSede" name="Postulante en la sede">
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_T1B_RegistroRapido" name="T1 Registro rápido en el panel">
+      <bpmn:documentation>useQuickEnrollmentSubmit: mismas validaciones que el canal en línea. Promedio de T1 entre canales: 4 min de personal (supuesto).</bpmn:documentation>
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_Canal">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_T2_Validar" name="T2 Validar ciclo, grupo, cupo y duplicado en una transacción">
+      <bpmn:documentation>createEnrollment: runTransaction; rechaza si enrolledCount &gt;= capacity o si ya existe el id grupo__teléfono. Reglas: isEnrollmentCycleOpen, isEnrollmentGroupInCycle, isEnrollmentGroupCampusValid.</bpmn:documentation>
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_Valida" name="¿Pre-matrícula válida?">
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_07_NoValida</bpmn:outgoing>
+      <bpmn:outgoing>Flow_09_SiValida</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_R1_Motivo" name="Ver el motivo del rechazo">
+      <bpmn:incoming>Flow_07_NoValida</bpmn:incoming>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Rechazada" name="Pre-matrícula rechazada">
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_T2B_Crear" name="Crear matrícula pendiente (id grupo__teléfono) y descontar el cupo">
+      <bpmn:incoming>Flow_09_SiValida</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_T3_Revisar" name="T3 Revisar la pre-matrícula y registrar el pago (4 min)">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_Pago" name="¿Pago confirmado?">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12_NoPago</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14_SiPago</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_T3B_Cancelar" name="Cancelar la matrícula y liberar el cupo">
+      <bpmn:documentation>updateEnrollmentStatus libera el cupo en una transacción y registra cancelledBy y cancelledAt.</bpmn:documentation>
+      <bpmn:incoming>Flow_12_NoPago</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Cancelada" name="Matrícula cancelada">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_T4_Aprobar" name="T4 Aprobar la matrícula (1 min)">
+      <bpmn:incoming>Flow_14_SiPago</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_T4B_Invitacion" name="Generar invitación de 7 días y código de padres; registrar quién aprobó">
+      <bpmn:documentation>markPaidAndCreateStudentInvite: token aleatorio de 24 caracteres, id = SHA-256 del token, vence en 7 días; approvedBy y approvedAt.</bpmn:documentation>
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_Paralelo">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sendTask id="Task_T5_EnviarEnlace" name="T5 Enviar el enlace de activación (1 min)">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:userTask id="Task_T8_Activar" name="Activar la cuenta con el enlace">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_Activo" name="Alumno activo y padre con código">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_T6_Replicar" name="T6 Registrar por procedimiento y conciliar">
+      <bpmn:documentation>syncService (fire-and-forget) → API /api/sync → procedimientos almacenados con la cuenta cermat_api; v_conciliacion_pagos debe tener 0 filas.</bpmn:documentation>
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_Replica" name="Réplica conciliable">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="Start_InteresLinea" targetRef="Task_T1_PreMatricula" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_T1_PreMatricula" targetRef="Gateway_Canal" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Start_EnSede" targetRef="Task_T1B_RegistroRapido" />
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="Task_T1B_RegistroRapido" targetRef="Gateway_Canal" />
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="Gateway_Canal" targetRef="Task_T2_Validar" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="Task_T2_Validar" targetRef="Gateway_Valida" />
+    <bpmn:sequenceFlow id="Flow_07_NoValida" name="No" sourceRef="Gateway_Valida" targetRef="Task_R1_Motivo" />
+    <bpmn:sequenceFlow id="Flow_08" sourceRef="Task_R1_Motivo" targetRef="End_Rechazada" />
+    <bpmn:sequenceFlow id="Flow_09_SiValida" name="Sí" sourceRef="Gateway_Valida" targetRef="Task_T2B_Crear" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_T2B_Crear" targetRef="Task_T3_Revisar" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_T3_Revisar" targetRef="Gateway_Pago" />
+    <bpmn:sequenceFlow id="Flow_12_NoPago" name="No" sourceRef="Gateway_Pago" targetRef="Task_T3B_Cancelar" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_T3B_Cancelar" targetRef="End_Cancelada" />
+    <bpmn:sequenceFlow id="Flow_14_SiPago" name="Sí" sourceRef="Gateway_Pago" targetRef="Task_T4_Aprobar" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_T4_Aprobar" targetRef="Task_T4B_Invitacion" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_T4B_Invitacion" targetRef="Gateway_Paralelo" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Gateway_Paralelo" targetRef="Task_T5_EnviarEnlace" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Gateway_Paralelo" targetRef="Task_T6_Replicar" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Task_T5_EnviarEnlace" targetRef="Task_T8_Activar" />
+    <bpmn:sequenceFlow id="Flow_20" sourceRef="Task_T8_Activar" targetRef="End_Activo" />
+    <bpmn:sequenceFlow id="Flow_21" sourceRef="Task_T6_Replicar" targetRef="End_Replica" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_MatriculaToBe" name="Academia La Prepa Cermat: matrícula (TO-BE, Plataforma CERMAT)">
+    <bpmndi:BPMNPlane id="BPMNPlane_MatriculaToBe" bpmnElement="Collaboration_MatriculaToBe">
+      <bpmndi:BPMNShape id="Participant_AcademiaToBe_di" bpmnElement="Participant_AcademiaToBe" isHorizontal="true">
+        <dc:Bounds x="160" y="160" width="2180" height="680" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Postulante_di" bpmnElement="Lane_Postulante" isHorizontal="true">
+        <dc:Bounds x="190" y="160" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Plataforma_di" bpmnElement="Lane_Plataforma" isHorizontal="true">
+        <dc:Bounds x="190" y="310" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Secretaria_di" bpmnElement="Lane_Secretaria" isHorizontal="true">
+        <dc:Bounds x="190" y="460" width="2150" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Relacional_di" bpmnElement="Lane_Relacional" isHorizontal="true">
+        <dc:Bounds x="190" y="690" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_InteresLinea_di" bpmnElement="Start_InteresLinea">
+        <dc:Bounds x="262" y="217" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="220" y="259" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T1_PreMatricula_di" bpmnElement="Task_T1_PreMatricula">
+        <dc:Bounds x="370" y="195" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_EnSede_di" bpmnElement="Start_EnSede">
+        <dc:Bounds x="262" y="517" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="220" y="559" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T1B_RegistroRapido_di" bpmnElement="Task_T1B_RegistroRapido">
+        <dc:Bounds x="370" y="495" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Canal_di" bpmnElement="Gateway_Canal" isMarkerVisible="true">
+        <dc:Bounds x="555" y="360" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="525" y="326" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T2_Validar_di" bpmnElement="Task_T2_Validar">
+        <dc:Bounds x="670" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Valida_di" bpmnElement="Gateway_Valida" isMarkerVisible="true">
+        <dc:Bounds x="855" y="360" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="825" y="326" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_R1_Motivo_di" bpmnElement="Task_R1_Motivo">
+        <dc:Bounds x="970" y="195" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Rechazada_di" bpmnElement="End_Rechazada">
+        <dc:Bounds x="1162" y="217" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1120" y="259" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T2B_Crear_di" bpmnElement="Task_T2B_Crear">
+        <dc:Bounds x="970" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T3_Revisar_di" bpmnElement="Task_T3_Revisar">
+        <dc:Bounds x="1120" y="495" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Pago_di" bpmnElement="Gateway_Pago" isMarkerVisible="true">
+        <dc:Bounds x="1305" y="510" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1275" y="476" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T3B_Cancelar_di" bpmnElement="Task_T3B_Cancelar">
+        <dc:Bounds x="1420" y="595" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Cancelada_di" bpmnElement="End_Cancelada">
+        <dc:Bounds x="1612" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1570" y="659" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T4_Aprobar_di" bpmnElement="Task_T4_Aprobar">
+        <dc:Bounds x="1420" y="495" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T4B_Invitacion_di" bpmnElement="Task_T4B_Invitacion">
+        <dc:Bounds x="1570" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Paralelo_di" bpmnElement="Gateway_Paralelo">
+        <dc:Bounds x="1755" y="360" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1725" y="326" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T5_EnviarEnlace_di" bpmnElement="Task_T5_EnviarEnlace">
+        <dc:Bounds x="1870" y="495" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T8_Activar_di" bpmnElement="Task_T8_Activar">
+        <dc:Bounds x="2020" y="195" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Activo_di" bpmnElement="End_Activo">
+        <dc:Bounds x="2212" y="217" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2170" y="259" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_T6_Replicar_di" bpmnElement="Task_T6_Replicar">
+        <dc:Bounds x="1870" y="725" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Replica_di" bpmnElement="End_Replica">
+        <dc:Bounds x="2062" y="747" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2020" y="789" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Transaccion_di" bpmnElement="Note_Transaccion">
+        <dc:Bounds x="635" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Invitacion_di" bpmnElement="Note_Invitacion">
+        <dc:Bounds x="1535" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Conciliacion_di" bpmnElement="Note_Conciliacion">
+        <dc:Bounds x="1835" y="880" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="298" y="235" />
+        <di:waypoint x="370" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="490" y="235" />
+        <di:waypoint x="580" y="235" />
+        <di:waypoint x="580" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="298" y="535" />
+        <di:waypoint x="370" y="535" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="490" y="535" />
+        <di:waypoint x="580" y="535" />
+        <di:waypoint x="580" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="605" y="385" />
+        <di:waypoint x="670" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="790" y="385" />
+        <di:waypoint x="855" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_NoValida_di" bpmnElement="Flow_07_NoValida">
+        <di:waypoint x="880" y="360" />
+        <di:waypoint x="880" y="235" />
+        <di:waypoint x="970" y="235" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="886" y="243" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <di:waypoint x="1090" y="235" />
+        <di:waypoint x="1162" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_SiValida_di" bpmnElement="Flow_09_SiValida">
+        <di:waypoint x="905" y="385" />
+        <di:waypoint x="970" y="385" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="913" y="363" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1090" y="385" />
+        <di:waypoint x="1105" y="385" />
+        <di:waypoint x="1105" y="535" />
+        <di:waypoint x="1120" y="535" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1240" y="535" />
+        <di:waypoint x="1305" y="535" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_NoPago_di" bpmnElement="Flow_12_NoPago">
+        <di:waypoint x="1330" y="560" />
+        <di:waypoint x="1330" y="635" />
+        <di:waypoint x="1420" y="635" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1336" y="568" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1540" y="635" />
+        <di:waypoint x="1612" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_SiPago_di" bpmnElement="Flow_14_SiPago">
+        <di:waypoint x="1355" y="535" />
+        <di:waypoint x="1420" y="535" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1363" y="513" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="1540" y="535" />
+        <di:waypoint x="1555" y="535" />
+        <di:waypoint x="1555" y="385" />
+        <di:waypoint x="1570" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="1690" y="385" />
+        <di:waypoint x="1755" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="1805" y="385" />
+        <di:waypoint x="1840" y="385" />
+        <di:waypoint x="1840" y="535" />
+        <di:waypoint x="1870" y="535" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="1780" y="410" />
+        <di:waypoint x="1780" y="765" />
+        <di:waypoint x="1870" y="765" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="1990" y="535" />
+        <di:waypoint x="2005" y="535" />
+        <di:waypoint x="2005" y="235" />
+        <di:waypoint x="2020" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <di:waypoint x="2140" y="235" />
+        <di:waypoint x="2212" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21">
+        <di:waypoint x="1990" y="765" />
+        <di:waypoint x="2062" y="765" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Transaccion_di" bpmnElement="Assoc_Note_Transaccion">
+        <di:waypoint x="730" y="345" />
+        <di:waypoint x="730" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Invitacion_di" bpmnElement="Assoc_Note_Invitacion">
+        <di:waypoint x="1630" y="345" />
+        <di:waypoint x="1630" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Conciliacion_di" bpmnElement="Assoc_Note_Conciliacion">
+        <di:waypoint x="1930" y="805" />
+        <di:waypoint x="1930" y="880" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

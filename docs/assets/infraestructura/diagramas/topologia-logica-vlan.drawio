@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-10-24T12:00:00.000Z" agent="CERMAT EPE CE03" version="24.7.17" type="device">
+  <diagram id="topologia-logica" name="Topología lógica (VLAN y subredes)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" value="Topología lógica — VLAN, subredes, gateways y ruteo (S1-E1 · CE0311) · v2.0 · 2026-10-24" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="internet" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="700" y="40" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wan1" value="WAN1 · NET-01/NET-02 · fibra&lt;br&gt;IP asignada por el ISP (fija, dinámica o CGNAT: por confirmar)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="190" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="wan2" value="WAN2 · NET-03 · 4G/LTE&lt;br&gt;DHCP del router LTE (doble NAT)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="910" y="190" width="330" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fw" value="NET-04 · OPNsense (VM-FW01)&lt;br&gt;Gateway .1 de cada VLAN · DHCP · DNS (Unbound) · NTP&lt;br&gt;Ruteo entre VLAN con política por defecto: denegar&lt;br&gt;Grupo de gateways: WAN1 (nivel 1) → WAN2 (nivel 2)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#fde9d9;strokeColor=#c0504d;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320" width="440" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="nube" value="NUBE · 10.20.0.0/24&lt;br&gt;NET-23 VPS · NET-26 strongSwan · 10.20.0.1 (dum0)&lt;br&gt;Redes anunciadas por el túnel NET-27:&lt;br&gt;sede 10.10.40.0/24 y 10.10.99.0/27 ↔ nube 10.20.0.0/24" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="320" width="410" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="sw" value="NET-06 · Switch 802.1Q · troncal (LACP) hacia PVE01, donde corre OPNsense&lt;br&gt;Puertos de acceso por VLAN" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="600" y="500" width="440" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ap" value="NET-07 / NET-08 · AP Wi-Fi 6&lt;br&gt;SSID → VLAN 10, 20 y 30 · gestión en VLAN 99" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="500" width="330" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ruteo" value="Ruteo y direccionamiento&lt;br&gt;• OPNsense es el único router entre VLAN (router-on-a-stick sobre la troncal).&lt;br&gt;• Rutas conectadas 10.10.x.0; ruta por defecto por el grupo de gateways.&lt;br&gt;• 10.20.0.0/24 se alcanza por la política IPsec, sin rutas estáticas manuales.&lt;br&gt;• Sin protocolo dinámico: red pequeña y estable.&lt;br&gt;• Reservas: 10.10.60.0–10.10.98.255 (crecimiento), 10.11.0.0/16 y 10.12.0.0/16 (otras sedes), 10.20.1.0/24 en adelante (nube)." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="320" width="540" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="v10" value="VLAN 10 · ADMIN&lt;br&gt;10.10.10.0/24 · gw 10.10.10.1&lt;br&gt;DHCP .100–.199&lt;br&gt;&lt;br&gt;.10 NET-18 ADMIN_TI (reserva)&lt;br&gt;.20 NET-20 Impresora&lt;br&gt;.100–.199 NET-19 Equipos administrativos&lt;br&gt;&lt;br&gt;Confianza: media" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="20" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="v20" value="VLAN 20 · ACAD&lt;br&gt;10.10.20.0/24 · gw 10.10.20.1&lt;br&gt;DHCP .100–.250&lt;br&gt;&lt;br&gt;NET-21 Docentes y auxiliares (QR)&lt;br&gt;&lt;br&gt;Sale a Internet; solo alcanza la impresora&lt;br&gt;&lt;br&gt;Confianza: media" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fffbe6;strokeColor=#c9b458;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="v30" value="VLAN 30 · GUEST&lt;br&gt;10.10.30.0/24 · gw 10.10.30.1&lt;br&gt;DHCP .50–.250&lt;br&gt;&lt;br&gt;NET-22 Clientes Wi-Fi aislados&lt;br&gt;&lt;br&gt;Solo HTTP/HTTPS y el DNS del firewall&lt;br&gt;&lt;br&gt;Confianza: baja" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="560" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="v40" value="VLAN 40 · SRV&lt;br&gt;10.10.40.0/24 · gw 10.10.40.1&lt;br&gt;Sin DHCP&lt;br&gt;&lt;br&gt;.10 NET-13 VM-APP01 (:3001, :8000, MySQL local)&lt;br&gt;.20 NET-14 VM-SIEM01 (Wazuh :1514/:1515)&lt;br&gt;.30 NET-15 VM-MON01 (Kuma :3001, Netdata :19999)&lt;br&gt;.40 NET-16 VM-BKP01 (PBS :8007)&lt;br&gt;&lt;br&gt;Confianza: alta" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#c8e6c9;strokeColor=#2e7d32;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="830" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="v50" value="VLAN 50 · DMZ&lt;br&gt;10.10.50.0/24 · gw 10.10.50.1&lt;br&gt;Sin DHCP&lt;br&gt;&lt;br&gt;.10 NET-17 VM-HPOT01&lt;br&gt;Cowrie :2222 (NAT desde WAN :22)&lt;br&gt;SSH real :22022 solo desde el bastión&lt;br&gt;&lt;br&gt;Sin salida (FW-41)&lt;br&gt;Confianza: baja (expuesta)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="v99" value="VLAN 99 · MGMT&lt;br&gt;10.10.99.0/27 · gw 10.10.99.1&lt;br&gt;Sin DHCP&lt;br&gt;&lt;br&gt;.2 NET-06 Switch&lt;br&gt;.3 / .4 NET-07 / NET-08 AP&lt;br&gt;.5 NET-09 UPS&lt;br&gt;.10 NET-10 PVE01&lt;br&gt;.11 NET-11 IPMI&lt;br&gt;.20 NET-12 Bastión&lt;br&gt;&lt;br&gt;Confianza: máxima" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="730" width="255" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="ref" value="Matriz permitido/denegado completa: S1-E1 §8.4 y hoja &quot;Matriz de zonas&quot; de s1-e1-matriz-componentes-red.xlsx" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1060" width="1100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="internet" target="wan1">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="internet" target="wan2">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e18" value="WAN1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="wan1" target="fw">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e19" value="WAN2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="wan2" target="fw">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e20" value="NET-27 IPsec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeWidth=3;strokeColor=#9673a6;fontColor=#5b3f73;endArrow=none;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fw" target="nube">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e21" value="troncal: VLAN 10, 20, 30, 40, 50 y 99" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="fw" target="sw">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e22" value="troncal 10/20/30 (+99)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="ap">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v10">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v20">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v30">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v40">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v50">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="v99">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

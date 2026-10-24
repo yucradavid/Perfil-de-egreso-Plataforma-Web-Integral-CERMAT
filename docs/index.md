@@ -1,159 +1,105 @@
 # Perfil de Egreso - Plataforma Web Integral CERMAT
 
-!!! abstract "EPE — Sistema funcional en producción"
-    Esta documentación organiza las evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT** bajo la estructura de Perfil de Egreso (**EPE**). El sistema no es un prototipo: está implementado, desplegado y operando con datos reales de la Academia La Prepa Cermat, Azángaro, Perú.
+!!! abstract "EPE — Sistema desplegado y en operación piloto"
+    Evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT**, organizadas según la guía oficial vigente de evaluación del perfil de egreso (Escuela Profesional de Ingeniería de Sistemas, UPeU, versión de septiembre de 2026). El sistema está publicado en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) y opera en piloto en la Academia La Prepa Cermat (Azángaro, Puno).
 
-    Link del [Repositorio](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) 
-
-<!-- [:material-file-download: Descargar toda la documentación en PDF](assets/perfil-egreso-completo.pdf){ .md-button .md-button--primary }
-[:material-printer: Ver / imprimir todo en una sola página](print_page/){ .md-button } -->
-
-## Presentacion
-
-Esta documentacion organiza las evidencias del proyecto **Plataforma Web Integral de Gestion Academica CERMAT** bajo la estructura operativa de Perfil de Egreso (**EPE**) y las tres lineas de competencia de especialidad de la carrera:
-
-- **CE01 - Gestion de Tecnologias de Informacion** (CE011 Gestion e Innovacion de TI, CE012 Gestion de Proyectos, CE013 Gestion de Procesos, CE014 Gestion de Sistemas de Informacion)
-- **CE02 - Ingenieria de Software** (CE021 Requerimientos, CE022 Informacion, CE023 Programacion, CE024 Calidad)
-- **CE03 - Infraestructura Tecnologica** (CE031 Conectividad, CE032 Seguridad de la Informacion, CE033 Centro de Datos)
-
-El sistema documentado corresponde a una plataforma escolar web construida con **React, TypeScript, Vite, Firebase Authentication, Cloud Firestore, Firebase Storage, TanStack Query, Tailwind CSS y una API REST Node.js + MySQL opcional para sincronizacion operativa**.
+    Repositorio de esta documentación: [Perfil-de-egreso-Plataforma-Web-Integral-CERMAT](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) · Versión imprimible: [PDF completo](assets/perfil-egreso-completo.pdf) (2026-10-24)
 
 ## Proyecto
 
 | Campo | Valor |
 |---|---|
-| Nombre | Plataforma Web Integral de Gestion Academica CERMAT |
-| Tipo | EPE |
-| Organizacion | Academia La Prepa Cermat |
+| Nombre | Plataforma Web Integral de Gestión Académica CERMAT |
+| Tipo | EPE (Evaluación de Perfil de Egreso) |
+| Organización | CERMAT — Academia La Prepa Cermat (el colegio CERMAT School tiene su propio sistema de gestión) |
 | Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
-| Ciclo academico | 9° ciclo |
-| Fecha de documentacion | 2026-06-22 (actualizado 2026-07-05) |
-| Alcance academico | Perfil de egreso completo: CE01 (Gestion de TI), CE02 (Ingenieria de Software) y CE03 (Infraestructura) |
-| Base tecnica principal | SPA React + Firebase |
-| Base de datos principal | Cloud Firestore |
-| Base de datos complementaria | MySQL para reportes/sincronizacion operativa |
+| Ciclo / semestre | 9° ciclo — 2026-2, campus Juliaca |
+| Fecha de esta versión | 2026-10-24 |
+| Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
 
-## Entregables incluidos
+## Entregables
 
-### A. Gestion de Tecnologias de Informacion (CE01)
+### A. Gestión de Tecnologías de Información (CE01)
 
-| Entregable | Competencia | Descripcion |
+| Entregable | Evidencias | Contenido |
 |---|---|---|
-| [E1 - Diagnostico Organizacional](gestion-ti/e1-diagnostico-organizacional-ce0111.md) | CE0111-CE0115 | Contexto, FODA, diagnostico digital e identificacion del problema. |
-| [E2 - Business Case](gestion-ti/e2-business-case-ce0113.md) | CE0113 | Alternativas evaluadas, beneficios, costos y riesgos iniciales del proyecto. |
-| [E3 - Plan de Gestion del Proyecto](gestion-ti/e3-plan-gestion-proyecto-ce0121.md) | CE0121-CE0125 | Acta de constitucion, EDT, cronograma real por fases, costos y riesgos. |
-| [E4 - Modelado de Procesos AS-IS/TO-BE](gestion-ti/e4-modelado-procesos-ce0131.md) | CE0131-CE0135 | Rediseño del proceso de matricula, de manual a digital, con mejoras cuantificadas. |
-| [E5 - Propuesta de Solucion TIC](gestion-ti/e5-propuesta-solucion-tic-ce0141.md) | CE0141-CE0145 | La plataforma como ecosistema de sistemas de informacion de la institucion. |
+| [E1 — Diagnóstico organizacional y alineamiento estratégico](gestion-ti/e1-diagnostico-organizacional-ce0111.md) | CE0111–CE0115 | Contexto, FODA, madurez digital, problema y causas, roadmap y riesgos estratégicos |
+| [E2 — Business case](gestion-ti/e2-business-case-ce0113.md) | CE0113 | Alternativas ponderadas, beneficios, costos y evaluación económica a 3 años |
+| [E3 — Plan de gestión del proyecto](gestion-ti/e3-plan-gestion-proyecto-ce0121.md) | CE0121–CE0125 | Acta, EDT, cronograma, presupuesto, riesgos y gestión ágil |
+| [E4 — Procesos AS-IS / TO-BE](gestion-ti/e4-modelado-procesos-ce0131.md) | CE0131–CE0135 | Proceso de matrícula en BPMN y comparación de tiempo, costo y calidad |
+| [E5 — Propuesta de solución TIC integrada](gestion-ti/e5-propuesta-solucion-tic-ce0141.md) | CE0141–CE0145 | Ecosistema colegio + academia, integración, gobierno e indicadores de uso |
 
-### B. Ingenieria de Software (CE02)
+### B. Ingeniería de Software (CE02)
 
-| Entregable | Competencia | Descripcion |
+| Entregable | Competencia | Contenido |
 |---|---|---|
-| Brief EPE | Punto de partida | Define problema, contexto, alcance, datos, solucion y viabilidad. |
-| [E1 - Definicion del Sistema](e1-definicion-sistema-ce021.md) | CE021 | Integra requerimientos, prototipos, arquitectura, UML y trazabilidad. |
-| [E2 - Base de Datos del Sistema](e2-base-datos-ce022.md) | CE022 | Documenta modelo de datos, esquema, consultas, seguridad, rendimiento y consistencia. |
-| [E3 - Sistema Funcional Integrado](e3-sistema-funcional-ce023.md) | CE023 | Documenta arquitectura de integracion, funcionalidad implementada, diseño de codigo y despliegue. |
-| [E4 - Calidad, Operacion y Evolucion](e4-calidad-operacion-ce024.md) | CE024 | Documenta pruebas, CI/CD, metricas tecnicas y auditoria/evolucion del sistema, con brechas declaradas. |
-| [E5 - Presentacion, Video Pitch y Sustentacion Final](e5-presentacion-sustentacion-ce0217.md) | CE0217 | Guion de sustentacion y demo en vivo, con preguntas anticipadas del jurado y sintesis final del aporte del proyecto. |
+| [E1 — Requerimientos y diseño del sistema](e1-definicion-sistema-ce021.md) | CE021 | 22 RF, 10 RNF, reglas de negocio, historias, prototipo, C4, ADR, UML y trazabilidad |
+| [E2 — Plataforma de datos](e2-base-datos-ce022.md) | CE022 | Modelo, DDL/DML, procedimientos, funciones, triggers, roles, respaldo y 19 pruebas SQL |
+| [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue |
+| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 90 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
 
-### C. Infraestructura Tecnologica (CE03)
+### C. Infraestructura Tecnológica (CE03)
 
-| Entregable | Competencia | Descripcion |
+| Momento | Entregable | Códigos |
 |---|---|---|
-| [E1 - Diseño de Red](infraestructura/e1-diseno-red-ce0311.md) | CE0311 | Topologia, VLAN, redundancia y estandares de conectividad para la sede que aloja la capa local de la plataforma. |
-| [E2 - Planificacion de Seguridad](infraestructura/e2-planificacion-seguridad-ce0321.md) | CE0321 | Activos criticos, analisis de riesgos ISO 27005/NIST, politicas y roles. |
-| [E3 - Diseño de Centro de Datos](infraestructura/e3-diseno-centro-datos-ce0331.md) | CE0331 | Clasificacion Tier, layout fisico, dimensionamiento y virtualizacion/cloud hibrido. |
-| [E4 - Implementacion y Testing de Red](infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md) | CE0312-CE0313 | Configuracion de dispositivos, direccionamiento y protocolo de pruebas. |
-| [E5 - Implementacion, Monitoreo y Etica](infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md) | CE0322-CE0324 | Controles tecnicos, KPIs de seguridad y analisis etico ACM. |
-| [E6 - Implementacion y Control de Centro de Datos](infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md) | CE0332-CE0333 | Servicios del servidor local, respaldos, SLA y procedimientos operativos. |
+| Semestre 1 | [E1 — Análisis y diseño de red](infraestructura/s1-e1-analisis-diseno-red-ce0311.md) | CE0311 |
+| Semestre 1 | [E2 — Análisis y diseño de centro de datos híbrido](infraestructura/s1-e2-diseno-centro-datos-hibrido-ce0331.md) | CE0331 |
+| Semestre 1 | [Producto final: diseño técnico consolidado](infraestructura/s1-producto-final.md) | — |
+| Semestre 2 | [E1 — Planificación e implementación del SGSI](infraestructura/s2-e1-sgsi-ce0321-ce0324.md) | CE0321–CE0324 |
+| Semestre 2 | [E2 — Implementación, testing y monitoreo de red](infraestructura/s2-e2-implementacion-red-ce0312-ce0313.md) | CE0312–CE0313 |
+| Semestre 2 | [E3 — Implementación, gestión y control de centro de datos](infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md) | CE0332–CE0333 |
+| Semestre 2 | [Producto final: informe de implementación integral](infraestructura/s2-producto-final.md) | — |
 
-## Resumen ejecutivo del sistema
+Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustentacion-ce0217.md).
 
-!!! success "Métricas del sistema"
-    | Indicador | Valor |
-    |---|---|
-    | Módulos de dominio implementados | 10+ (ciclos, grupos, matrículas, pagos, asistencia, recursos, posts, talleres, usuarios, analítica) |
-    | Rutas protegidas por rol | 4 portales (admin, docente, estudiante, auxiliar) |
-    | Colecciones Firestore documentadas | 21 (actualizado 2026-07-05; eran 16 el 2026-06-22) |
-    | Tablas MySQL complementarias | 6 |
-    | Requerimientos funcionales | 22 (RF01–RF22) |
-    | Requerimientos no funcionales | 10 (RNF01–RNF10) |
-    | Documentos de auditoria/evolucion (`docs/AUDITORIA_*`, `docs/FASE_*`) | 90+ |
-    | Stack principal | React 18 + TypeScript + Firebase + Node.js + MySQL + Python (FastAPI) |
+## Resumen del sistema (medido el 2026-10-24)
 
-La plataforma CERMAT resuelve la gestion academica y administrativa de una institucion educativa que necesita centralizar su presencia publica, matriculas, ciclos, grupos, pagos, asistencia, recursos, docentes, estudiantes, auxiliares y comunicacion con padres.
+| Indicador | Valor |
+|---|---|
+| Módulos de dominio | 13 (`src/features/*`) |
+| Portales y guardas de ruta | 6 (público, admin, docente, estudiante, auxiliar y padres) |
+| Colecciones de Firestore con reglas | 22 |
+| Base relacional MySQL | 6 tablas de negocio + auditoría; 4 funciones, 5 procedimientos, 6 triggers y 3 vistas |
+| Requerimientos | 22 funcionales y 10 no funcionales |
+| Pruebas automáticas | 90 (34 unitarias, 18 de API, 19 de reglas de seguridad y 19 de base de datos) |
+| Integración continua | 6 trabajos en GitHub Actions |
+| Uso en piloto | 8 matrículas, 2 pagos, 7 marcas de asistencia y 8 usuarios con perfil |
 
-El producto no se limita a una pagina informativa. Opera como una plataforma educativa con portales diferenciados:
-
-- Portal publico para informacion institucional, ciclos, sedes, recursos, talleres, blog, contacto y matricula.
-- Portal administrativo para configuracion academica, matriculas, pagos, alumnos, docentes, auxiliares, asistencia, contenidos y talleres.
-- Portal docente para cursos, recursos y control de asistencia.
-- Portal estudiante para cursos, recursos, matricula, asistencia y talleres.
-- Portal auxiliar para supervision de asistencia.
-- Consulta publica de asistencia para padres mediante codigo CERMAT.
-
-## Mapa de documentacion
+## Arquitectura
 
 ```mermaid
-flowchart TD
-  BRIEF["Brief EPE"] --> GTI["A. Gestion de TI (CE01)"]
-  BRIEF --> SW["B. Ingenieria de Software (CE02)"]
-  BRIEF --> INFRA["C. Infraestructura (CE03)"]
-
-  GTI --> DIAG["E1 Diagnostico organizacional"]
-  DIAG --> BC["E2 Business case"]
-  BC --> PLAN["E3 Plan de gestion"]
-  PLAN --> PROC["E4 AS-IS / TO-BE"]
-  PROC --> TIC["E5 Propuesta TIC"]
-  TIC --> SW
-
-  SW --> B["E1 - Definicion del Sistema (CE021)"]
-  SW --> C["E2 - Base de Datos (CE022)"]
-  B --> H["E3 - Sistema Funcional (CE023)"]
-  C --> H
-  H --> I["E4 - Calidad y Operacion (CE024)"]
-  I --> P["E5 - Presentacion y Sustentacion (CE0217)"]
-
-  INFRA --> RED["E1 Diseño de red"]
-  RED --> SEG["E2 Planificacion de seguridad"]
-  SEG --> CD["E3 Diseño de centro de datos"]
-  CD -.soporta.-> SRV["Servidor local: API + MySQL + PM2"]
-  SRV -.usado por.-> SW
+flowchart LR
+  Colegio["Sitio del colegio<br/>cermatschool.edu.pe<br/>(Angular + Laravel en VPS)"] -->|enlace| SPA
+  Usuarios["6 tipos de usuario"] --> SPA["Plataforma de la academia<br/>React + TypeScript (Vercel)"]
+  SPA --> Firebase["Firebase<br/>Auth · Firestore · Storage"]
+  SPA -.no bloqueante.-> API["API Node.js + MySQL<br/>+ analítica Python (local)"]
 ```
 
-## Arquitectura de la solucion
+| Capa | Tecnología | Rol |
+|---|---|---|
+| Presentación | React 18 + TypeScript + Vite en Vercel | Portales por rol |
+| Identidad y datos | Firebase Auth, Firestore y Storage | Fuente de verdad, reglas por rol probadas |
+| Réplica y analítica | Node.js + Express, MySQL 8, Python + FastAPI | Reportes, conciliación, auditoría y riesgo de inasistencia |
+| Infraestructura | Vercel, Firebase, servidor local y VPS del colegio | Base del diseño híbrido de la línea CE03 |
 
-!!! tip "Arquitectura técnica híbrida"
-    La solución combina una capa **cloud** (Firebase) para operación web en tiempo real y una capa **local** (Node.js + MySQL + Python FastAPI) para analítica, alertas automáticas y respaldo. La imagen de arquitectura completa se incluye en el Brief EPE y el E1.
+## Evidencia técnica (repositorio `academia-school-platform`)
 
-    | Capa | Tecnología | Rol |
-    |---|---|---|
-    | Presentación | React 18 + TypeScript + Vite | SPA multi-portal por rol |
-    | Autenticación | Firebase Authentication | Identidad y claims |
-    | Datos cloud | Cloud Firestore + Storage | Base operativa principal |
-    | API REST | Node.js + Express | Sincronización y auditoría |
-    | Analítica | Python + FastAPI | Alertas y tendencias |
-    | Datos local | MySQL | Reportes y respaldo relacional |
-    | Infraestructura | PM2 + backups automáticos | Gestión de servicios locales |
-
-## Evidencia tecnica base
-
-| Evidencia | Archivo / ubicacion |
+| Evidencia | Ubicación |
 |---|---|
-| Rutas y modulos activos | `src/App.tsx` |
-| Inventario funcional | `MODULOS_ACTIVOS_WEB.md` |
-| Configuracion Firebase | `src/lib/firebase.ts` |
-| Reglas de seguridad Firestore | `firestore.rules` |
-| Matriculas | `src/features/enrollments/*` |
-| Ciclos academicos | `src/features/cycles/*` |
-| Grupos | `src/features/groups/*` |
-| Pagos | `src/features/payments/*` |
-| Asistencia | `src/features/attendance/*` |
-| Usuarios y roles | `src/features/users/*`, `src/routes/*` |
-| Sincronizacion API REST | `src/lib/syncService.ts`, `server/src/*` |
-| Esquema MySQL | `server/src/db/schema.sql` |
-| Servicio de analitica | `analytics/main.py` |
-| Invitaciones y activacion por rol | `src/features/teacherInvites/*`, `src/pages/Activate*Page.tsx` |
-| Carga masiva por Excel | `src/lib/excelImport.ts`, `src/components/admin/ExcelUploadButton.tsx` |
-| Auditorias y evolucion tecnica | `docs/AUDITORIA_*.md`, `docs/FASE_*.md` |
-| Metricas de calidad de codigo | `lint-report.txt`, `lint-h2-1-before.txt`, `lint-h2-1-after.txt` |
+| Rutas y portales | `src/App.tsx`, `src/routes/*` |
+| Reglas de seguridad y sus pruebas | `firestore.rules`, `tests/firestore-rules/reglas.test.ts` |
+| Módulos de dominio | `src/features/*` |
+| Base relacional | `server/src/db/` (migraciones, pruebas y README) |
+| API y sus pruebas | `server/src/`, `server/test/` |
+| Analítica | `analytics/main.py` |
+| Pipeline de CI | `.github/workflows/ci.yml` |
+| Respaldo y restauración | `server/scripts/backup.js`, `server/scripts/restore.js` |
+
+!!! warning "Pendientes que solo puede cerrar el equipo"
+    - Publicar el frontend y luego las reglas corregidas, en ese orden; después, probar una matrícula sin sesión en producción.
+    - Aplicar las migraciones MySQL en la base real y crear las cuentas de mínimo privilegio.
+    - Firmar las actas de validación con la academia y la declaración de ética de seguridad.
+    - Ejecutar el laboratorio de infraestructura (Semestre 2) y adjuntar sus evidencias.
+    - Validar con la Dirección los supuestos del business case.
+    - Rotar la clave de servicio de Firebase y dar acceso al jurado al repositorio.
+    - Preparar la sustentación individual ([guía](e5-presentacion-sustentacion-ce0217.md)).

@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_MatriculaAsIs" targetNamespace="https://academia-school-platform.vercel.app/bpmn" exporter="generar-bpmn.mjs (Plataforma CERMAT)" exporterVersion="1.0">
+  <bpmn:collaboration id="Collaboration_MatriculaAsIs">
+    <bpmn:participant id="Participant_AcademiaAsIs" name="Academia La Prepa Cermat: matrícula (AS-IS, proceso manual)" processRef="Process_MatriculaAsIs" />
+    <bpmn:textAnnotation id="Note_Redigitacion">
+      <bpmn:text>Re-digitación en cuaderno, hojas y listas; sin control de duplicados</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Cupo">
+      <bpmn:text>Cupo en otro registro: riesgo de sobrecupo</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Espera">
+      <bpmn:text>Espera de 1 a 3 días por la autorización presencial (supuesto)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Pago">
+      <bpmn:text>Pago desconectado de la matrícula: conciliación manual</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_Confirmacion">
+      <bpmn:text>Confirmación verbal: sin acceso para el alumno ni código para el padre</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_Note_Redigitacion" associationDirection="None" sourceRef="Task_A2_Registrar" targetRef="Note_Redigitacion" />
+    <bpmn:association id="Assoc_Note_Cupo" associationDirection="None" sourceRef="Task_A3_VerificarCupo" targetRef="Note_Cupo" />
+    <bpmn:association id="Assoc_Note_Espera" associationDirection="None" sourceRef="Task_A4_Autorizar" targetRef="Note_Espera" />
+    <bpmn:association id="Assoc_Note_Pago" associationDirection="None" sourceRef="Task_A6_Conciliar" targetRef="Note_Pago" />
+    <bpmn:association id="Assoc_Note_Confirmacion" associationDirection="None" sourceRef="Task_A7_Confirmar" targetRef="Note_Confirmacion" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_MatriculaAsIs" name="Matrícula AS-IS" isExecutable="false">
+    <bpmn:documentation>Proceso de matrícula manual de la Academia La Prepa Cermat. Tiempos de personal por actividad: supuestos a validar con 10 trámites cronometrados (E4, sección 4.3.4). Total: 40 min (35 de secretaría y 5 de la Dirección). Equipo EPE CERMAT, 2026-10-24.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_MatriculaAsIs">
+      <bpmn:lane id="Lane_Padre" name="Padre o postulante">
+        <bpmn:flowNodeRef>Start_Interes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P1_Consultar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P2_Pagar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Matriculado</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Secretaria" name="Secretaría">
+        <bpmn:flowNodeRef>Task_A1_Informar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A2_Registrar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A3_VerificarCupo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_HayCupo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A3B_OfrecerOtro</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_NoConcretada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A5_Cobrar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A6_Conciliar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A7_Confirmar</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Direccion" name="Dirección">
+        <bpmn:flowNodeRef>Task_A4_Autorizar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Autoriza</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Rechazada</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Interes" name="Interés en matricular">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:manualTask id="Task_P1_Consultar" name="Consultar en persona, por teléfono o WhatsApp">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A1_Informar" name="A1 Informar oferta, horarios y precios (10 min)">
+      <bpmn:documentation>Supuesto: 10 min de secretaría.</bpmn:documentation>
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A2_Registrar" name="A2 Registrar datos en cuaderno u hoja (6 min)">
+      <bpmn:documentation>Supuesto: 6 min. Problema: re-digitación y duplicados.</bpmn:documentation>
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A3_VerificarCupo" name="A3 Verificar cupo en otra lista (4 min)">
+      <bpmn:documentation>Supuesto: 4 min. Problema: el cupo vive en un registro distinto al de la matrícula.</bpmn:documentation>
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="Gateway_HayCupo" name="¿Hay cupo?">
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+      <bpmn:outgoing>Flow_06_NoCupo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_08_SiCupo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:manualTask id="Task_A3B_OfrecerOtro" name="Ofrecer otro grupo o lista de espera">
+      <bpmn:incoming>Flow_06_NoCupo</bpmn:incoming>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:endEvent id="End_NoConcretada" name="Matrícula no concretada">
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:manualTask id="Task_A4_Autorizar" name="A4 Revisar y autorizar en persona (5 min)">
+      <bpmn:documentation>Supuesto: 5 min de la Dirección. Problema: espera de 1 a 3 días si no está disponible.</bpmn:documentation>
+      <bpmn:incoming>Flow_08_SiCupo</bpmn:incoming>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="Gateway_Autoriza" name="¿Autoriza?">
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_10_NoAutoriza</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11_SiAutoriza</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Rechazada" name="Matrícula rechazada">
+      <bpmn:incoming>Flow_10_NoAutoriza</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:manualTask id="Task_P2_Pagar" name="Pagar en efectivo">
+      <bpmn:incoming>Flow_11_SiAutoriza</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A5_Cobrar" name="A5 Cobrar y emitir recibo físico (6 min)">
+      <bpmn:documentation>Supuesto: 6 min.</bpmn:documentation>
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A6_Conciliar" name="A6 Conciliar el pago con el registro (3 min)">
+      <bpmn:documentation>Supuesto: 3 min. Problema: pago desconectado de la matrícula.</bpmn:documentation>
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="Task_A7_Confirmar" name="A7 Confirmar al padre y agregar a la lista (6 min)">
+      <bpmn:documentation>Supuesto: 6 min. Problema: confirmación verbal, sin acceso digital.</bpmn:documentation>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:endEvent id="End_Matriculado" name="Matriculado sin confirmación digital">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="Start_Interes" targetRef="Task_P1_Consultar" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_P1_Consultar" targetRef="Task_A1_Informar" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Task_A1_Informar" targetRef="Task_A2_Registrar" />
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="Task_A2_Registrar" targetRef="Task_A3_VerificarCupo" />
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="Task_A3_VerificarCupo" targetRef="Gateway_HayCupo" />
+    <bpmn:sequenceFlow id="Flow_06_NoCupo" name="No" sourceRef="Gateway_HayCupo" targetRef="Task_A3B_OfrecerOtro" />
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="Task_A3B_OfrecerOtro" targetRef="End_NoConcretada" />
+    <bpmn:sequenceFlow id="Flow_08_SiCupo" name="Sí" sourceRef="Gateway_HayCupo" targetRef="Task_A4_Autorizar" />
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="Task_A4_Autorizar" targetRef="Gateway_Autoriza" />
+    <bpmn:sequenceFlow id="Flow_10_NoAutoriza" name="No" sourceRef="Gateway_Autoriza" targetRef="End_Rechazada" />
+    <bpmn:sequenceFlow id="Flow_11_SiAutoriza" name="Sí" sourceRef="Gateway_Autoriza" targetRef="Task_P2_Pagar" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_P2_Pagar" targetRef="Task_A5_Cobrar" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_A5_Cobrar" targetRef="Task_A6_Conciliar" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_A6_Conciliar" targetRef="Task_A7_Confirmar" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_A7_Confirmar" targetRef="End_Matriculado" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_MatriculaAsIs" name="Academia La Prepa Cermat: matrícula (AS-IS, proceso manual)">
+    <bpmndi:BPMNPlane id="BPMNPlane_MatriculaAsIs" bpmnElement="Collaboration_MatriculaAsIs">
+      <bpmndi:BPMNShape id="Participant_AcademiaAsIs_di" bpmnElement="Participant_AcademiaAsIs" isHorizontal="true">
+        <dc:Bounds x="160" y="160" width="2180" height="450" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Padre_di" bpmnElement="Lane_Padre" isHorizontal="true">
+        <dc:Bounds x="190" y="160" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Secretaria_di" bpmnElement="Lane_Secretaria" isHorizontal="true">
+        <dc:Bounds x="190" y="310" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Direccion_di" bpmnElement="Lane_Direccion" isHorizontal="true">
+        <dc:Bounds x="190" y="460" width="2150" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Interes_di" bpmnElement="Start_Interes">
+        <dc:Bounds x="262" y="217" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="220" y="259" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_P1_Consultar_di" bpmnElement="Task_P1_Consultar">
+        <dc:Bounds x="370" y="195" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A1_Informar_di" bpmnElement="Task_A1_Informar">
+        <dc:Bounds x="520" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A2_Registrar_di" bpmnElement="Task_A2_Registrar">
+        <dc:Bounds x="670" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A3_VerificarCupo_di" bpmnElement="Task_A3_VerificarCupo">
+        <dc:Bounds x="820" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_HayCupo_di" bpmnElement="Gateway_HayCupo" isMarkerVisible="true">
+        <dc:Bounds x="1005" y="360" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="975" y="326" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A3B_OfrecerOtro_di" bpmnElement="Task_A3B_OfrecerOtro">
+        <dc:Bounds x="1120" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_NoConcretada_di" bpmnElement="End_NoConcretada">
+        <dc:Bounds x="1312" y="367" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="409" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A4_Autorizar_di" bpmnElement="Task_A4_Autorizar">
+        <dc:Bounds x="1270" y="495" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Autoriza_di" bpmnElement="Gateway_Autoriza" isMarkerVisible="true">
+        <dc:Bounds x="1455" y="510" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1425" y="476" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Rechazada_di" bpmnElement="End_Rechazada">
+        <dc:Bounds x="1612" y="517" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1570" y="559" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_P2_Pagar_di" bpmnElement="Task_P2_Pagar">
+        <dc:Bounds x="1570" y="195" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A5_Cobrar_di" bpmnElement="Task_A5_Cobrar">
+        <dc:Bounds x="1720" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A6_Conciliar_di" bpmnElement="Task_A6_Conciliar">
+        <dc:Bounds x="1870" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A7_Confirmar_di" bpmnElement="Task_A7_Confirmar">
+        <dc:Bounds x="2020" y="345" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Matriculado_di" bpmnElement="End_Matriculado">
+        <dc:Bounds x="2212" y="217" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2170" y="259" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Redigitacion_di" bpmnElement="Note_Redigitacion">
+        <dc:Bounds x="635" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Cupo_di" bpmnElement="Note_Cupo">
+        <dc:Bounds x="835" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Espera_di" bpmnElement="Note_Espera">
+        <dc:Bounds x="1235" y="650" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Pago_di" bpmnElement="Note_Pago">
+        <dc:Bounds x="1835" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Confirmacion_di" bpmnElement="Note_Confirmacion">
+        <dc:Bounds x="2035" y="56" width="190" height="64" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="298" y="235" />
+        <di:waypoint x="370" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="490" y="235" />
+        <di:waypoint x="505" y="235" />
+        <di:waypoint x="505" y="385" />
+        <di:waypoint x="520" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="640" y="385" />
+        <di:waypoint x="670" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <di:waypoint x="790" y="385" />
+        <di:waypoint x="820" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="940" y="385" />
+        <di:waypoint x="1005" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_NoCupo_di" bpmnElement="Flow_06_NoCupo">
+        <di:waypoint x="1055" y="385" />
+        <di:waypoint x="1120" y="385" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1063" y="363" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <di:waypoint x="1240" y="385" />
+        <di:waypoint x="1312" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_SiCupo_di" bpmnElement="Flow_08_SiCupo">
+        <di:waypoint x="1030" y="410" />
+        <di:waypoint x="1030" y="535" />
+        <di:waypoint x="1270" y="535" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1036" y="418" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1390" y="535" />
+        <di:waypoint x="1455" y="535" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_NoAutoriza_di" bpmnElement="Flow_10_NoAutoriza">
+        <di:waypoint x="1505" y="535" />
+        <di:waypoint x="1612" y="535" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1513" y="513" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_SiAutoriza_di" bpmnElement="Flow_11_SiAutoriza">
+        <di:waypoint x="1480" y="510" />
+        <di:waypoint x="1480" y="235" />
+        <di:waypoint x="1570" y="235" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1486" y="243" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1690" y="235" />
+        <di:waypoint x="1705" y="235" />
+        <di:waypoint x="1705" y="385" />
+        <di:waypoint x="1720" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1840" y="385" />
+        <di:waypoint x="1870" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="1990" y="385" />
+        <di:waypoint x="2020" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="2140" y="385" />
+        <di:waypoint x="2176" y="385" />
+        <di:waypoint x="2176" y="235" />
+        <di:waypoint x="2212" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Redigitacion_di" bpmnElement="Assoc_Note_Redigitacion">
+        <di:waypoint x="730" y="345" />
+        <di:waypoint x="730" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Cupo_di" bpmnElement="Assoc_Note_Cupo">
+        <di:waypoint x="880" y="345" />
+        <di:waypoint x="880" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Espera_di" bpmnElement="Assoc_Note_Espera">
+        <di:waypoint x="1330" y="575" />
+        <di:waypoint x="1330" y="650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Pago_di" bpmnElement="Assoc_Note_Pago">
+        <di:waypoint x="1930" y="345" />
+        <di:waypoint x="1930" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_Note_Confirmacion_di" bpmnElement="Assoc_Note_Confirmacion">
+        <di:waypoint x="2080" y="345" />
+        <di:waypoint x="2080" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

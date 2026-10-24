@@ -50,7 +50,8 @@ plugins:
       print_page_title: "Documentación completa (imprimir / PDF)"
       add_print_site_banner: true
       add_full_urls: false
-      enumerate_headings: true
+      # Los documentos ya numeran sus secciones (2.4, 3.1...); numerarlas otra vez daría "3.6.3 5.1".
+      enumerate_headings: false
       enumerate_figures: true
       add_table_of_contents: true
       toc_title: "Tabla de contenidos"
@@ -100,19 +101,33 @@ nav:
     - "E4 — Modelado de Procesos AS-IS/TO-BE (CE0131-CE0135)": gestion-ti/e4-modelado-procesos-ce0131.md
     - "E5 — Propuesta de Solución TIC (CE0141-CE0145)": gestion-ti/e5-propuesta-solucion-tic-ce0141.md
   - B. Ingeniería de Software (CE02):
-    - "E1 — Definición del Sistema (CE021)": e1-definicion-sistema-ce021.md
-    - "E2 — Base de Datos (CE022)": e2-base-datos-ce022.md
-    - "E3 — Sistema Funcional (CE023)": e3-sistema-funcional-ce023.md
-    - "E4 — Calidad y Operación (CE024)": e4-calidad-operacion-ce024.md
-    - "E5 — Presentación y Sustentación (CE0217)": e5-presentacion-sustentacion-ce0217.md
+    - "E1 — Requerimientos y Diseño (CE021)": e1-definicion-sistema-ce021.md
+    - "E2 — Plataforma de Datos (CE022)": e2-base-datos-ce022.md
+    - "E3 — Sistema Funcional Integrado (CE023)": e3-sistema-funcional-ce023.md
+    - "E4 — Gestión del Proyecto y Calidad (CE024)": e4-calidad-operacion-ce024.md
   - C. Infraestructura Tecnológica (CE03):
     - Resumen del área: infraestructura/index.md
-    - "E1 — Diseño de Red (CE0311)": infraestructura/e1-diseno-red-ce0311.md
-    - "E2 — Planificación de Seguridad (CE0321)": infraestructura/e2-planificacion-seguridad-ce0321.md
-    - "E3 — Diseño de Centro de Datos (CE0331)": infraestructura/e3-diseno-centro-datos-ce0331.md
-    - "E4 — Implementación y Testing de Red (CE0312-CE0313)": infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md
-    - "E5 — Implementación, Monitoreo y Ética (CE0322-CE0324)": infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md
-    - "E6 — Implementación y Control de Centro de Datos (CE0332-CE0333)": infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md
+    - Semestre 1:
+      - "E1 — Análisis y Diseño de Red (CE0311)": infraestructura/s1-e1-analisis-diseno-red-ce0311.md
+      - "E2 — Diseño de Centro de Datos Híbrido (CE0331)": infraestructura/s1-e2-diseno-centro-datos-hibrido-ce0331.md
+      - "Producto final del Semestre 1": infraestructura/s1-producto-final.md
+    - Semestre 2:
+      - "E1 — SGSI (CE0321-CE0324)": infraestructura/s2-e1-sgsi-ce0321-ce0324.md
+      - "E2 — Implementación, Testing y Monitoreo de Red (CE0312-CE0313)": infraestructura/s2-e2-implementacion-red-ce0312-ce0313.md
+      - "E3 — Implementación y Control de Centro de Datos (CE0332-CE0333)": infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md
+      - "Producto final del Semestre 2": infraestructura/s2-producto-final.md
+  - Sustentación:
+    - "Guía de sustentación y defensa técnica": e5-presentacion-sustentacion-ce0217.md
+
+# Versión de junio de 2026 (estructura anterior de la guía): se conserva en el repositorio, fuera del sitio.
+exclude_docs: |
+  infraestructura/e1-diseno-red-ce0311.md
+  infraestructura/e2-planificacion-seguridad-ce0321.md
+  infraestructura/e3-diseno-centro-datos-ce0331.md
+  infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md
+  infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md
+  infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md
+  assets/arquitectura-hibrida - copia.svg
 
 extra:
   social:

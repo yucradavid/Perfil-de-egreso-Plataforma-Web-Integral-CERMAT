@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-10-24T12:00:00.000Z" agent="CERMAT EPE CE03" version="24.7.17" type="device">
+  <diagram id="zonas-seguridad" name="Zonas de seguridad y VPN">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" value="Zonas de seguridad, detección y VPN híbrida (S1-E1 · CE0311) · v2.0 · 2026-10-24" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="zi" value="Internet (no confiable)&lt;br&gt;Enlaces NET-01 y NET-03&lt;br&gt;Ninguna regla de entrada, salvo FW-60" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="20" y="50" width="320" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="zdmz" value="DMZ · VLAN 50 (expuesta)&lt;br&gt;NET-17 Honeypot Cowrie 10.10.50.10&lt;br&gt;Sin salida (FW-41); solo envía eventos a Wazuh (FW-40)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="400" y="50" width="340" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="zguest" value="GUEST · VLAN 30 (baja)&lt;br&gt;NET-22 Invitados: solo Internet&lt;br&gt;Aislamiento de clientes en el AP" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="20" y="280" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="zacad" value="ACAD · VLAN 20 (media)&lt;br&gt;NET-21 Docentes y auxiliares&lt;br&gt;Internet + impresora (FW-11)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fffbe6;strokeColor=#c9b458;" vertex="1" parent="1">
+          <mxGeometry x="20" y="440" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="zadmin" value="ADMIN · VLAN 10 (media)&lt;br&gt;NET-19 Equipos administrativos&lt;br&gt;NET-18 ADMIN_TI: única estación con acceso a gestión" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="20" y="600" width="320" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="zper" value="Perímetro&lt;br&gt;NET-04 OPNsense — política por defecto: denegar; filtrado con estado&lt;br&gt;NET-05 Suricata — IPS en WAN1/WAN2 (ET Open, abuse.ch); IDS en la troncal interna&lt;br&gt;Registros del firewall y de Suricata → Wazuh (syslog TCP o agente)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fde9d9;strokeColor=#c0504d;fontStyle=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="470" y="280" width="400" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="zsrv" value="SRV · VLAN 40 (alta)&lt;br&gt;NET-13 VM-APP01 · NET-14 VM-SIEM01 (Wazuh)&lt;br&gt;NET-15 VM-MON01 · NET-16 VM-BKP01&lt;br&gt;Microsegmentación con el firewall de Proxmox" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#c8e6c9;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="990" y="300" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="zmgmt" value="MGMT · VLAN 99 (máxima)&lt;br&gt;NET-06, NET-07, NET-08, NET-09, NET-10, NET-11&lt;br&gt;NET-12 Bastión: único origen SSH hacia servidores y VPS" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="990" y="520" width="320" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="znube" value="NUBE · VPS (NET-23)&lt;br&gt;NET-24 UFW · NET-25 Nginx TLS&lt;br&gt;NET-26 strongSwan · 10.20.0.0/24&lt;br&gt;Agente Wazuh y Netdata hijo por el túnel" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="50" width="280" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="vpn" value="NET-27 · Túnel IPsec sitio a sitio (sin secretos en este diagrama)&lt;br&gt;• IKEv2 con autenticación por certificados X.509 de una CA propia&lt;br&gt;• IKE: aes256gcm16-prfsha256-ecp384 (alterna: ecp256)&lt;br&gt;• ESP: aes256gcm16-ecp384 con PFS (DH 20; alterna: 19)&lt;br&gt;• NAT-T forzado (UDP 4500) · DPD 30 s · renegociación IKE 4 h / CHILD 1 h&lt;br&gt;• Sede (iniciador): 10.10.40.0/24 y 10.10.99.0/27 · Nube (respondedor): 10.20.0.0/24&lt;br&gt;• Usos: respaldos (F-10, F-11), SSH de administración (F-12), monitoreo (F-15, F-16) y proxy de la API (F-04)" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="990" y="710" width="640" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="pruebas" value="Pruebas de segmentación previstas (S2-E2)&lt;br&gt;1. Internet → DMZ: solo 22/tcp al honeypot (PR-14)&lt;br&gt;2. Internet → LAN: todo filtrado (PR-15)&lt;br&gt;3. DMZ → DB (10.10.40.10:3306): bloqueado y registrado (PR-16)&lt;br&gt;4. Usuarios (ADMIN sin rol TI, ACAD) → MGMT: bloqueado (PR-17)&lt;br&gt;5. ADMIN_TI → MGMT (22, 443 y 8006): permitido (PR-18)" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="800" width="700" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="leyenda" value="Leyenda: verde = permitido por regla; rojo con aspa = denegado (prueba negativa); violeta discontinuo = túnel IPsec." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="990" width="1100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" value="FW-60: 22/tcp → 2222" style="edgeStyle=none;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;strokeColor=#2e7d32;fontColor=#2e7d32;strokeWidth=2;" edge="1" parent="1" source="zi" target="zdmz">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e30" value="Internet → LAN: denegado (FW-61)" style="edgeStyle=none;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#b85450;fontColor=#b85450;strokeWidth=2;endArrow=cross;endFill=0;" edge="1" parent="1" source="zi" target="zper">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e31" value="GUEST → internas: denegado (FW-02)" style="edgeStyle=none;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#b85450;fontColor=#b85450;strokeWidth=2;endArrow=cross;endFill=0;" edge="1" parent="1" source="zguest" target="zper">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e32" value="DMZ → DB 3306: denegado (FW-41)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#b85450;fontColor=#b85450;strokeWidth=2;endArrow=cross;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="zdmz" target="zsrv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1150" y="115" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e33" value="Usuarios → MGMT: denegado (FW-12, FW-23)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#b85450;fontColor=#b85450;strokeWidth=2;endArrow=cross;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" edge="1" parent="1" source="zacad" target="zmgmt">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="930" y="505" /><mxPoint x="930" y="584" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e34" value="ADMIN_TI → MGMT: 22/443/8006 (FW-20)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;strokeColor=#2e7d32;fontColor=#2e7d32;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="zadmin" target="zmgmt">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="960" y="675" /><mxPoint x="960" y="648" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e35" value="Bastión → SRV: 22/443 (FW-50)" style="edgeStyle=none;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;strokeColor=#2e7d32;fontColor=#2e7d32;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="zmgmt" target="zsrv">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e36" value="NET-27 IPsec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeWidth=3;strokeColor=#9673a6;fontColor=#5b3f73;endArrow=none;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="zper" target="znube">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="930" y="385" /><mxPoint x="930" y="165" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e37" value="10.20.0.1 → APP 3001/8000, SIEM 1514/1515 y MON 19999 (FW-70 a FW-72)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;strokeColor=#2e7d32;fontColor=#2e7d32;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="znube" target="zsrv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1490" y="380" /></Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-10-24T12:00:00.000Z" agent="CERMAT EPE CE03" version="24.7.17" type="device">
+  <diagram id="rack-fisica" name="Rack y topología física">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" value="Rack y topología física on-premise (S1-E2 · CE0331) · v2.0 · 2026-10-24" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="rack" value="CD-01 · Rack 12U con puerta y cerradura · PDU trasera (CD-03)" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#fafafa;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="30" y="50" width="420" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U12" value="U12 · CD-04 · Patch panel Cat 6 de 24 puertos" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="90" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U11" value="U11 · Organizador horizontal" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="132" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U10" value="U10 · CD-05 · Switch 24p PoE+ (NET-06)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="174" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U9" value="U9 · Organizador horizontal" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="216" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U8" value="U8 · Bandeja: ONT del ISP (NET-02) y router 4G/LTE (NET-03)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="258" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U7" value="U7 · Libre (crecimiento)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="300" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U6" value="U6 · Libre (crecimiento)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="342" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U5" value="U5 · CD-06 · Servidor PVE01 (2U)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#eef5ff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="384" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U4" value="U4 · CD-06 · Servidor PVE01 (continuación)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#eef5ff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="426" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U3" value="U3 · Bandeja: disco externo USB cifrado (CD-20) cuando está en la sede" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="468" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U2" value="U2 · CD-02 · UPS 1500 VA (2U)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="510" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_U1" value="U1 · CD-02 · UPS (continuación)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="50" y="552" width="380" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="amb" value="Ambiente del cuarto de equipos&lt;br&gt;• Cuarto cerrado con llave y bitácora (7.1, 7.2); cámara orientada al rack (7.4)&lt;br&gt;• Temperatura de entrada 18–27 °C (ASHRAE); extintor de CO2; lejos de tuberías (7.5)&lt;br&gt;• Tier I con elementos de Tier II: UPS, doble enlace WAN y espejo de discos&lt;br&gt;• Cableado Cat 6 (TIA-568) etiquetado según TIA-606" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="30" y="640" width="420" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="upsf" value="CD-02 · UPS 1500 VA + NUT" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="620" y="150" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="srv" value="CD-06 · PVE01&lt;br&gt;NIC1 · NIC2 · NIC3 · NIC4 · IPMI · USB" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#eef5ff;strokeColor=#3d6fb6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="300" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="swf" value="CD-05 · Switch (NET-06)&lt;br&gt;puertos 23–24: LAG LACP (troncal)&lt;br&gt;puerto 22: IPMI (acceso VLAN 99)&lt;br&gt;puertos 1–2: AP (PoE, troncal)&lt;br&gt;puertos 3–20: puestos (VLAN 10 o 20)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="620" y="470" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ontf" value="NET-02 · ONT del ISP (WAN1)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="200" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ltef" value="NET-03 · Router 4G/LTE (WAN2)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="280" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usbf" value="CD-20 · Disco externo USB cifrado&lt;br&gt;rotación mensual fuera de la sede" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#999999;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="360" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="apf" value="NET-07 / NET-08 · AP Wi-Fi 6" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="470" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ppf" value="CD-04 · Patch panel → puestos de trabajo (ADMIN y ACAD)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="560" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e38" value="NIC3 → vmbr1 (WAN1)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.2;entryDx=0;entryDy=0;" edge="1" parent="1" source="ontf" target="srv">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e39" value="NIC4 → vmbr2 (WAN2)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ltef" target="srv">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e40" value="copia fuera de línea" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeColor=#999999;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="usbf" target="srv">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e41" value="USB (NUT): apagado ordenado" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="upsf" target="srv">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e42" value="NIC1 + NIC2 → bond0 (LACP) · IPMI" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="srv" target="swf">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e43" value="PoE+" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="swf" target="apf">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e44" value="acceso VLAN 10/20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="swf" target="ppf">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="hipervisor" name="Hipervisor (Proxmox ≡ ESXi)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" value="Diseño del hipervisor: Proxmox VE (equivalente a VMware ESXi) (S1-E2 · CE0331) · v2.0 · 2026-10-24" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="1300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="host" value="CD-06 / CD-07 · PVE01 — Proxmox VE · 8 núcleos/16 hilos · 64 GB ECC" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#eef5ff;strokeColor=#3d6fb6;" vertex="1" parent="1">
+          <mxGeometry x="20" y="50" width="1610" height="880" as="geometry" />
+        </mxCell>
+        <mxCell id="zfs" value="CD-18 · local-zfs — espejo 2×1 TB SSD (≡ datastore VMFS)&lt;br&gt;Discos de todas las VM · ARC de ZFS limitado a 4 GB" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="640" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="hdd" value="CD-19 · HDD 4 TB → datastore de PBS (paso directo a VM-BKP01)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="190" width="640" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tot" value="Totales&lt;br&gt;14 vCPU sobre 16 hilos (0,88:1)&lt;br&gt;24 GB de VM + 6 GB de sistema = 30 GB de 64 GB (47 %)&lt;br&gt;344 GB de disco de VM (38 % del espejo)&lt;br&gt;Orden de arranque: VM-FW01 → VM-BAS01 → VM-SIEM01 → VM-APP01 → demás" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="760" y="100" width="420" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="eq" value="Equivalencias ESXi ↔ Proxmox VE&lt;br&gt;vSwitch ↔ Linux bridge (vmbr)&lt;br&gt;Port group con VLAN ↔ etiqueta tag de la NIC virtual&lt;br&gt;NIC teaming ↔ bond Linux (802.3ad)&lt;br&gt;Datastore VMFS ↔ almacenamiento ZFS&lt;br&gt;vSphere Client ↔ interfaz web :8006&lt;br&gt;Snapshots y respaldo ↔ vzdump + Proxmox Backup Server" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="100" width="410" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="vmapp" value="CD-12 · VM-APP01&lt;br&gt;2 vCPU · 4 GB · 60 GB&lt;br&gt;vmbr0 tag 40" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmsiem" value="CD-13 · VM-SIEM01&lt;br&gt;4 vCPU · 8 GB · 150 GB&lt;br&gt;vmbr0 tag 40" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="245" y="420" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmmon" value="CD-14 · VM-MON01&lt;br&gt;2 vCPU · 2 GB · 30 GB&lt;br&gt;vmbr0 tag 40" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="430" y="420" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmbkp" value="CD-15 · VM-BKP01 (PBS)&lt;br&gt;2 vCPU · 4 GB · 32 GB&lt;br&gt;+ HDD 4 TB · vmbr0 tag 40" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="615" y="420" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmhpot" value="CD-16 · VM-HPOT01&lt;br&gt;1 vCPU · 1 GB · 16 GB&lt;br&gt;vmbr0 tag 50" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="820" y="420" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmbas" value="CD-17 · VM-BAS01&lt;br&gt;1 vCPU · 1 GB · 16 GB&lt;br&gt;vmbr0 tag 99" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1005" y="420" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmfw" value="CD-11 · VM-FW01 · OPNsense + Suricata&lt;br&gt;2 vCPU · 4 GB · 40 GB&lt;br&gt;net0 vmbr1 · net1 vmbr2 · net2 vmbr0 (troncal)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#fde9d9;strokeColor=#c0504d;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="420" width="410" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="vmbr0" value="CD-09 · vmbr0 · bridge VLAN-aware sobre bond0 — VLAN 10, 20, 30, 40, 50 y 99 (≡ vSwitch0 con port groups por VLAN)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="600" width="1120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vmbr1" value="CD-10 · vmbr1 (WAN1)&lt;br&gt;sin IP del host" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="600" width="195" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vmbr2" value="CD-10 · vmbr2 (WAN2)&lt;br&gt;sin IP del host" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1415" y="600" width="195" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bond0" value="CD-08 · bond0 · 802.3ad LACP (≡ NIC teaming)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="720" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mgmt" value="vmbr0.99 · 10.10.99.10/27 · gestión del host (interfaz web :8006)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="720" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nic1" value="NIC1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="60" y="850" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nic2" value="NIC2" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="230" y="850" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nic3" value="NIC3" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1232" y="850" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nic4" value="NIC4" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1447" y="850" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e45" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="nic1" target="bond0">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e46" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="nic2" target="bond0">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e47" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.12;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="bond0" target="vmbr0">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e48" value="VLAN 99" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="mgmt">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e49" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="nic3" target="vmbr1">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e50" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="nic4" target="vmbr2">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e51" value="net0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr1" target="vmfw">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e52" value="net1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr2" target="vmfw">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e53" value="net2 troncal" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmfw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1305" y="618" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e54" value="tag 40" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmapp">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e55" value="tag 40" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmsiem">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e56" value="tag 40" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmmon">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e57" value="tag 40" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmbkp">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e58" value="tag 50" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmhpot">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e59" value="tag 99" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="vmbr0" target="vmbas">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e60" value="paso directo" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;exitX=0.85;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="hdd" target="vmbkp">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="nube" name="Nube IaaS y PaaS (≡ AWS)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" value="Arquitectura de nube: IaaS (VPS) y PaaS con sus equivalencias AWS (S1-E2 · CE0331) · v2.0 · 2026-10-24" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="1300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="internet" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="640" y="50" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="vps" value="CD-23 · VPS RackNerd KVM — New York (≡ EC2 en una región) · 2 vCPU · 2 GB · 35 GB SSD · Ubuntu 24.04" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="20" y="220" width="900" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="eth0" value="eth0 · IP pública del VPS&lt;br&gt;(≡ subred pública + Internet Gateway del proveedor)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="40" y="270" width="400" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dum0" value="dum0 · 10.20.0.0/24 (10.20.0.1)&lt;br&gt;(≡ subred privada de la VPC; solo alcanzable por el túnel)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#f3e9f7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="480" y="270" width="420" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ufwc" value="CD-24 · UFW con estado (≡ Security Group): deny incoming; 22, 80 y 443/tcp; UDP 500/4500 (pendiente)&lt;br&gt;nftables sin estado o filtro del proveedor (≡ NACL): pendiente / por confirmar" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#f3e9f7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="860" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nginxc" value="CD-25 · Nginx + Certbot&lt;br&gt;(≡ balanceador con certificados gestionados)&lt;br&gt;sitio, API del colegio y proxy hacia la sede" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="appc" value="CD-26 · Angular + Laravel (PHP 8.4-FPM)&lt;br&gt;sistema del colegio" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="330" y="470" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="pgc" value="CD-27 · PostgreSQL 16 en loopback&lt;br&gt;usuario sin superusuario&lt;br&gt;(≡ base en subred privada)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="620" y="470" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="iamc" value="Identidades (≡ IAM): usuario Linux no-root con sudo y llaves SSH; rol PostgreSQL de la aplicación; .env con permisos 640" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="860" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="monc" value="Monitoreo (≡ CloudWatch): agente Wazuh y Netdata hijo hacia la sede por el túnel; Uptime Kuma comprueba desde afuera" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="665" width="860" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="swanc" value="CD-28 · strongSwan IKEv2 (≡ VPN Gateway)&lt;br&gt;tabla main + tabla 220 de rutas IPsec (≡ route tables)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="40" y="740" width="560" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="paas" value="Nube PaaS y SaaS" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="960" y="220" width="670" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="vercelc" value="CD-29 · Vercel&lt;br&gt;SPA de la academia · HTTPS · reversión de despliegues" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="990" y="270" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="authc" value="CD-30 · Firebase Authentication&lt;br&gt;claims por rol (≡ Cognito)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="270" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fsc" value="CD-31 · Cloud Firestore&lt;br&gt;22 colecciones con reglas por rol (≡ DynamoDB)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="990" y="380" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="stc" value="CD-32 · Firebase Storage&lt;br&gt;(≡ S3)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="380" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ghc" value="CD-33 · GitHub Actions&lt;br&gt;CI de 6 trabajos; publica reglas solo si todo pasa" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="990" y="490" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dnsc" value="CD-34 · DNS Punto.pe / RCP&lt;br&gt;(≡ Route 53)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#ffffff;strokeColor=#4d4d4d;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="490" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awsalt" value="Alternativa de laboratorio (no usada): el mismo diseño se puede reproducir en AWS Academy con una VPC 10.20.0.0/16, EC2, Security Groups, NACL y Site-to-Site VPN hacia OPNsense, sujeto a los servicios habilitados en esa cuenta." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=11;spacing=6;rounded=1;fillColor=#ffffff;strokeColor=#bfbfbf;" vertex="1" parent="1">
+          <mxGeometry x="990" y="610" width="620" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="sede" value="Sede · NET-04 OPNsense (VM-FW01)&lt;br&gt;10.10.40.0/24 y 10.10.99.0/27" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#fde9d9;strokeColor=#c0504d;" vertex="1" parent="1">
+          <mxGeometry x="100" y="920" width="440" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e61" value="80/443 · UDP 500/4500" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="internet" target="eth0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="692" y="200" /><mxPoint x="240" y="200" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e62" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="internet" target="vercelc">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e63" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="internet" target="authc">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e64" value="PHP-FPM" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="nginxc" target="appc">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e65" value="5432 loopback" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="appc" target="pgc">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e66" value="CD-35 · túnel IPsec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;strokeWidth=3;strokeColor=#9673a6;fontColor=#5b3f73;endArrow=none;startArrow=none;exitX=0.57;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="swanc" target="sede">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e67" value="publica reglas" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;endFill=1;strokeColor=#4d4d4d;labelBackgroundColor=#ffffff;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ghc" target="fsc">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

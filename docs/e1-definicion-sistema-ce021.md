@@ -1,464 +1,507 @@
-# E1 - Definicion del Sistema (CE021)
+# E1 - Requerimientos y Diseño del Sistema (CE021)
 
 !!! abstract "Evidencia CE021 — Ingeniería de Requerimientos"
-    Este entregable integra la especificación completa del sistema: requerimientos funcionales y no funcionales, prototipos navegables, arquitectura técnica híbrida, modelado UML y trazabilidad. Forma parte de la evaluación de **Perfil de Egreso (EPE)** del programa.
+    Define, valida y diseña la solución de software: especificación de requerimientos, prototipo navegable, arquitectura C4 con registro de decisiones y diseño detallado en UML, con trazabilidad desde cada requerimiento hasta el código y las pruebas automáticas.
 
-## 1. Informacion general
+## Portada
 
 | Campo | Detalle |
 |---|---|
-| Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
-| Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
-| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
-| Fecha | 2026-07-05 |
+| Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
+| Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Semestre | 2026-2 (9° ciclo) |
+| Fecha | 2026-10-24 |
+| Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
 
-## 2. Resumen Ejecutivo
+## Resumen Ejecutivo
 
-Este entregable documenta la ingeniería de requerimientos del sistema **Plataforma Web Integral de Gestión Académica CERMAT**. Reúne el problema institucional real que resuelve, sus 8 grupos de stakeholders, el objetivo general y 9 objetivos específicos, un catálogo de **22 requerimientos funcionales (RF01–RF22)** y **10 requerimientos no funcionales (RNF01–RNF10)**, el prototipo navegable operativo (16 rutas reales en producción, no wireframes), la arquitectura técnica híbrida (React/Firebase + Node.js/MySQL), el modelado UML del dominio (casos de uso, clases, secuencia, C4) y la trazabilidad completa de cada requerimiento hacia su archivo fuente en el repositorio. La evidencia no es proyectada: corresponde a un sistema desplegado y en operación.
+**Problema.** La Academia La Prepa Cermat (Azángaro, Puno) gestionaba la oferta de ciclos, las matrículas, los pagos y la asistencia con registros dispersos. Eso producía duplicados, riesgo de sobrepasar los cupos, pagos desvinculados de la matrícula y ningún canal de consulta para los padres.
 
-## 3. Descripcion del problema
+**Usuarios.** Visitantes y postulantes, administradores, docentes, estudiantes, auxiliares y padres o apoderados. Tienen 6 portales con permisos diferenciados.
 
-!!! danger "Problema verificable — contexto institucional real"
-    El problema no es hipotético. La Academia La Prepa Cermat opera en Azángaro, Perú, y sus procesos académicos, administrativos y de comunicación requerían centralización digital. Este sistema nació de necesidades operativas concretas validadas con los actores.
+**Alcance.** 22 requerimientos funcionales y 10 no funcionales: sitio público, matrícula en línea, gestión académica, pagos, asistencia por QR, consulta para padres, contenidos y sincronización a una base relacional. Quedan fuera la app móvil nativa, la pasarela de pagos y la facturación electrónica.
 
-### Situacion actual
+**Solución.** Una aplicación web (SPA en React y TypeScript) publicada en Vercel, con Firebase como identidad y base operativa protegida por reglas por rol. Una capa relacional complementaria (API Node.js, MySQL y analítica en Python) cubre reportes y continuidad. El diseño se documenta con vistas C4, 7 decisiones arquitectónicas y diagramas UML. Cada requerimiento se traza hasta su código y, cuando existe, hasta su prueba automática (90 pruebas en el proyecto).
 
-CERMAT requiere operar procesos academicos, administrativos y de comunicacion en un mismo ecosistema digital. La institucion necesita publicar oferta academica, recibir matriculas, administrar ciclos y grupos, controlar pagos, registrar asistencia, gestionar recursos, activar usuarios y ofrecer seguimiento a padres.
+## Sección 1: Especificación de Requerimientos
 
-### Problema identificado
+### 1.1 Requerimientos funcionales
 
-La gestion educativa sin una plataforma integrada produce:
+| ID | Descripción |
+|---|---|
+| RF01 | El sistema debe mostrar una página pública de inicio con información institucional y acceso a la oferta académica. |
+| RF02 | El sistema debe listar los ciclos académicos publicados y permitir ver su detalle. |
+| RF03 | El sistema debe permitir la pre-matrícula pública seleccionando ciclo, grupo, sede, turno y modalidad de pago. |
+| RF04 | El sistema debe impedir pre-matrículas en ciclos no publicados o cerrados, en grupos que no pertenecen al ciclo y en grupos sin cupo. |
+| RF05 | El administrador debe gestionar ciclos académicos, categorías, sedes y grupos con capacidad, turno y horario. |
+| RF06 | El administrador debe gestionar matrículas y sus estados (pendiente, pagado, cancelado) con trazabilidad del autor. |
+| RF07 | El administrador debe registrar pagos asociados a matrículas (método, monto, cuota y comprobante) y anularlos sin borrarlos. |
+| RF08 | El administrador debe gestionar alumnos, docentes y auxiliares, de forma individual o masiva por Excel. |
+| RF09 | El sistema debe activar cuentas de estudiantes, docentes y auxiliares mediante invitaciones de un solo uso. |
+| RF10 | El docente debe acceder a sus cursos y consultar los alumnos asociados. |
+| RF11 | El docente debe acceder a los recursos académicos asignados o creados por él. |
+| RF12 | El sistema debe registrar la asistencia de estudiantes con su QR permanente firmado. |
+| RF13 | El sistema debe registrar la asistencia de docentes con un QR diario validado por token y ventana horaria. |
+| RF14 | El auxiliar debe operar los paneles de asistencia según sus permisos. |
+| RF15 | El estudiante debe ver su panel, cursos, recursos, matrícula, talleres y asistencia. |
+| RF16 | El padre debe consultar la asistencia de su hijo con un código CERMAT, sin acceso administrativo. |
+| RF17 | El administrador debe publicar y administrar recursos académicos. |
+| RF18 | El administrador debe publicar y administrar entradas del blog. |
+| RF19 | El administrador debe administrar talleres y su visibilidad pública. |
+| RF20 | El sistema debe registrar los mensajes de contacto del sitio público. |
+| RF21 | El sistema debe sincronizar matrículas, pagos y asistencia a la base relacional cuando el servicio esté habilitado. |
+| RF22 | El sistema debe proteger las rutas por rol: admin, docente, estudiante, auxiliar y padre. |
 
-- Informacion academica dispersa.
-- Matriculas con seguimiento manual.
-- Dificultad para controlar cupos, grupos, sedes y turnos.
-- Baja trazabilidad de pagos y estados de matricula.
-- Control de asistencia dependiente de registros manuales.
-- Acceso limitado para docentes, estudiantes, auxiliares y padres.
-- Riesgo de errores al actualizar contenidos publicos y datos operativos.
+### 1.2 Requerimientos no funcionales
 
-### Impacto en el negocio / contexto
+| ID | Tipo (ISO/IEC 25010) | Descripción | Verificación |
+|---|---|---|---|
+| RNF01 | Seguridad | Toda lectura y escritura se autoriza con Firebase Auth, claims, documento de rol y reglas de Firestore. | 19 pruebas de reglas en emulador |
+| RNF02 | Usabilidad | La interfaz es adaptable a móvil y separa los flujos público, administrativo y privado. | Capturas de escritorio y móvil (Sección 2) |
+| RNF03 | Eficiencia | Las consultas usan filtros compatibles con los índices de Firestore. | Revisión de consultas |
+| RNF04 | Mantenibilidad | El código se organiza por dominio en `src/features/*` (`api.ts`, `hooks.ts`, `schemas.ts`, `types.ts`). | Estructura del repositorio |
+| RNF05 | Disponibilidad | La operación depende de Firebase; si la capa relacional falla, el flujo principal continúa. | Sincronización no bloqueante |
+| RNF06 | Integridad | Matrículas, pagos y asistencia conservan estados, fechas y responsables, y no se borran físicamente. | Reglas y triggers con pruebas |
+| RNF07 | Escalabilidad | Se agregan módulos sin reestructurar la aplicación. | 13 módulos de dominio independientes |
+| RNF08 | Compatibilidad | SPA con build Vite y rutas de React Router en navegadores modernos. | Build en el pipeline de CI |
+| RNF09 | Validación | Los formularios se validan con esquemas Zod antes de escribir. | Pruebas unitarias de esquemas |
+| RNF10 | Auditoría | Las acciones críticas registran responsable, fecha y estado. | Tabla `auditoria` y campos `*By` |
 
-El problema afecta directamente la eficiencia administrativa, la experiencia del estudiante, la atencion al padre de familia, el control de asistencia y la toma de decisiones institucionales. La plataforma reduce la dependencia de procesos aislados y convierte la operacion academica en un flujo centralizado, auditable y escalable.
+### 1.3 Reglas de negocio
 
-## 4. Contexto del sistema
+Cada regla está aplicada en el código o en las reglas de seguridad, no solo descrita.
 
-### Organizacion / entorno
-
-La plataforma se desarrolla para la Academia La Prepa Cermat, institucion educativa que ofrece ciclos academicos, sedes, talleres, recursos y seguimiento a estudiantes.
-
-### Usuarios
-
-- Visitantes y postulantes.
-- Administradores.
-- Docentes.
-- Estudiantes.
-- Auxiliares.
-- Padres o apoderados.
-
-### Condiciones de operacion
-
-- Aplicacion web SPA accesible desde navegador.
-- Usuarios autenticados mediante Firebase Authentication.
-- Datos principales en Cloud Firestore.
-- Archivos e imagenes en Firebase Storage.
-- Rutas protegidas por rol.
-- API REST + MySQL habilitable para sincronizacion y reportes.
-
-## 5. Stakeholders
-
-| Stakeholder | Rol | Necesidad |
+| ID | Regla | Dónde se aplica |
 |---|---|---|
-| Direccion CERMAT | Decisor institucional | Visibilidad de matriculas, asistencia, pagos y oferta academica. |
-| Administrador | Operador principal | Gestionar ciclos, grupos, usuarios, pagos, recursos, talleres, sedes y contenido. |
-| Docente | Responsable academico | Consultar cursos, alumnos, recursos y registrar asistencia. |
-| Estudiante | Usuario academico | Acceder a cursos, recursos, talleres, matricula y asistencia. |
-| Auxiliar | Soporte de control | Supervisar asistencia y validar QR. |
-| Padre / apoderado | Seguimiento externo | Consultar asistencia del estudiante con codigo CERMAT. |
-| Visitante / postulante | Usuario publico | Revisar oferta academica y matricularse. |
-| Equipo tecnico | Mantenimiento | Evolucion segura de funcionalidades, datos y reglas. |
+| RN01 | Solo se admite pre-matrícula en ciclos publicados con estado "activo" o "nuevo". | `firestore.rules` (`isEnrollmentCycleOpen`) |
+| RN02 | El grupo debe pertenecer al ciclo, y la sede, su identificador y el turno deben coincidir con los del grupo. | `firestore.rules` (`isEnrollmentGroupInCycle`, `isEnrollmentGroupCampusValid`) |
+| RN03 | Un mismo teléfono solo puede tener una pre-matrícula por grupo. | Id determinístico `grupo__teléfono` en `createEnrollment` |
+| RN04 | Cada pre-matrícula descuenta un cupo y el cupo nunca supera la capacidad del grupo. | Transacción en `createEnrollment` y regla `isPublicEnrollmentSeatIncrement` |
+| RN05 | Los estados de la matrícula solo cambian por las transiciones permitidas (Sección 4.4). La activación la hace el propio alumno con una invitación válida. | `isAdminEnrollmentUpdateAllowed` y regla de activación |
+| RN06 | Solo un administrador registra pagos; el monto es mayor que 0; un pago no se elimina, solo se anula indicando quién lo hizo. | Reglas de `payments` y trigger `trg_pagos_bd` |
+| RN07 | El número de cuota no puede superar las cuotas pactadas en la matrícula. | Trigger `trg_pagos_bi` (réplica relacional) |
+| RN08 | Las cuentas de auxiliar y docente solo se crean con una invitación vigente de un solo uso. | `firestore.rules` (`hasUsableInvite`) |
+| RN09 | La marca de un alumno exige su QR firmado y la registra un auxiliar o administrador. Entrada y salida alternan en el día. El docente marca con el QR diario dentro de su ventana y no puede marcar salida sin entrada. | `isStudentAttendanceCreate`, `isTeacherAttendanceCreate`, `attendanceDayState` |
+| RN10 | El código de los padres tiene formato `CERMAT-XXXX-XXXX`, sin caracteres ambiguos (0, O, 1, I), y puede revocarse. | `src/lib/parentAccess.ts` |
+| RN11 | Matrículas y pagos no se borran físicamente: se cancelan o anulan. | `allow delete: if false` en las reglas |
 
-## 6. Objetivo del sistema
+### 1.4 Restricciones del sistema
 
-### Objetivo general
-
-Desarrollar una plataforma web integral que centralice la gestion academica y administrativa de CERMAT, conectando oferta publica, matricula, pagos, usuarios, asistencia, recursos y portales por rol mediante una arquitectura segura basada en React, Firebase y servicios complementarios.
-
-### Objetivos especificos
-
-| ID | Objetivo especifico |
+| Tipo | Restricción |
 |---|---|
-| OE01 | Publicar informacion institucional, ciclos, sedes, recursos, talleres y blog desde una plataforma administrable. |
-| OE02 | Permitir matriculas en linea con validacion de ciclo, grupo, sede, turno y estado. |
-| OE03 | Administrar usuarios por rol: administradores, docentes, estudiantes y auxiliares. |
-| OE04 | Gestionar pagos, cuotas, comprobantes y estados de matricula. |
-| OE05 | Registrar asistencia de estudiantes y docentes mediante QR y tokens diarios. |
-| OE06 | Proveer portales privados diferenciados para administrador, docente, estudiante y auxiliar. |
-| OE07 | Permitir consulta de asistencia para padres mediante codigo CERMAT. |
-| OE08 | Proteger datos y operaciones mediante reglas de seguridad, claims y documentos de rol. |
-| OE09 | Sincronizar datos clave hacia MySQL cuando la API REST este habilitada. |
+| Tecnológica | La operación principal depende de Firebase (cuotas del plan del proveedor) y las consultas están sujetas a los índices de Firestore. |
+| Tecnológica | Requiere un navegador moderno con JavaScript y conexión a Internet; no hay modo sin conexión. |
+| Operativa | Las fechas de asistencia usan la zona horaria de Perú (America/Lima). |
+| Operativa | La capa relacional (API, MySQL y analítica) es complementaria: su caída no detiene matrícula, pagos ni asistencia. |
+| Legal | El sistema trata datos personales de menores de edad: aplica la Ley N.° 29733 de Protección de Datos Personales. |
+| Alcance | Sin app móvil nativa, pasarela de pagos, facturación electrónica ni integración con ERP. |
+| Despliegue | La academia usa su propio dominio en Vercel, separado del sistema de gestión del colegio (cermatschool.edu.pe). |
 
-## 7. Alcance
+### 1.5 Historias de usuario y criterios de aceptación
 
-### Incluye
+| ID | Historia | Criterios de aceptación | RF |
+|---|---|---|---|
+| HU01 | Como **postulante** quiero pre-matricularme sin crear cuenta para reservar mi cupo. | **Dado** un ciclo abierto con cupo, **cuando** envío el formulario, **entonces** queda en "pendiente" y se descuenta 1 cupo. Mismo teléfono en el grupo: mensaje de duplicado. Ciclo cerrado o grupo lleno: rechazo. | RF03, RF04 |
+| HU02 | Como **administrador** quiero aprobar, cancelar o reabrir matrículas para controlar el proceso. | Solo se aceptan las transiciones de la Sección 4.4. Cada cambio registra quién lo hizo. | RF06 |
+| HU03 | Como **administrador** quiero registrar y anular pagos para llevar la caja. | Solo admin. Monto mayor que 0. No se borra. La anulación registra el autor. | RF07 |
+| HU04 | Como **estudiante** quiero activar mi cuenta con el enlace recibido al pagar. | El enlace es de un solo uso y vence. Al activarse, la matrícula pasa a "activo". | RF09 |
+| HU05 | Como **auxiliar o docente invitado** quiero activar mi cuenta. | Sin invitación, o con una vencida o de otra persona, no se crea el perfil. Reintentar con la propia sí funciona. | RF09, RF22 |
+| HU06 | Como **auxiliar** quiero registrar la asistencia escaneando el QR del alumno. | El QR firmado se acepta. El formato antiguo se detecta. Entrada y salida alternan. Un reenvío no duplica. | RF12, RF14 |
+| HU07 | Como **docente** quiero marcar mi asistencia con el QR del día. | Solo dentro de la ventana del token. No hay salida sin entrada previa. | RF13 |
+| HU08 | Como **padre** quiero consultar la asistencia con un código fácil de dictar. | Acepta minúsculas, espacios y el código sin prefijo. Un código revocado no muestra datos. | RF16 |
+| HU09 | Como **administrador** quiero dar de alta alumnos o docentes desde un Excel. | Una fila con error no detiene el lote. El error indica la fila real del archivo. | RF08 |
+| HU10 | Como **Dirección** quiero ver los alumnos en riesgo de abandono. | Calcula sobre días lectivos, incluye a quien nunca asistió y excluye a los docentes. | RF21 |
 
-- Sitio publico institucional.
-- Matricula publica.
-- Gestion de ciclos, categorias, sedes y grupos.
-- Gestion de matriculas, pagos y alumnos.
-- Gestion de docentes y auxiliares.
-- Activacion de cuentas.
-- Portal administrativo.
-- Portal docente.
-- Portal estudiante.
-- Portal auxiliar.
-- Consulta publica de asistencia para padres.
-- Gestion de recursos, talleres, blog, mensajes y configuracion.
-- Control de asistencia QR.
-- Reglas de seguridad Firestore.
-- API REST complementaria para MySQL.
+## Sección 2: Prototipo Navegable
 
-### No incluye
+### 2.1 Fidelidad y flujo de navegación
 
-- App movil nativa.
-- Facturacion electronica.
-- Pasarela de pago automatizada.
-- Integracion con ERP externo.
-- Analitica predictiva avanzada.
-- Notificaciones push masivas.
-- Sistema contable completo.
-
-## 8. Requerimientos del sistema (SRS)
-
-!!! note "Alcance del SRS"
-    El sistema cuenta con **22 requerimientos funcionales** (RF01–RF22) y **10 requerimientos no funcionales** (RNF01–RNF10). Todos están trazados hacia componentes de código fuente en la sección 12.
-
-### 7.1 Requerimientos funcionales
-
-| ID | Descripcion |
-|---|---|
-| RF01 | El sistema debe mostrar una pagina publica de inicio con informacion institucional y acceso a la oferta academica. |
-| RF02 | El sistema debe listar ciclos academicos publicados y permitir ver su detalle. |
-| RF03 | El sistema debe permitir matricula publica seleccionando ciclo, grupo, sede, turno y modalidad de pago. |
-| RF04 | El sistema debe impedir matriculas publicas sobre ciclos no publicados, cerrados o grupos no validos. |
-| RF05 | El administrador debe poder gestionar ciclos academicos, categorias, sedes y grupos. |
-| RF06 | El administrador debe poder gestionar matriculas y actualizar estados como pendiente, pagado o cancelado. |
-| RF07 | El administrador debe poder registrar pagos asociados a matriculas, incluyendo metodo, monto, cuota y comprobante. |
-| RF08 | El administrador debe poder gestionar alumnos, docentes y auxiliares. |
-| RF09 | El sistema debe permitir activar cuentas de estudiantes y auxiliares mediante flujos de invitacion. |
-| RF10 | El docente debe poder acceder a sus cursos y consultar alumnos asociados. |
-| RF11 | El docente debe poder acceder a recursos academicos asignados o creados. |
-| RF12 | El sistema debe permitir registrar asistencia de estudiantes mediante QR. |
-| RF13 | El sistema debe permitir registrar asistencia de docentes mediante QR diario validado por token. |
-| RF14 | El auxiliar debe poder operar paneles de asistencia segun permisos. |
-| RF15 | El estudiante debe poder ver su dashboard, cursos, recursos, matricula, talleres y asistencia. |
-| RF16 | El padre debe poder consultar asistencia usando un codigo CERMAT sin acceso administrativo. |
-| RF17 | El administrador debe poder publicar y administrar recursos academicos. |
-| RF18 | El administrador debe poder publicar y administrar posts del blog. |
-| RF19 | El administrador debe poder administrar talleres y su visibilidad publica. |
-| RF20 | El sistema debe registrar mensajes de contacto desde el sitio publico. |
-| RF21 | El sistema debe sincronizar pagos, matriculas y asistencia hacia la API REST cuando el servicio este habilitado. |
-| RF22 | El sistema debe mantener rutas protegidas por rol: admin, teacher, student y auxiliar. |
-
-### 7.2 Requerimientos no funcionales
-
-| ID | Tipo | Descripcion |
-|---|---|---|
-| RNF01 | Seguridad | Las operaciones de lectura y escritura deben protegerse mediante Firebase Auth, claims, documentos de rol y Firestore Rules. |
-| RNF02 | Usabilidad | La interfaz debe ser responsive y diferenciar claramente flujos publicos, administrativos y privados. |
-| RNF03 | Rendimiento | Las consultas deben usar filtros compatibles con Firestore y evitar indices compuestos innecesarios cuando sea posible. |
-| RNF04 | Mantenibilidad | El codigo debe organizarse por dominios en `src/features/*`, con `api.ts`, `hooks.ts`, `schemas.ts` y `types.ts`. |
-| RNF05 | Disponibilidad | La operacion principal debe depender de Firebase; la API MySQL complementaria no debe bloquear el flujo principal si esta deshabilitada. |
-| RNF06 | Integridad | Las matriculas, pagos y asistencia deben conservar trazabilidad mediante estados, timestamps y usuarios responsables. |
-| RNF07 | Escalabilidad | La arquitectura debe permitir agregar nuevos modulos academicos sin reestructurar toda la aplicacion. |
-| RNF08 | Compatibilidad | La aplicacion debe ejecutarse como SPA con build Vite y rutas manejadas por React Router. |
-| RNF09 | Validacion | Los formularios deben validar datos con esquemas Zod y controles de dominio. |
-| RNF10 | Auditoria | Las acciones criticas deben registrar responsable, fecha y estado cuando aplique. |
-
-## 9. Prototipos
-
-!!! tip "Prototipo operativo — no wireframe"
-    Las pantallas del sistema no son bocetos estáticos. La aplicación es funcional y navegable en producción. Las rutas listadas abajo corresponden a páginas React reales con datos desde Firestore.
-
-### Prototipos navegables
-
-El sistema cuenta con pantallas funcionales implementadas como prototipo operativo:
-
-| Pantalla / flujo | Ruta |
-|---|---|
-| Home publico | `/` |
-| Ciclos | `/ciclos` |
-| Detalle de ciclo | `/ciclos/:id` |
-| Matricula en linea | `/matricula` |
-| Recursos | `/recursos` |
-| Sedes | `/sedes` |
-| Talleres | `/talleres` |
-| Login admin | `/admin/login` |
-| Dashboard admin | `/admin` |
-| Gestion de matriculas | `/admin/matriculas` |
-| Gestion de pagos | `/admin/pagos` |
-| Gestion de ciclos | `/admin/ciclos` |
-| Gestion de grupos | `/admin/ciclos/:id/grupos` |
-| Portal docente | `/docente` |
-| Portal estudiante | `/student` |
-| Portal auxiliar | `/auxiliar` |
-| Consulta asistencia padres | `/asistencia-hijo` |
-
-### Flujo de usuario principal
-
-```mermaid
-flowchart TD
-  A["Visitante revisa ciclos"] --> B["Selecciona ciclo y grupo"]
-  B --> C["Envia matricula publica"]
-  C --> D["Admin revisa matricula"]
-  D --> E["Admin registra pago"]
-  E --> F["Se activa estudiante"]
-  F --> G["Estudiante accede a portal"]
-  G --> H["Asistencia QR y recursos"]
-  H --> I["Padre consulta asistencia"]
-```
-
-### Evidencia
-
-- Rutas: `src/App.tsx`
-- Paginas publicas: `src/pages/*`
-- Paginas admin: `src/pages/admin/*`
-- Portales docente/estudiante/auxiliar: `src/pages/teacher/*`, `src/pages/student/*`, `src/pages/auxiliar/*`
-- Componentes de UI: `src/components/*`
-
-## 10. Arquitectura del sistema
-
-!!! info "Arquitectura técnica híbrida"
-    La solución implementa una **arquitectura técnica híbrida** que combina una capa cloud para operación en tiempo real con una capa local para analítica, reportes y continuidad operativa. Esta combinación responde a la realidad operativa de una academia que necesita disponibilidad web inmediata (Firebase) y capacidad analítica relacional (MySQL).
-
-    ![Arquitectura técnica híbrida de la solución CERMAT](assets/arquitectura-hibrida.svg)
-
-    *Diagrama: Arquitectura técnica híbrida de la solución — sistema web inteligente para la gestión de matrícula, asistencia y seguimiento académico. Academia La Prepa Cermat, Azángaro.*
-
-### Estilo arquitectonico
-
-La solucion sigue una arquitectura **SPA modular por dominios**, conectada directamente a servicios Firebase y con un backend REST complementario para sincronizacion a MySQL.
-
-### Componentes principales
-
-| Componente | Responsabilidad |
-|---|---|
-| React SPA | Interfaz publica y privada del sistema. |
-| React Router | Enrutamiento y separacion de portales. |
-| Guards de ruta | Proteccion por rol. |
-| TanStack Query | Cache y estado remoto. |
-| Features | Capa de dominio para ciclos, matriculas, pagos, asistencia, recursos, usuarios y talleres. |
-| Firebase Auth | Identidad, sesion y claims. |
-| Cloud Firestore | Base operacional principal. |
-| Firebase Storage | Imagenes y archivos. |
-| Firestore Rules | Seguridad declarativa. |
-| syncService | Sincronizacion no bloqueante hacia API. |
-| API REST Node.js | Servicios complementarios para MySQL. |
-| MySQL | Reportes, sincronizacion y consultas relacionales. |
-
-### Diagrama C4 - Contexto
+El prototipo es de **alta fidelidad**: es el propio sistema desplegado y navegable en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app), con 55 rutas protegidas por 6 guardas de rol.
 
 ```mermaid
 flowchart LR
-  U1["Administrador"] --> S["Plataforma CERMAT"]
-  U2["Docente"] --> S
-  U3["Estudiante"] --> S
-  U4["Auxiliar"] --> S
-  U5["Padre"] --> S
-  U6["Visitante"] --> S
-  S --> F["Firebase"]
-  S --> B["API REST opcional"]
-  B --> DB["MySQL"]
+  Inicio["Inicio /"] --> Ciclos["Ciclos /ciclos"]
+  Ciclos --> Detalle["Detalle /ciclos/:id"]
+  Detalle --> Matricula["Matrícula /matricula"]
+  Inicio --> Consulta["Consulta de padres /consulta-asistencia"]
+  Inicio --> Login["Ingreso /admin/login"]
+  Login -->|admin| Admin["Panel admin /admin/*"]
+  Login -->|docente| Docente["Portal docente /docente/*"]
+  Login -->|estudiante| Alumno["Portal alumno /student/*"]
+  Login -->|auxiliar| Auxiliar["Portal auxiliar /auxiliar/*"]
+  Admin --> AM["Matrículas"] & AP["Pagos"] & AC["Ciclos y grupos"] & AA["Asistencia"]
+  Alumno --> QR["Mi QR y asistencia"]
 ```
 
-### Diagrama C4 - Contenedores
+### 2.2 Pantallas principales
+
+Capturas del sitio desplegado tomadas el 2026-10-24:
+
+| Inicio | Ciclos |
+|---|---|
+| ![Inicio](assets/capturas/01-inicio.png) | ![Ciclos](assets/capturas/02-ciclos.png) |
+
+| Matrícula en línea | Consulta de asistencia para padres |
+|---|---|
+| ![Matrícula](assets/capturas/03-matricula.png) | ![Consulta de padres](assets/capturas/04-consulta-padres.png) |
+
+| Ingreso a los portales | Matrícula en móvil (RNF02) |
+|---|---|
+| ![Ingreso](assets/capturas/05-login.png) | ![Matrícula móvil](assets/capturas/06-matricula-movil.png) |
+
+### 2.3 Evidencia de validación con usuarios
+
+| Aspecto | Estado |
+|---|---|
+| Validación funcional con el equipo | Recorridos de los flujos críticos y 90 pruebas automáticas (ver [E4](e4-calidad-operacion-ce024.md)) |
+| Uso real en piloto | Conteos de Firestore al 2026-10-24: 8 matrículas, 2 pagos, 7 marcas de asistencia, 8 usuarios con perfil |
+| Validación con la Dirección y usuarios finales | **Pendiente de acta firmada.** Protocolo propuesto: recorrido guiado de HU01–HU08 con la Dirección, un docente y un auxiliar; registro de observaciones y conformidad en el acta del Anexo A. |
+
+## Sección 3: Diseño Arquitectónico
+
+### 3.1 C1 — Contexto del sistema
+
+Notación C4 en todas las vistas: persona (borde azul oscuro), sistema o contenedor propio (borde azul), sistema externo (gris) y base de datos (cilindro).
 
 ```mermaid
-flowchart TD
-  Browser["Navegador Web"] --> SPA["React + Vite SPA"]
-  SPA --> Auth["Firebase Authentication"]
-  SPA --> Firestore["Cloud Firestore"]
-  SPA --> Storage["Firebase Storage"]
-  SPA --> API["Node.js + Express API"]
-  API --> MySQL["MySQL"]
+flowchart TB
+  classDef persona fill:#cfe2ff,stroke:#08427b,stroke-width:2px,color:#08274a
+  classDef sistema fill:#e3f0ff,stroke:#1168bd,stroke-width:2px,color:#0b2545
+  classDef externo fill:#eeeeee,stroke:#7a7a7a,stroke-width:2px,color:#333333
+  V["Visitante o postulante<br/>[Persona]"]:::persona
+  P["Administrador, docente y auxiliar<br/>[Persona]"]:::persona
+  E["Estudiante<br/>[Persona]"]:::persona
+  PA["Padre o apoderado<br/>[Persona]"]:::persona
+  S["Plataforma CERMAT<br/>[Sistema]<br/>Gestión académica web"]:::sistema
+  F["Firebase - Google<br/>[Sistema externo]<br/>Identidad, datos y archivos"]:::externo
+  C["Sistema del colegio<br/>[Sistema externo]<br/>cermatschool.edu.pe"]:::externo
+  V -->|"Consulta y se pre-matricula - HTTPS"| S
+  P -->|"Gestiona - HTTPS"| S
+  E -->|"Usa su portal - HTTPS"| S
+  PA -->|"Consulta asistencia - HTTPS"| S
+  C -->|"Enlaza - HTTPS"| S
+  S -->|"Autentica y guarda datos - SDK"| F
 ```
 
-### Decisiones arquitectonicas clave
-
-| Decision | Justificacion |
-|---|---|
-| Firebase como backend principal | Reduce complejidad operativa, permite reglas declarativas y datos en tiempo real. |
-| Modulos por dominio | Facilita mantenimiento y evidencia de competencias. |
-| Rutas por rol | Asegura experiencias separadas para admin, docente, estudiante y auxiliar. |
-| MySQL como complemento | Permite reportes y consultas relacionales sin reemplazar Firestore. |
-| Sincronizacion fire-and-forget | Evita que una caida de la API afecte operaciones principales. |
-| Validaciones Zod | Mejora consistencia de datos antes de escribir en Firestore. |
-
-## 11. Modelado del sistema (UML)
-
-!!! info "Diagramas generados con Mermaid"
-    Los diagramas UML siguientes — casos de uso, clases de dominio y secuencia — se renderizan automáticamente como SVG con Mermaid. Representan el modelo real del sistema, derivado de los módulos implementados en `src/features/*`.
-
-### Diagrama de casos de uso
+### 3.2 C2 — Contenedores (cumple el rol de vista de despliegue)
 
 ```mermaid
 flowchart LR
-  Admin["Administrador"] --> UC1["Gestionar ciclos y grupos"]
-  Admin --> UC2["Gestionar matriculas"]
-  Admin --> UC3["Registrar pagos"]
-  Admin --> UC4["Gestionar usuarios"]
-  Admin --> UC5["Gestionar recursos, blog y talleres"]
-  Admin --> UC6["Supervisar asistencia"]
-  Docente["Docente"] --> UC7["Consultar cursos"]
-  Docente --> UC8["Registrar asistencia docente"]
-  Estudiante["Estudiante"] --> UC9["Consultar cursos y recursos"]
-  Estudiante --> UC10["Ver matricula y asistencia"]
-  Auxiliar["Auxiliar"] --> UC11["Validar asistencia QR"]
-  Padre["Padre"] --> UC12["Consultar asistencia por codigo"]
-  Visitante["Visitante"] --> UC13["Matricularse en linea"]
+  classDef persona fill:#cfe2ff,stroke:#08427b,stroke-width:2px,color:#08274a
+  classDef contenedor fill:#e3f0ff,stroke:#1168bd,stroke-width:2px,color:#0b2545
+  U["Usuarios<br/>[Persona]<br/>Seis portales por rol"]:::persona
+  subgraph LOCAL["Capa relacional: servidor local"]
+    API["API REST<br/>[Contenedor: Node.js + Express, PM2]"]:::contenedor
+    AN["Analítica<br/>[Contenedor: Python + FastAPI]"]:::contenedor
+    DB[("MySQL 8<br/>[Base de datos: réplica]")]:::contenedor
+  end
+  subgraph NUBE["Nube: Vercel + Firebase"]
+    SPA["SPA React + TypeScript<br/>[Contenedor: Vite en Vercel]"]:::contenedor
+    AUTH["Firebase Authentication<br/>[Contenedor: identidad y claims]"]:::contenedor
+    FS[("Cloud Firestore<br/>[Base de datos: 22 colecciones]")]:::contenedor
+    ST["Firebase Storage<br/>[Contenedor: archivos]"]:::contenedor
+  end
+  U -->|HTTPS| SPA
+  SPA -->|"Inicia sesión"| AUTH
+  SPA -->|"Lee y escribe según reglas"| FS
+  SPA -->|"Sube y lee archivos"| ST
+  SPA -.->|"Sincroniza sin bloquear<br/>HTTPS + ID token"| API
+  SPA -.->|"Indicadores<br/>HTTPS + token admin"| AN
+  API -->|"CALL sp_*"| DB
+  AN -->|"CALL sp_riesgo_inasistencia"| DB
 ```
 
-### Diagrama de clases de dominio (alto nivel)
+### 3.3 C3 — Componentes de la SPA y de la API
+
+```mermaid
+flowchart TB
+  classDef componente fill:#f0f7ff,stroke:#5d82a8,stroke-width:2px,color:#0b2545
+  subgraph SPAB["Contenedor: SPA React"]
+    direction LR
+    R["Router y guardas<br/>[Componente: React Router]<br/>AdminRoute, TeacherRoute, StudentRoute,<br/>AuxiliarRoute, ParentAttendanceRoute"]:::componente
+    UI["Componentes de UI<br/>[Componente: shadcn/ui + Tailwind]"]:::componente
+    FE["Módulos de dominio<br/>[Componente: src/features/*]<br/>api, hooks, schemas, types"]:::componente
+    LIB["Utilidades<br/>[Componente: src/lib/*]<br/>firebase, syncService, qrPayload"]:::componente
+    R -->|"monta páginas"| FE
+    UI -->|"usa hooks"| FE
+    FE --> LIB
+  end
+  subgraph APIB["Contenedor: API REST"]
+    direction LR
+    MW["Autenticación<br/>[Componente: requireAuth, resolveRole]"]:::componente
+    RT["Rutas<br/>[Componente: sync, asistencia, pagos]<br/>Zod y errores 400/422/500"]:::componente
+    PO["Acceso a datos<br/>[Componente: mysql2]<br/>solo procedimientos"]:::componente
+    MW -->|autoriza| RT
+    RT -->|"CALL sp_*"| PO
+  end
+  SPAB -.->|"syncService envía el ID token a Autenticación - HTTPS"| APIB
+```
+
+### 3.4 Registro de decisiones arquitectónicas (ADR)
+
+| ADR | Contexto | Decisión | Consecuencias | Estado |
+|---|---|---|---|---|
+| ADR-01 | Equipo pequeño, sin servidor propio permanente, con necesidad de tiempo real y control de acceso por rol | Firebase como backend principal (Auth, Firestore, Storage) con reglas declarativas | Sin servidor que mantener para la operación diaria. La seguridad depende de reglas que deben probarse y publicarse (ver ADR-07). | Aceptada |
+| ADR-02 | Firestore no resuelve bien reportes agregados ni conciliaciones | Réplica relacional en MySQL, escrita solo mediante procedimientos almacenados | Reportes SQL, integridad por FK y CHECK, y auditoría. La cuenta de la API no puede escribir tablas directamente. | Aceptada |
+| ADR-03 | La réplica no debe detener la operación si falla | Sincronización no bloqueante, idempotente y con vista de conciliación | Un fallo de la API no afecta al usuario. Los eventos perdidos se detectan en `v_conciliacion_pagos`. | Aceptada |
+| ADR-04 | Muchos dominios que crecen en paralelo | Arquitectura modular por dominio en `src/features/*` | Módulos predecibles y probables por separado. Algunas páginas siguen siendo grandes (deuda registrada en E4). | Aceptada |
+| ADR-05 | Riesgo de sobrecupo y duplicados en la matrícula pública sin sesión | Transacción con id determinístico `grupo__teléfono` y regla que solo permite sumar un cupo junto con la nueva pre-matrícula | Sin sobrecupo aun con solicitudes simultáneas. Para el visitante, un duplicado se ve como permiso denegado (mensaje explicado). | Aceptada |
+| ADR-06 | Un QR con solo el id del alumno puede falsificarse | QR permanente firmado (firma en `studentQrSignatures`) más estado diario transaccional (`attendanceDayState`) | No se aceptan QR reconstruidos ni dobles marcas simultáneas. Requiere regenerar los QR del formato antiguo. | Aceptada |
+| ADR-07 | Las reglas publicadas quedaron 4 meses desactualizadas | Las reglas se prueban en un emulador y se publican solo desde el pipeline de CI | Ninguna regla sin probar llega a producción. Requiere configurar el secreto de despliegue. | Aceptada (2026-10-24) |
+
+## Sección 4: Diseño Detallado
+
+### 4.1 Diagrama de casos de uso
+
+```mermaid
+flowchart LR
+  V(["👤 Visitante"]) --- UC1(["Consultar ciclos"]) & UC2(["Pre-matricularse"])
+  P(["👤 Padre"]) --- UC3(["Consultar asistencia con código"])
+  A(["👤 Administrador"]) --- UC4(["Gestionar ciclos y grupos"]) & UC5(["Gestionar matrículas"]) & UC6(["Registrar y anular pagos"]) & UC7(["Invitar y dar de alta usuarios"]) & UC8(["Publicar contenidos"])
+  X(["👤 Auxiliar"]) --- UC9(["Registrar asistencia por QR"])
+  D(["👤 Docente"]) --- UC10(["Marcar asistencia diaria"]) & UC11(["Ver cursos y recursos"])
+  E(["👤 Estudiante"]) --- UC12(["Activar cuenta"]) & UC13(["Ver cursos, recursos y asistencia"])
+  UC5 -. incluye .-> UC6
+  UC12 -. extiende .-> UC5
+```
+
+### 4.2 Diagrama de clases del dominio
 
 ```mermaid
 classDiagram
-  class User {
-    string id
-    string role
-    string displayName
-    string email
-    string parentAccessCode
+  class Ciclo {
+    +string id
+    +string title
+    +string status
+    +bool isPublished
+    +number price
   }
-  class Cycle {
-    string id
-    string title
-    string status
-    boolean isPublished
-    number price
+  class Grupo {
+    +string id
+    +string cycleId
+    +number capacity
+    +number enrolledCount
+    +string campusId
+    +string shift
+    +tieneCupo() bool
   }
-  class Group {
-    string id
-    string cycleId
-    string level
-    string name
-    number capacity
-    number enrolledCount
+  class Matricula {
+    +string id
+    +string status
+    +string activationStatus
+    +number priceAtEnrollment
+    +string studentUid
+    +aprobar()
+    +cancelar()
+    +reabrir()
   }
-  class Enrollment {
-    string id
-    string cycleId
-    string groupId
-    string studentName
-    string status
-    string paymentType
+  class Pago {
+    +string id
+    +number amount
+    +string method
+    +number installmentNumber
+    +string status
+    +anular(autor)
   }
-  class Payment {
-    string id
-    string enrollmentId
-    number amount
-    string method
-    string status
+  class Usuario {
+    +string uid
+    +string role
+    +string parentAccessCode
   }
-  class AttendanceLog {
-    string id
-    string studentId
-    string teacherId
-    string kind
-    string date
+  class Invitacion {
+    +string id
+    +bool used
+    +Timestamp expiresAt
+    +consumir(uid)
   }
-  Cycle "1" --> "*" Group
-  Cycle "1" --> "*" Enrollment
-  Group "1" --> "*" Enrollment
-  Enrollment "1" --> "*" Payment
-  User "1" --> "*" AttendanceLog
+  class RegistroAsistencia {
+    +string kind
+    +string date
+    +Timestamp timestamp
+    +string recordedByUid
+  }
+  Ciclo "1" --> "*" Grupo
+  Grupo "1" --> "*" Matricula
+  Matricula "1" --> "*" Pago
+  Usuario "1" --> "0..*" Matricula : estudiante
+  Invitacion "1" --> "0..1" Usuario : activa
+  Usuario "1" --> "*" RegistroAsistencia
 ```
 
-### Diagrama de secuencia - matricula y pago
+El id de `Matricula` es determinístico (`grupo__teléfono`, RN03) y el de `Invitacion` es el SHA-256 del token enviado por enlace: el token nunca se guarda.
+
+### 4.3 Diagramas de secuencia
+
+**Pre-matrícula pública con control de cupo (HU01, ADR-05):**
 
 ```mermaid
 sequenceDiagram
-  actor Visitante
-  participant UI as Web CERMAT
-  participant FS as Firestore
-  participant Admin
-  participant API as API REST opcional
-  participant SQL as MySQL
-
-  Visitante->>UI: Completa formulario de matricula
-  UI->>FS: Crea enrollment validado
-  Admin->>UI: Revisa matricula
-  Admin->>FS: Actualiza estado / registra pago
-  UI->>API: Sincroniza pago o matricula si esta habilitado
-  API->>SQL: Guarda copia operativa
+  actor V as Visitante
+  participant UI as SPA (MatriculaPage)
+  participant FS as Firestore + reglas
+  V->>UI: Completa el formulario
+  UI->>UI: Valida con Zod
+  UI->>FS: runTransaction: get(matrícula grupo__teléfono)
+  FS-->>UI: no existe (lectura permitida solo si no existe)
+  UI->>FS: get(grupo): capacidad y cupos
+  alt hay cupo
+    UI->>FS: set(matrícula "pendiente") + update(grupo: +1 cupo, lastEnrollmentKey)
+    FS->>FS: Regla: ciclo abierto, grupo del ciclo, +1 exacto, matrícula nueva del mismo grupo
+    FS-->>UI: confirmada
+    UI-->>V: Pre-matrícula registrada
+  else sin cupo o duplicado
+    UI-->>V: Mensaje de rechazo
+  end
 ```
 
-## 12. Trazabilidad
+**Activación por invitación (HU05, RN08):**
 
-!!! success "Trazabilidad completa RF01–RF22"
-    Cada requerimiento funcional tiene al menos un archivo fuente identificado. La trazabilidad fue derivada del repositorio real — no es estimada.
+```mermaid
+sequenceDiagram
+  actor U as Auxiliar invitado
+  participant UI as ActivateAuxiliarPage
+  participant AU as Firebase Auth
+  participant FS as Firestore + reglas
+  U->>UI: Abre el enlace con el token
+  UI->>FS: get(auxiliarInvites/sha256(token))
+  FS-->>UI: vigente y sin usar
+  U->>UI: Correo y contraseña
+  UI->>AU: Crear cuenta
+  UI->>FS: set(users/uid, rol auxiliar, inviteRef)
+  FS->>FS: Regla hasUsableInvite: invitación vigente o ya usada por este uid
+  UI->>FS: Transacción: invitación used = true, usedBy = uid
+  UI-->>U: Acceso al portal auxiliar
+```
 
-| Requerimiento | Componente |
-|---|---|
-| RF01 | `src/pages/Index.tsx`, `src/components/home/*` |
-| RF02 | `src/pages/CiclosPage.tsx`, `src/features/cycles/*` |
-| RF03 | `src/pages/MatriculaPage.tsx`, `src/features/enrollments/*` |
-| RF04 | `firestore.rules`, `src/features/enrollments/schemas.ts` |
-| RF05 | `src/pages/admin/AdminCiclosPage.tsx`, `AdminCycleGroupsPage.tsx`, `src/features/groups/*` |
-| RF06 | `src/pages/admin/AdminEnrollmentsPage.tsx`, `src/features/enrollments/*` |
-| RF07 | `src/pages/admin/AdminPaymentsPage.tsx`, `src/features/payments/*` |
-| RF08 | `src/features/users/*`, `src/pages/admin/AdminDocentesPage.tsx`, `AdminAlumnosPage.tsx` |
-| RF09 | `src/pages/ActivateStudentPage.tsx`, `src/pages/ActivateAuxiliarPage.tsx` |
-| RF10 | `src/pages/teacher/TeacherCursosPage.tsx`, `src/pages/teacher/TeacherCursoAlumnosPage.tsx` |
-| RF11 | `src/pages/teacher/TeacherRecursosPage.tsx`, `src/features/resources/*` |
-| RF12 | `src/features/attendance/api.ts`, `src/pages/student/StudentAttendanceScanPage.tsx` |
-| RF13 | `src/pages/teacher/TeacherAttendanceScanPage.tsx`, `src/features/attendance/api.ts` |
-| RF14 | `src/pages/auxiliar/AuxiliarAttendanceQRPanel.tsx`, `src/pages/admin/AuxiliarDashboard.tsx` |
-| RF15 | `src/pages/student/*`, `src/components/student/StudentLayout.tsx` |
-| RF16 | `src/pages/ParentAttendancePage.tsx`, `src/lib/parentAccess.ts` |
-| RF17 | `src/features/resources/*`, `src/pages/admin/AdminRecursosPage.tsx` |
-| RF18 | `src/features/posts/*`, `src/pages/admin/AdminPostsPage.tsx` |
-| RF19 | `src/features/workshops/*` |
-| RF20 | `src/pages/ContactoPage.tsx`, `firestore.rules` |
-| RF21 | `src/lib/syncService.ts`, `server/src/routes/*` |
-| RF22 | `src/routes/AdminRoute.tsx`, `TeacherRoute.tsx`, `StudentRoute.tsx`, `AuxiliarRoute.tsx` |
+**Registro de asistencia con QR firmado (HU06, ADR-06):**
 
-## 13. Validacion con stakeholders
+```mermaid
+sequenceDiagram
+  actor X as Auxiliar
+  participant UI as Panel de escaneo
+  participant FS as Firestore + reglas
+  participant API as API REST (opcional)
+  X->>UI: Escanea CERMAT|student|uid|firma
+  UI->>FS: runTransaction sobre attendanceDayState/student_uid_fecha
+  FS->>FS: Regla: firma igual a studentQrSignatures/uid y registrador con rol
+  FS-->>UI: entrada o salida registrada
+  UI--)API: Sincroniza el log (no bloqueante)
+  API->>API: Registrador = dueño del token, luego CALL sp_registrar_asistencia (idempotente)
+```
 
-| Aspecto | Metodo de validacion | Evidencia | Observaciones |
-|---|---|---|---|
-| Oferta academica publica | Revision de rutas publicas y componentes de ciclos | `/ciclos`, `/ciclos/:id` | Permite decision de matricula. |
-| Matricula | Prueba de flujo desde formulario publico hasta panel admin | `/matricula`, `/admin/matriculas` | Requiere ciclos/grupos validos. |
-| Pagos | Revision de registro y trazabilidad de pagos | `/admin/pagos` | Asociado a matriculas. |
-| Asistencia | Prueba de QR para estudiante/docente | `/student/attendance`, `/docente/qr-auxiliar` | Usa tokens y logs. |
-| Padres | Consulta por codigo CERMAT | `/asistencia-hijo` | Acceso publico controlado por codigo. |
-| Seguridad | Revision de Firestore Rules y guards | `firestore.rules`, `src/routes/*` | Separacion por rol. |
-| Arquitectura | Revision de estructura `features` y rutas | `src/features/*`, `src/App.tsx` | Modularidad por dominio. |
+### 4.4 Diagrama de estados de la matrícula
 
-## 14. Anexos
+Corresponde a `isAdminEnrollmentUpdateAllowed` y a la regla de activación de `firestore.rules`.
 
-| Anexo | Contenido | Ubicacion en este documento |
+```mermaid
+stateDiagram-v2
+  [*] --> Pendiente: pre-matrícula (visitante o admin)
+  Pendiente --> PagadoInvitado: admin registra el pago y genera la invitación
+  Pendiente --> Cancelado: admin cancela
+  PagadoInvitado --> PagadoActivo: el alumno se activa con su invitación
+  PagadoInvitado --> Cancelado: admin cancela
+  PagadoActivo --> Cancelado: admin cancela
+  Cancelado --> Pendiente: admin reabre
+  note right of PagadoActivo: studentUid queda fijo y no puede cambiarse
+```
+
+**Estado diario de la asistencia del alumno** (`attendanceDayState`):
+
+```mermaid
+stateDiagram-v2
+  [*] --> SinMarca
+  SinMarca --> Entrada: primer escaneo del día
+  Entrada --> Salida: siguiente escaneo
+  Salida --> Entrada: nuevo ingreso el mismo día
+  Salida --> [*]: cambia la fecha
+```
+
+### 4.5 Modelo de diseño detallado
+
+```mermaid
+flowchart TB
+  subgraph Presentación
+    P1["pages/* (55 rutas)"] --> P2["components/* (UI)"]
+  end
+  subgraph Dominio["Dominio (src/features/<módulo>)"]
+    H["hooks.ts — TanStack Query"] --> A["api.ts — Firestore, transacciones"]
+    S["schemas.ts — Zod"] --> A
+    T["types.ts — tipos del dominio"]
+  end
+  subgraph Infraestructura
+    F["lib/firebase.ts"]
+    SY["lib/syncService.ts → API REST"]
+  end
+  P1 --> H
+  P1 --> S
+  A --> F
+  A --> SY
+```
+
+| Capa | Responsabilidad | Regla de dependencia |
 |---|---|---|
-| Matriz de trazabilidad | Relacion completa RF01-RF22 hacia archivo fuente | Seccion "12. Trazabilidad" |
-| Acta de validacion con stakeholders | Metodo y evidencia de validacion por flujo funcional | Seccion "13. Validacion con stakeholders" |
-| Diagramas complementarios | Casos de uso, clases de dominio, secuencia, C4 contexto y contenedores | Secciones "10. Arquitectura del sistema" y "11. Modelado del sistema (UML)" |
-| Codigo fuente de referencia | Componentes y rutas citados en cada requerimiento | Repositorio `academia-school-platform`, columna "Componente" de la seccion "12. Trazabilidad" |
+| Presentación | Pantallas y formularios | Solo usa hooks y esquemas del dominio |
+| Dominio | Casos de uso, validación y acceso a datos | No depende de la UI |
+| Infraestructura | SDK de Firebase y sincronización | Encapsulada en `src/lib` |
 
-## 15. Rubrica de evaluacion
+## Anexos
 
-| Criterio | Excelente (18-20) | Bueno (15-17) | Regular (13-14) | Deficiente (<13) | Evaluacion CERMAT |
-|---|---|---|---|---|---|
-| Completitud y claridad de requerimientos | SRS completo, claro y estructurado (RF, RNF, reglas, restricciones) | SRS mayormente completo | Requerimientos incompletos o ambiguos | Requerimientos deficientes | Excelente |
-| Coherencia entre requerimientos, prototipos y diseño del sistema | Prototipos y diseño reflejan fielmente los requerimientos | Coherencia general | Varias inconsistencias | No hay coherencia | Excelente |
-| Definicion de arquitectura del sistema | Arquitectura clara, documentada y alineada al problema | Arquitectura funcional | Arquitectura parcial | No hay arquitectura | Excelente |
-| Modelado del sistema (UML) | Diagramas completos y coherentes | Modelado adecuado | Modelado incompleto | No hay modelado | Bueno |
-| Trazabilidad de requerimientos | Componentes rastreables a requerimientos | Trazabilidad parcial | Trazabilidad limitada | No hay trazabilidad | Excelente |
-| Validacion con stakeholders | Evidencia clara de validacion | Validacion parcial | Validacion limitada | No hay validacion | Bueno |
+### Anexo A — Acta de validación con stakeholders (plantilla)
 
-!!! note "Sobre 'Bueno' en modelado UML y validacion con stakeholders"
-    Los diagramas UML se generan con Mermaid a partir del modelo real de dominio, sin pasar por una herramienta CASE dedicada, y la validacion con stakeholders se documenta por metodo/evidencia de flujo mas que por actas firmadas individuales — de ahi la autoevaluacion conservadora en ambos criterios.
+| Campo | Contenido |
+|---|---|
+| Fecha y lugar | (completar) |
+| Participantes | Dirección de la academia, un docente, un auxiliar y el equipo de desarrollo |
+| Historias validadas | HU01–HU10 (marcar conformidad u observación por historia) |
+| Observaciones | (completar) |
+| Conformidad | Firma de la Dirección y del líder del equipo |
+| Estado | **Pendiente de realizar y firmar** |
 
-## Competencia evaluada
+### Anexo B — Matriz de trazabilidad de requerimientos
 
-!!! abstract "CE021 — Ingeniería de Requerimientos"
-    Este entregable forma parte de un sistema integrado y no se evalúa de manera aislada. En el contexto del **EPE**, integra evidencias desarrolladas previamente y las relaciona con actores, objetivos, alcance, requerimientos, arquitectura técnica híbrida y trazabilidad completa hacia el código fuente.
+| RF | Historia | Componente | Prueba automática |
+|---|---|---|---|
+| RF01 | — | `pages/Index.tsx`, `components/home/*` | — (captura 01) |
+| RF02 | — | `pages/CiclosPage.tsx`, `features/cycles/*` | — (captura 02) |
+| RF03 | HU01 | `pages/MatriculaPage.tsx`, `features/enrollments/api.ts` | Reglas › matrícula pública; esquemas de matrícula |
+| RF04 | HU01 | `firestore.rules`, `features/enrollments/schemas.ts` | Reglas › ciclo cerrado, sobrecupo y cupo sin matrícula |
+| RF05 | — | `pages/admin/AdminCiclosPage.tsx`, `features/groups/*` | Reglas › manipulación del contador |
+| RF06 | HU02 | `pages/admin/AdminEnrollmentsPage.tsx`, `features/enrollments/*` | Pendiente: pruebas de transiciones de estado |
+| RF07 | HU03 | `pages/admin/AdminPaymentsPage.tsx`, `features/payments/*` | Reglas › pagos; API › payment (5); BD (10) |
+| RF08 | HU09 | `features/users/*`, `lib/excelImport.ts` | Unitarias › excelImport (3) |
+| RF09 | HU04, HU05 | `pages/Activate*Page.tsx`, `features/teacherInvites/*` | Reglas › roles (8); unitarias › invite (3) |
+| RF10 | — | `pages/teacher/TeacherCursosPage.tsx` | — |
+| RF11 | — | `pages/teacher/TeacherRecursosPage.tsx`, `features/resources/*` | — |
+| RF12 | HU06 | `features/attendance/api.ts`, `lib/qrPayload.ts` | Unitarias › QR (5); API › attendance (6); BD 12 |
+| RF13 | HU07 | `pages/teacher/TeacherAttendanceScanPage.tsx` | API › asistencia diaria del docente |
+| RF14 | HU06 | `pages/auxiliar/*`, `pages/admin/AuxiliarDashboard.tsx` | API › auxiliar sin claim |
+| RF15 | — | `pages/student/*` | Reglas › lectura del alumno con sesión |
+| RF16 | HU08 | `pages/ConsultaAsistenciaPadrePage.tsx`, `lib/parentAccess.ts` | Unitarias › parentAccess (4) |
+| RF17 | — | `features/resources/*`, `pages/admin/AdminRecursosPage.tsx` | — |
+| RF18 | — | `features/posts/*`, `pages/admin/AdminPostsPage.tsx` | Unitarias › conversión de fechas (3) |
+| RF19 | — | `features/workshops/*` | — |
+| RF20 | — | `pages/ContactoPage.tsx`, `firestore.rules` | — |
+| RF21 | HU10 | `lib/syncService.ts`, `server/src/routes/sync.ts`, `server/src/db/*` | API › sync (15); BD (19) |
+| RF22 | HU05 | `routes/*Route.tsx`, `firestore.rules`, `server/src/middleware/auth.ts` | Reglas › roles; API › autenticación |
+
+Cobertura de trazabilidad: 22 de 22 RF con componente identificado; 15 de 22 con al menos una prueba automática. Las 7 restantes se cubren con capturas o están en el plan de mejora del E4.
+
+### Anexo C — Diagramas complementarios
+
+Arquitectura técnica híbrida: ![Arquitectura técnica híbrida](assets/arquitectura-hibrida.svg)
+
+### Anexo D — Evidencia de sustentación
+
+Exposición breve ante el docente: pendiente (ver [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md)).
+
+## Rúbrica de Evaluación
+
+| Criterio | Excelente (18-20) | Bueno (15-17) | Regular (13-14) | Deficiente (<13) |
+|---|---|---|---|---|
+| Completitud y claridad de requerimientos | SRS completo, claro y estructurado (RF, RNF, reglas, restricciones) | SRS mayormente completo | Requerimientos incompletos o ambiguos | Requerimientos deficientes |
+| Coherencia entre requerimientos, prototipos y diseño del sistema | Prototipos y diseño reflejan fielmente los requerimientos | Coherencia general | Varias inconsistencias | No hay coherencia |
+| Definición de arquitectura del sistema | Arquitectura clara, documentada y alineada al problema | Arquitectura funcional | Arquitectura parcial | No hay arquitectura |
+| Modelado del sistema (UML) | Diagramas completos y coherentes | Modelado adecuado | Modelado incompleto | No hay modelado |
+| Trazabilidad de requerimientos | Componentes rastreables a requerimientos | Trazabilidad parcial | Trazabilidad limitada | No hay trazabilidad |
+| Validación con stakeholders | Evidencia clara de validación | Validación parcial | Validación limitada | No hay validación |
+| Sustentación y defensa técnica | Explica y defiende con dominio las decisiones tomadas | Explica con solvencia | Explica con dificultad | No sustenta |

@@ -1,512 +1,384 @@
-# E2 - Base de Datos del Sistema (CE022)
+# E2 - Plataforma de Datos del Sistema (CE022)
 
 !!! abstract "Evidencia CE022 — Ingeniería de la Información"
-    Este entregable documenta el diseño, implementación y operación de la base de datos del sistema CERMAT. El modelo de datos es **híbrido**: Cloud Firestore como fuente de verdad operativa y MySQL como capa analítica y relacional complementaria. Incluye esquema, consultas SQL, seguridad, rendimiento y consistencia con los requerimientos del sistema.
+    Modelado, implementación, consulta, programación, seguridad y administración de la base de datos que sostiene la Plataforma CERMAT. El modelo es **híbrido**: Cloud Firestore es la fuente de verdad operativa y MySQL es la capa relacional para reportes, analítica, auditoría y continuidad.
 
-## 1. Informacion general
+## Portada
 
 | Campo | Detalle |
 |---|---|
-| Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
-| Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
-| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
-| Fecha | 2026-07-05 |
+| Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
+| Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Semestre | 2026-2 (9° ciclo) |
+| Fecha | 2026-10-24 |
+| Scripts | `server/src/db/` del repositorio `academia-school-platform` |
 
-## 2. Resumen Ejecutivo
+## Resumen Ejecutivo
 
-Este entregable documenta la ingeniería de la información del sistema CERMAT bajo un modelo de datos **híbrido**: Cloud Firestore como fuente de verdad operativa (**21 colecciones documentadas**, verificadas directamente contra `firestore.rules`) y MySQL como capa relacional complementaria (**6 tablas activas**) para reportes y analítica. Cubre el modelo de datos y sus relaciones, el esquema lógico de cada colección/tabla, el script de implementación SQL (`server/src/db/schema.sql`), 5 consultas analíticas documentadas, la programación de datos vía capa de aplicación, la seguridad en tres capas (rutas protegidas, Firebase Auth, Firestore Rules), la estrategia de rendimiento basada en desnormalización deliberada, y la consistencia verificada entre este modelo de datos y los requerimientos definidos en el E1.
+Los datos sostienen tres decisiones de la academia: quién está matriculado y cuánto debe, quién asiste y quién está en riesgo de abandonar, y qué se cobró y por qué medio. La operación diaria escribe en **Firestore** (22 colecciones protegidas por reglas por rol). Cada matrícula, pago y marca de asistencia se replica en **MySQL 8.0** mediante una API que **solo escribe a través de procedimientos almacenados**.
 
-## 3. Modelo de datos
+En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones.
 
-!!! info "Arquitectura de datos híbrida — Firebase + MySQL"
-    La elección de dos motores de datos responde a necesidades distintas: Firestore provee sincronización en tiempo real, reglas declarativas y escalabilidad cloud; MySQL habilita consultas relacionales complejas, reportes agregados y analítica operativa sin límites del plan Firebase.
+## Sección 1: Modelo de Datos
 
-    ![Arquitectura técnica híbrida de la solución CERMAT](assets/arquitectura-hibrida.svg)
-
-    *Diagrama: modelo de datos híbrido — la capa cloud gestiona la operación web en tiempo real mientras la capa local sostiene analítica, alertas automáticas y respaldo.*
-
-### Enfoque de datos
-
-El sistema utiliza un modelo hibrido:
-
-- **Cloud Firestore** como base de datos principal para la operacion web.
-- **Firebase Authentication** como fuente de identidad.
-- **Firebase Storage** para imagenes y archivos.
-- **MySQL** como base complementaria para sincronizacion, reportes y analitica operativa mediante API REST.
-
-### Entidades Firestore principales
-
-| Entidad / coleccion | Descripcion | Relaciones principales |
-|---|---|---|
-| `users` | Usuarios y perfiles por rol. | Se relaciona con asistencia, grupos, invitaciones y codigos de padres. |
-| `cycles` | Ciclos academicos. | Tiene grupos, matriculas, recursos y visibilidad publica. |
-| `cycleCategories` | Categorias o niveles. | Clasifica ciclos. |
-| `campuses` | Sedes. | Se relaciona con ciclos, grupos y matriculas. |
-| `groups` | Grupos academicos por ciclo. | Pertenece a ciclo, puede tener docente y matriculas. |
-| `enrollments` | Matriculas. | Pertenece a ciclo, grupo y estudiante; recibe pagos. |
-| `payments` | Pagos de matriculas. | Pertenece a una matricula. |
-| `attendanceTokens` | Tokens diarios de asistencia. | Valida asistencia docente/QR. |
-| `attendanceLogs` | Registros de asistencia. | Asociado a estudiante o docente. |
-| `parentAttendance` | Vista publica por codigo para padres. | Relacionada con estudiante mediante codigo CERMAT. |
-| `resources` | Recursos academicos. | Pueden ser publicos, de docente o para estudiantes. |
-| `posts` | Blog institucional. | Gestionado por admin. |
-| `workshops` | Talleres. | Publicos o privados segun estado. |
-| `messages` | Contactos del sitio. | Leidos y gestionados por admin. |
-| `config` | Configuracion del sitio y servicios. | Incluye configuracion de API REST opcional. |
-| `invites` | Invitaciones de estudiantes. | Activacion de cuentas. |
-| `teacherInvites` | Invitaciones docentes. | Alta/activacion docente. |
-| `auxiliarInvites` | Invitaciones auxiliares. | Alta/activacion auxiliar. |
-| `studentGroupLinks` | Relacion estudiante-grupo. | Vincula estudiante con grupo y matricula. |
-| `attendanceDayState` | **Nueva (2026-07-05).** Estado transaccional del dia por estudiante/docente. | Evita condicion de carrera en marcaciones simultaneas; documento compuesto `{tipo}_{id}_{fecha}`. |
-| `studentQrSignatures` | **Nueva (2026-07-05).** Firma opaca del QR permanente de cada estudiante. | Validada por Firestore Rules via `get()` cruzado antes de aceptar una marcacion. |
-| `students` | Coleccion legacy de solo-admin, complementaria a `users`. | Acceso restringido a administradores. |
-
-### Modelo ER alto nivel
+### 1.1 Modelo entidad-relación (conceptual)
 
 ```mermaid
 erDiagram
-  USERS ||--o{ ATTENDANCE_LOGS : registra_o_recibe
-  CYCLES ||--o{ GROUPS : contiene
-  CYCLES ||--o{ ENROLLMENTS : recibe
-  GROUPS ||--o{ ENROLLMENTS : agrupa
-  ENROLLMENTS ||--o{ PAYMENTS : tiene
-  USERS ||--o{ STUDENT_GROUP_LINKS : pertenece
-  GROUPS ||--o{ STUDENT_GROUP_LINKS : vincula
-  USERS ||--o{ PARENT_ATTENDANCE : consulta_por_codigo
-  CYCLES ||--o{ RESOURCES : referencia
-  USERS ||--o{ RESOURCES : crea
+  ALUMNO ||--o{ MATRICULA : "se matricula"
+  CICLO  ||--o{ MATRICULA : "agrupa"
+  MATRICULA ||--o{ PAGO : "recibe"
+  ALUMNO ||--o{ ASISTENCIA : "registra"
+  DOCENTE ||--o{ ASISTENCIA : "registra"
+  ALUMNO ||--o{ ALERTA : "genera"
+  MATRICULA ||--o{ AUDITORIA : "deja rastro"
+  PAGO ||--o{ AUDITORIA : "deja rastro"
 ```
 
-## 4. Esquema de base de datos
+### 1.2 Modelo lógico relacional (MySQL)
 
-### Esquema principal Firestore
+```mermaid
+erDiagram
+  direction LR
+  alumnos {
+    varchar id PK "UID de Firebase"
+    varchar firebase_uid UK
+    varchar nombre
+    varchar parent_code
+    enum estado
+  }
+  ciclos {
+    varchar id PK
+    varchar titulo
+    decimal precio "CHECK >= 0"
+    date fecha_inicio
+    date fecha_fin "CHECK >= fecha_inicio"
+  }
+  matriculas {
+    varchar id PK
+    varchar alumno_id FK "NULL si aún no activa"
+    varchar ciclo_id FK
+    enum tipo_pago
+    int cuotas_total "CHECK >= 1"
+    decimal precio "CHECK >= 0"
+    decimal monto_pagado "según Firestore"
+    enum estado
+    tinyint completa "0 = provisional"
+  }
+  pagos {
+    varchar id PK
+    varchar matricula_id FK
+    varchar alumno_id "copiado por trigger"
+    decimal monto "CHECK > 0"
+    enum metodo
+    int numero_cuota "CHECK >= 1"
+    enum estado "confirmed | cancelled"
+  }
+  asistencia {
+    bigint id PK
+    varchar firestore_log_id UK "idempotencia"
+    varchar alumno_id "alumno o docente"
+    enum tipo
+    enum fuente
+    varchar sujeto_tipo "columna generada"
+    date fecha
+  }
+  alertas {
+    bigint id PK
+    varchar alumno_id
+    enum tipo
+    enum nivel
+  }
+  auditoria {
+    bigint id PK
+    varchar tabla
+    varchar registro_id
+    enum accion
+    json detalle
+    varchar usuario_app
+  }
+  alumnos ||--o{ matriculas : fk_matriculas_alumno
+  ciclos  ||--o{ matriculas : fk_matriculas_ciclo
+  matriculas ||--o{ pagos : fk_pagos_matricula
+```
 
-Firestore no usa tablas relacionales, pero las colecciones tienen una estructura logica documentada:
+### 1.3 Modelo normalizado
 
-#### `users`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `uid` | string | Identificador del usuario en Firebase Auth. |
-| `email` | string | Correo del usuario. |
-| `displayName`, `fullName`, `name` | string | Nombre visible segun flujo. |
-| `role` | string | Rol: admin, teacher, student, auxiliar. |
-| `authStatus` | string | Estado de cuenta: active, pending, etc. |
-| `isActive` | boolean | Habilitacion operativa. |
-| `parentAccessCode` | string/object | Codigo de consulta para padres. |
-| `createdAt`, `updatedAt` | timestamp | Auditoria temporal. |
-
-#### `cycles`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `title` | string | Nombre del ciclo. |
-| `slug` | string | URL amigable. |
-| `categoryIds` | array | Categorias asociadas. |
-| `description` | string | Descripcion completa. |
-| `status` | string | nuevo, activo, proximamente, cerrado. |
-| `startDate`, `endDate` | timestamp/date | Fechas del ciclo. |
-| `modality` | string | presencial, virtual, hibrido. |
-| `shift` | string | manana, tarde, noche. |
-| `campuses` | array | Sedes asociadas. |
-| `schedule` | array | Horarios. |
-| `price` | number | Precio al contado. |
-| `installments` | number | Numero de cuotas. |
-| `installmentPrice` | number | Precio por cuota. |
-| `isPublished` | boolean | Visibilidad publica. |
-| `createdAt`, `updatedAt` | timestamp | Auditoria. |
-
-#### `groups`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `cycleId` | string | Ciclo al que pertenece. |
-| `level` | string | primaria, secundaria, preuniversitario. |
-| `gradeOrArea` | string | Grado o area. |
-| `name` | string | Nombre del grupo. |
-| `capacity` | number | Cupo maximo. |
-| `enrolledCount` | number | Cantidad de matriculados. |
-| `teacherUid` | string/null | Docente asignado. |
-| `campusId`, `campusName` | string | Sede. |
-| `shift` | string | Turno. |
-| `schedule` | object | Dias y horas. |
-
-#### `enrollments`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `cycleId`, `cycleTitle` | string | Ciclo seleccionado. |
-| `groupId`, `groupName` | string | Grupo seleccionado. |
-| `studentName` | string | Nombre del estudiante. |
-| `phone` | string | Telefono. |
-| `email` | string | Correo opcional. |
-| `priceAtEnrollment` | number | Precio fijado en matricula. |
-| `campus`, `campusId` | string | Sede. |
-| `shift` | string | Turno normalizado. |
-| `paymentType` | string | contado o cuotas. |
-| `installments` | number/null | Cantidad de cuotas. |
-| `status` | string | pendiente, pagado, cancelado. |
-| `followUpStage` | string | Seguimiento comercial/academico. |
-| `studentUid` | string | Usuario estudiante vinculado si aplica. |
-| `createdAt`, `updatedAt` | timestamp | Auditoria. |
-
-#### `payments`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `enrollmentId` | string | Matricula asociada. |
-| `studentName` | string | Nombre desnormalizado. |
-| `cycleTitle` | string | Ciclo desnormalizado. |
-| `amount` | number | Monto pagado. |
-| `method` | string | efectivo, yape, plin, transferencia, deposito. |
-| `receiptNumber` | string | Comprobante. |
-| `installmentNumber` | number/null | Numero de cuota. |
-| `status` | string | confirmed o cancelled. |
-| `recordedBy` | string | UID del admin. |
-| `paidAt`, `createdAt`, `updatedAt` | timestamp | Auditoria. |
-
-#### `attendanceLogs`
-
-| Campo | Tipo logico | Descripcion |
-|---|---|---|
-| `studentId` | string | Estudiante, si aplica. |
-| `studentName` | string | Nombre de estudiante. |
-| `teacherId` | string | Docente, si aplica. |
-| `teacherName` | string | Nombre de docente. |
-| `subjectType` | string | student o teacher. |
-| `scanSource` | string | student-qr o teacher-daily-qr. |
-| `kind` | string | entry o exit. |
-| `timestamp` | timestamp | Fecha/hora real. |
-| `date` | string | Fecha local YYYY-MM-DD. |
-| `token` | string | Token QR si aplica. |
-| `recordedByUid` | string | Usuario que registro. |
-
-### Esquema complementario MySQL
-
-Archivo fuente: `server/src/db/schema.sql`.
-
-| Tabla | Proposito |
+| Forma normal | Verificación |
 |---|---|
-| `alumnos` | Copia relacional de estudiantes y codigo de padres. |
-| `ciclos` | Copia de ciclos academicos. |
-| `matriculas` | Matriculas con alumno, ciclo, grupo, sede, turno y estado. |
-| `pagos` | Pagos asociados a matriculas. |
-| `asistencia` | Logs de asistencia. |
-| `alertas` | Alertas operativas por alumno. |
+| 1FN | Todos los atributos son atómicos. Los horarios y las categorías multivaluados viven solo en Firestore, no en la réplica. |
+| 2FN | Todas las tablas tienen clave primaria simple, así que no hay dependencias parciales. |
+| 3FN | `matriculas` depende solo de su id. El saldo **no se almacena**: se calcula con `fn_saldo_matricula` o `v_estado_cuenta`. |
+| Desnormalización deliberada | `pagos.alumno_nombre` y `pagos.ciclo_titulo` guardan el valor vigente al momento del pago, como un comprobante. `pagos.alumno_id` es una copia que mantiene el trigger `trg_matriculas_au`. |
+| Excepción justificada | `asistencia.alumno_id` guarda alumnos **y** docentes (fuente `teacher-daily-qr`), por eso no tiene FK. La columna generada `sujeto_tipo` los separa en todas las consultas. |
 
-### Claves primarias y foraneas logicas
+### 1.4 Diccionario de datos
 
-| Relacion | Llave |
+**MySQL (`server/src/db/schema.sql` + `02_integridad.sql`)**
+
+| Tabla | Columna | Tipo | Restricción | Descripción |
+|---|---|---|---|---|
+| alumnos | id | VARCHAR(64) | PK | UID de Firebase Auth |
+| alumnos | firebase_uid | VARCHAR(64) | UNIQUE, NOT NULL | Igual a `id`, por compatibilidad |
+| alumnos | parent_code | VARCHAR(50) | índice | Código CERMAT para la consulta de padres |
+| alumnos | estado | ENUM | activo/inactivo/egresado | Vigencia del alumno |
+| ciclos | id | VARCHAR(64) | PK | Id del documento en Firestore |
+| ciclos | precio | DECIMAL(10,2) | CHECK ≥ 0 | Precio de lista |
+| matriculas | id | VARCHAR(128) | PK | Id de la matrícula en Firestore |
+| matriculas | alumno_id | VARCHAR(64) | FK → alumnos, NULL | NULL mientras la cuenta no se activa |
+| matriculas | ciclo_id | VARCHAR(64) | FK → ciclos | Ciclo matriculado |
+| matriculas | cuotas_total | INT | CHECK ≥ 1 | Cuotas pactadas |
+| matriculas | precio | DECIMAL(10,2) | CHECK ≥ 0 | Precio congelado al matricular |
+| matriculas | monto_pagado | DECIMAL(10,2) | CHECK ≥ 0 | Valor reportado por Firestore (se concilia) |
+| matriculas | completa | TINYINT(1) | — | 0 = creada por un pago adelantado |
+| pagos | matricula_id | VARCHAR(128) | FK → matriculas | Matrícula pagada |
+| pagos | monto | DECIMAL(10,2) | CHECK > 0 | Importe |
+| pagos | numero_cuota | INT | CHECK ≥ 1 o NULL; ≤ cuotas pactadas (trigger) | NULL = pago único |
+| pagos | estado | ENUM | confirmed/cancelled | Anulación lógica: no se borra |
+| asistencia | firestore_log_id | VARCHAR(64) | UNIQUE | Evita duplicados por reintentos |
+| asistencia | sujeto_tipo | VARCHAR(10) | generada (STORED) | `alumno` o `docente` según la fuente |
+| auditoria | detalle | JSON | NOT NULL | Valores antes/después |
+| auditoria | usuario_app | VARCHAR(64) | — | UID de Firebase que originó el cambio |
+
+**Firestore (fuente de verdad, protegida por `firestore.rules`)**
+
+| Colección | Descripción | Relaciones |
+|---|---|---|
+| `users` | Perfiles y rol (admin, teacher, student, auxiliar) | asistencia, grupos, invitaciones, código de padres |
+| `cycles`, `cycleCategories`, `campuses` | Oferta académica, niveles y sedes | grupos, matrículas, recursos |
+| `groups` | Grupo por ciclo, sede, turno, horario, docente y cupo | `enrolledCount` controlado por transacción |
+| `enrollments` | Matrículas y su máquina de estados | pagos, `studentGroupLinks` |
+| `payments` | Pagos; eliminación bloqueada por reglas | `enrollmentId` |
+| `attendanceTokens`, `attendanceLogs`, `attendanceDayState` | QR diario, marcas y estado transaccional del día | usuario, fecha |
+| `studentQrSignatures` | Firma opaca del QR permanente | validada por reglas con `get()` |
+| `parentAttendance` | Vista resumida por código para padres | estudiante |
+| `resources`, `posts`, `workshops`, `messages`, `config` | Contenido y configuración | — |
+| `invites`, `teacherInvites`, `auxiliarInvites`, `studentGroupLinks`, `students` | Activación por rol y vínculos | — |
+
+## Sección 2: Implementación de Base de Datos
+
+### 2.1 Scripts DDL
+
+| Archivo | Contenido |
 |---|---|
-| `groups -> cycles` | `groups.cycleId` |
-| `enrollments -> cycles` | `enrollments.cycleId` |
-| `enrollments -> groups` | `enrollments.groupId` |
-| `payments -> enrollments` | `payments.enrollmentId` |
-| `attendanceLogs -> users` | `studentId` o `teacherId` |
-| `studentGroupLinks -> users/groups/enrollments` | `studentUid`, `groupId`, `enrollmentId` |
+| `schema.sql` | 6 tablas base con PK, 15 índices y ENUM |
+| `02_integridad.sql` | 3 FK, 7 CHECK, columnas `completa`, `firestore_log_id` y `sujeto_tipo`, índices compuestos `idx_ciclo_estado`, `idx_estado_fecha`, `idx_sujeto_fecha` y `idx_alumno_tipo_resuelta`. Convierte `''` en `NULL` y crea las filas padre faltantes de datos ya replicados, para que las FK se puedan aplicar sobre una base en uso. |
+| `03_programacion.sql` | Tabla `auditoria`, funciones, procedimientos, triggers y vistas |
+| `04_seguridad.sql` | Roles y privilegios |
 
-## 5. Implementacion SQL
+Fragmento de `02_integridad.sql`:
 
-### Script de creacion de base de datos
+```sql
+ALTER TABLE pagos
+  ADD CONSTRAINT fk_pagos_matricula FOREIGN KEY (matricula_id) REFERENCES matriculas (id)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  ADD CONSTRAINT chk_pagos_monto CHECK (monto > 0),
+  ADD CONSTRAINT chk_pagos_cuota CHECK (numero_cuota IS NULL OR numero_cuota >= 1),
+  ADD INDEX idx_estado_fecha (estado, pagado_en);
 
-La implementacion SQL esta disponible en:
+ALTER TABLE asistencia
+  ADD COLUMN firestore_log_id VARCHAR(64) NULL AFTER id,
+  ADD COLUMN sujeto_tipo VARCHAR(10)
+    GENERATED ALWAYS AS (IF(fuente = 'teacher-daily-qr', 'docente', 'alumno')) STORED,
+  ADD UNIQUE KEY uq_asistencia_log (firestore_log_id);
+```
+
+### 2.2 Scripts DML
+
+`90_datos_prueba.sql` carga **datos ficticios** (nombres "Prueba", correos `example.com`):
+
+- 2 ciclos y 4 alumnos con `INSERT` directos.
+- 4 matrículas y 6 operaciones de pago mediante los procedimientos, incluidas una anulación y un pago que llega antes que su matrícula.
+- 30 días de asistencia generados con `INSERT … SELECT` y tabla derivada (solo días hábiles).
+
+El script se niega a ejecutarse si la base contiene matrículas reales: una tabla temporal con CHECK aborta la carga sin dejar residuos.
+
+### 2.3 Evidencias de creación
+
+Migración aplicada sobre una base que ya tenía datos replicados con la versión anterior de la API (pagos sin alumno, ciclos inexistentes y un pago huérfano). Resultado: las 3 migraciones se registran en `schema_migraciones`, los vacíos pasan a `NULL`, se crean las filas padre faltantes y el pago huérfano queda en una matrícula provisional visible en `v_conciliacion_pagos`.
+
+!!! note "Capturas a adjuntar"
+    `SHOW CREATE TABLE pagos;` · `SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='cermat_db';` · `SELECT * FROM schema_migraciones;` (comandos en `server/src/db/README.md`).
+
+## Sección 3: Consultas y Programación en Base de Datos
+
+### 3.1 Consultas SQL relevantes (`91_consultas.sql`)
+
+| ID | Pregunta de negocio | Implementación |
+|---|---|---|
+| Q1 | ¿Qué matrículas de un ciclo siguen pendientes? | `JOIN` matrículas–alumnos filtrado por `(ciclo_id, estado)` |
+| Q2 | ¿Cuánto se cobró por día y medio de pago? | Agregación sobre `(estado, pagado_en)` |
+| Q3 | ¿Qué alumnos están en riesgo de abandono? | `CALL sp_riesgo_inasistencia(30, 75)` |
+| Q4 | ¿A qué hora entró y salió un alumno cada día? | Vista `v_asistencia_diaria` |
+| Q5 | ¿Quién tiene saldo pendiente? | Vista `v_estado_cuenta` (pagos agregados una sola vez) |
+| Q6 | ¿Se perdió algún evento de sincronización? | Vista `v_conciliacion_pagos` |
+
+```sql
+-- Q5. Estado de cuenta con saldo pendiente
+SELECT matricula_id, alumno_nombre, ciclo_titulo, precio, total_pagado, saldo, cuotas_pagadas, cuotas_total
+  FROM v_estado_cuenta
+ WHERE estado <> 'cancelado' AND saldo > 0
+ ORDER BY saldo DESC;
+```
+
+### 3.2 Procedimientos almacenados
+
+| Procedimiento | Tipo | Qué garantiza |
+|---|---|---|
+| `sp_sync_matricula` | Escritura transaccional | Crea o actualiza ciclo, alumno y matrícula en una transacción con `ROLLBACK` + `RESIGNAL`. Completa una matrícula provisional cuando llega la real. |
+| `sp_sync_pago` | Escritura transaccional | No pierde pagos que llegan antes que su matrícula. En una anulación conserva al registrador original y deja en auditoría quién anuló. |
+| `sp_registrar_asistencia` | Escritura idempotente | Reenviar el mismo log no duplica filas y responde si la marca era nueva. No depende de `ROW_COUNT()`, que con `CLIENT_FOUND_ROWS` de mysql2 cuenta los duplicados. |
+| `sp_estado_cuenta` | Consulta | Estado de cuenta por ciclo o general |
+| `sp_riesgo_inasistencia` | Consulta | Parte de los alumnos con matrícula vigente, así que **incluye a quienes nunca asistieron**. Excluye docentes y usa días lectivos reales. |
+
+Fragmento de `sp_sync_pago`:
+
+```sql
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    SET @app_uid = NULL;
+    ROLLBACK;
+    RESIGNAL;
+  END;
+  SET @app_uid = p_registrado_por;          -- lo leen los triggers de auditoría
+  START TRANSACTION;
+  INSERT IGNORE INTO matriculas (id, completa) VALUES (p_matricula_id, 0);
+  INSERT INTO pagos (...) VALUES (...)
+  ON DUPLICATE KEY UPDATE estado = p_estado, monto = p_monto;
+  COMMIT;
+```
+
+### 3.3 Funciones
+
+| Función | Retorna | Uso |
+|---|---|---|
+| `fn_total_pagado(matricula)` | DECIMAL | Suma de pagos `confirmed` (los anulados no cuentan) |
+| `fn_saldo_matricula(matricula)` | DECIMAL | `precio − pagado`, nunca negativo |
+| `fn_dias_lectivos(desde, hasta)` | INT | Días con al menos una entrada de alumno, sin fines de semana ni feriados |
+| `fn_porcentaje_asistencia(alumno, desde, hasta)` | DECIMAL(5,1) | Asistencia sobre días lectivos |
+
+**Corrección de lógica:** la analítica anterior dividía entre 30 días calendario. Un alumno que asistía todos los días hábiles obtenía ≈ 73 % y quedaba marcado "en riesgo". Además, no veía a los alumnos con cero asistencias y contaba a los docentes como alumnos. Con `fn_dias_lectivos` y `sp_riesgo_inasistencia` los tres problemas quedan resueltos. `analytics/main.py` y `GET /api/asistencia/riesgo` ya usan el procedimiento.
+
+### 3.4 Triggers
+
+| Trigger | Momento | Función |
+|---|---|---|
+| `trg_pagos_bi` | BEFORE INSERT | Copia `alumno_id` desde la matrícula y rechaza una cuota mayor a las pactadas (`SIGNAL 45000`) |
+| `trg_pagos_ai` | AFTER INSERT | Audita el pago |
+| `trg_pagos_au` | AFTER UPDATE | Audita cambios de estado o monto (antes/después) |
+| `trg_pagos_bd` | BEFORE DELETE | Impide borrar pagos, igual que la regla de Firestore |
+| `trg_matriculas_ai` | AFTER INSERT | Audita la matrícula |
+| `trg_matriculas_au` | AFTER UPDATE | Audita cambios de estado o de completitud; propaga `alumno_id` a los pagos cuando la cuenta se activa |
+
+### 3.5 Planes de ejecución
+
+Obtenidos con `EXPLAIN FORMAT=TREE` en MySQL 8.0.30:
 
 ```text
-server/src/db/schema.sql
+Q1 -> Nested loop left join  (cost=0.70 rows=1)
+    -> Sort: m.created_at DESC
+        -> Index lookup on m using idx_ciclo_estado (ciclo_id=(@ciclo), estado='pendiente')
+    -> Single-row index lookup on a using PRIMARY (id=m.alumno_id)
+
+Q4 -> Group aggregate: min(...), max(...)
+    -> Index lookup on asistencia using idx_alumno_fecha (alumno_id='UID-PRUEBA-A1')
 ```
 
-El script crea la base `cermat_db` y define tablas para alumnos, ciclos, matriculas, pagos, asistencia y alertas.
+Q1 y Q4 resuelven por índice, sin recorrer la tabla completa. En Q2, con pocos datos de prueba, el optimizador eligió `idx_estado`. El índice compuesto `idx_estado_fecha` está pensado para el volumen real, donde el rango de fechas descarta la mayoría de filas. Esto debe confirmarse con `EXPLAIN` sobre la base productiva.
 
-### Ejemplo resumido de tablas
+## Sección 4: Seguridad y Administración
 
-```sql
-CREATE DATABASE IF NOT EXISTS cermat_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+### 4.1 Usuarios y roles
 
-CREATE TABLE IF NOT EXISTS alumnos (
-  id VARCHAR(64) PRIMARY KEY,
-  firebase_uid VARCHAR(64) UNIQUE NOT NULL,
-  nombre VARCHAR(200) NOT NULL,
-  email VARCHAR(255) DEFAULT '',
-  parent_code VARCHAR(50) DEFAULT '',
-  estado ENUM('activo','inactivo','egresado') DEFAULT 'activo'
-);
+| Cuenta | Rol | Puede | No puede |
+|---|---|---|---|
+| `cermat_api` | `cermat_rol_api` | `SELECT`; `EXECUTE` de los procedimientos y funciones | `INSERT`, `UPDATE`, `DELETE`, `DROP` directos (verificado: error 1142) |
+| `cermat_analitica` | `cermat_rol_analitica` | `SELECT`; escribir en `alertas`; `sp_riesgo_inasistencia` | Modificar matrículas, pagos o asistencia |
+| `cermat_respaldo` | `cermat_rol_respaldo` | `SELECT`, `SHOW VIEW`, `TRIGGER`, `LOCK TABLES`, `EVENT`, `SHOW_ROUTINE` | Escribir |
+| `cermat_reportes` | `cermat_rol_reportes` | Leer las 3 vistas | Leer tablas con datos crudos |
 
-CREATE TABLE IF NOT EXISTS matriculas (
-  id VARCHAR(128) PRIMARY KEY,
-  alumno_id VARCHAR(64) NOT NULL,
-  ciclo_id VARCHAR(64) NOT NULL,
-  grupo_id VARCHAR(64) DEFAULT '',
-  estado ENUM('pendiente','pagado','cancelado') DEFAULT 'pendiente'
-);
-```
+Las cuentas se crean con `server/scripts/db-crear-usuarios.js`, que lee las contraseñas solo de variables de entorno (mínimo 12 caracteres). **Ninguna contraseña queda escrita en el repositorio.**
 
-### Evidencia
+La capa de aplicación aplica además estas reglas en la API:
 
-- Archivo SQL: `server/src/db/schema.sql`
-- API REST: `server/src/routes/*`
-- Conexion MySQL: `server/src/db/mysql.ts`
-- Sincronizacion frontend: `src/lib/syncService.ts`
-
-## 6. Consultas (SQL)
-
-!!! note "Consultas analíticas sobre MySQL"
-    Las siguientes consultas se ejecutan sobre la base `cermat_db` en MySQL. No bloquean la operación principal en Firestore — son exclusivas de la capa analítica y de reportes administrativos.
-
-Las siguientes consultas representan el uso analitico esperado de la base complementaria MySQL.
-
-| ID | Descripcion |
+| Ruta | Regla |
 |---|---|
-| Q1 | Listar matriculas pendientes por ciclo. |
-| Q2 | Calcular pagos confirmados por rango de fechas. |
-| Q3 | Detectar alumnos con baja asistencia. |
-| Q4 | Resumir asistencia diaria por estudiante. |
-| Q5 | Identificar deudas por matricula en cuotas. |
+| `POST /api/sync/payment` | Solo administradores, igual que `firestore.rules` |
+| `POST /api/sync/enrollment` | Un no-administrador solo sincroniza su propia matrícula recién creada |
+| `POST /api/sync/attendance-log` | El registrador es siempre el dueño del token (nunca el cuerpo de la petición) y el rol se valida por fuente |
 
-### Q1 - Matriculas pendientes por ciclo
+### 4.2 Auditoría implementada
 
-```sql
-SELECT
-  m.id,
-  m.alumno_id,
-  m.grupo_nombre,
-  m.sede,
-  m.turno,
-  m.precio,
-  m.monto_pagado,
-  m.estado
-FROM matriculas m
-WHERE m.ciclo_id = ?
-  AND m.estado = 'pendiente'
-ORDER BY m.created_at DESC;
-```
+La tabla `auditoria` registra cada alta, cambio de estado o monto y anulación de pagos y matrículas. Guarda el detalle en JSON (antes/después), el UID de Firebase que originó el cambio (`@app_uid`, fijado por el procedimiento) y la cuenta MySQL (`CURRENT_USER()`).
 
-### Q2 - Total de pagos confirmados por fecha
+### 4.3 Estrategias de respaldo y recuperación
 
-```sql
-SELECT
-  DATE(p.pagado_en) AS fecha,
-  p.metodo,
-  SUM(p.monto) AS total
-FROM pagos p
-WHERE p.estado = 'confirmed'
-  AND p.pagado_en BETWEEN ? AND ?
-GROUP BY DATE(p.pagado_en), p.metodo
-ORDER BY fecha DESC;
-```
+| Elemento | Implementación |
+|---|---|
+| Respaldo | `server/scripts/backup.js`: `mysqldump --single-transaction --routines --triggers --events` con la cuenta de solo lectura. La contraseña viaja por `MYSQL_PWD`, no por la línea de comandos. Genera `.sha256` y conserva 7. |
+| Programación | `pm2 start scripts/backup.js --name cermat-backup --cron "0 2 * * *" --no-autorestart` |
+| Recuperación | `server/scripts/restore.js`: verifica el hash, restaura en `cermat_db_verificacion`, mide el RTO y compara filas, rutinas, triggers y vistas. Restaurar sobre producción exige `--confirmar-produccion`. |
+| Registro | Cada prueba se anota en `backups/registro-restauraciones.jsonl` |
 
-### Q3 - Alumnos con asistencia menor al 75%
+En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verificación SHA-256 y se restauró en `cermat_db_verificacion` con un RTO medido de 0,38 s. Las filas, rutinas, triggers y vistas restaurados coincidieron con el origen. También se verificó que la restauración rechaza un archivo alterado ("no coincide con su .sha256") y que se niega a escribir sobre la base productiva sin confirmación.
 
-```sql
-SELECT
-  a.alumno_id,
-  MAX(a.alumno_nombre) AS alumno,
-  COUNT(DISTINCT a.fecha) AS dias_asistidos
-FROM asistencia a
-WHERE a.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-GROUP BY a.alumno_id
-HAVING dias_asistidos < 23
-ORDER BY dias_asistidos ASC;
-```
+!!! note "Captura a adjuntar"
+    Salida de `node scripts/restore.js` ejecutado sobre la base real del equipo, junto con la línea correspondiente de `backups/registro-restauraciones.jsonl`.
 
-### Q4 - Historial de asistencia por alumno
+### 4.4 Evidencias de monitoreo
 
-```sql
-SELECT
-  fecha,
-  MIN(CASE WHEN tipo = 'entry' THEN hora END) AS hora_entrada,
-  MAX(CASE WHEN tipo = 'exit' THEN hora END) AS hora_salida
-FROM asistencia
-WHERE alumno_id = ?
-GROUP BY fecha
-ORDER BY fecha DESC;
-```
+| Indicador | Fuente |
+|---|---|
+| Disponibilidad de MySQL | `GET /health` de la API y de la analítica (ping a MySQL), mostrado en el panel admin "Infraestructura" |
+| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas |
+| Trazabilidad | `SELECT … FROM auditoria ORDER BY id DESC` |
+| Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO y objetos completos por prueba) |
 
-### Q5 - Matriculas con saldo pendiente
+## Pruebas de la capa de datos
 
-```sql
-SELECT
-  m.id,
-  m.alumno_id,
-  m.ciclo_titulo,
-  m.precio,
-  m.monto_pagado,
-  (m.precio - m.monto_pagado) AS saldo
-FROM matriculas m
-WHERE m.estado <> 'cancelado'
-  AND (m.precio - m.monto_pagado) > 0
-ORDER BY saldo DESC;
-```
+`92_pruebas_bd.sql` ejecuta 19 pruebas y muestra una tabla OK/FALLÓ.
 
-## 7. Programacion de base de datos
+**Resultado: 19/19 OK** en MySQL 8.0.30, con modo estricto y binlog activo.
 
-### Procedimientos / funciones
-
-En la implementacion actual no se observan procedimientos almacenados obligatorios. La programacion de datos se gestiona principalmente desde:
-
-- Firestore SDK en `src/features/*/api.ts`.
-- Reglas de seguridad en `firestore.rules`.
-- API REST Node.js para sincronizacion.
-- Servicios `syncEnrollment`, `syncPayment` y `syncAttendanceLog`.
-
-### Triggers
-
-No se identifican triggers SQL requeridos en la version actual. La consistencia operacional se maneja a nivel de aplicacion y reglas.
-
-### Programacion equivalente en aplicacion
-
-| Funcion | Archivo | Responsabilidad |
+| # | Prueba | Resultado |
 |---|---|---|
-| `syncEnrollment` | `src/lib/syncService.ts` | Enviar matricula a API REST si esta habilitada. |
-| `syncPayment` | `src/lib/syncService.ts` | Sincronizar pagos nuevos o cancelados. |
-| `syncAttendanceLog` | `src/lib/syncService.ts` | Sincronizar asistencia QR. |
-| `getOrCreateTodayAttendanceTokens` | `src/features/attendance/api.ts` | Crear o recuperar tokens diarios. |
-| `logAttendanceScan` | `src/features/attendance/api.ts` | Registrar asistencia de estudiante. |
-| `logTeacherAttendanceScan` | `src/features/attendance/api.ts` | Registrar asistencia de docente. |
+| 1–3 | `fn_total_pagado` y `fn_saldo_matricula`; los pagos anulados no cuentan | OK |
+| 4–7 | Asistencia sobre días lectivos; alumno con 0 asistencias visible; docentes excluidos | OK |
+| 8–9 | El trigger copia `alumno_id`; la anulación conserva al registrador y audita a quien anuló | OK |
+| 10–11 | El pago adelantado crea una matrícula provisional y la conciliación queda limpia al llegar la real | OK |
+| 12 | Reenviar un log no duplica filas | OK |
+| 13–18 | Rechazos: borrar pago, cuota excedida, monto negativo, FK alumno, borrar matrícula con pagos, 0 cuotas | OK |
+| 19 | Las operaciones rechazadas no dejan filas a medias (`ROLLBACK`) | OK |
 
-## 8. Seguridad de la base de datos
+## Consistencia con el sistema
 
-!!! warning "Seguridad en tres capas independientes"
-    La protección de datos no depende de una sola barrera. Se aplica en: (1) rutas protegidas por rol en el frontend, (2) Firebase Authentication con custom claims, y (3) Firestore Rules declarativas por colección. La API REST además exige token Firebase válido en cada llamada de sincronización.
-
-### Usuarios y roles
-
-| Rol | Permisos generales |
+| Requerimiento (E1) | Soporte de datos |
 |---|---|
-| Admin | Gestion completa de ciclos, grupos, usuarios, matriculas, pagos, recursos, talleres, asistencia y configuracion. |
-| Teacher | Acceso a cursos, recursos propios/asignados y asistencia segun reglas. |
-| Student | Acceso a su informacion, cursos, recursos, matricula y asistencia. |
-| Auxiliar | Acceso operativo a paneles de asistencia. |
-| Publico | Lectura de informacion publicada y envio de formularios permitidos. |
-| Padre | Consulta por codigo de asistencia, sin acceso administrativo. |
+| RF03–RF06 Matrícula y estados | `enrollments` + reglas; `matriculas` + `sp_sync_matricula` |
+| RF07 Pagos | `payments`; `pagos` + `sp_sync_pago` + triggers + `v_estado_cuenta` |
+| RF12–RF14 Asistencia QR | `attendanceLogs`, `attendanceDayState`; `asistencia` idempotente |
+| RF16 Padres | `parentAttendance`, `alumnos.parent_code` |
+| RF21 Sincronización | `syncService` → API → procedimientos; conciliación con `v_conciliacion_pagos` |
+| RNF06 Integridad y RNF10 Auditoría | FK, CHECK, triggers, `auditoria` |
 
-### Control de accesos
+## Anexos
 
-La seguridad se aplica en tres capas:
-
-1. **Rutas protegidas:** `AdminRoute`, `TeacherRoute`, `StudentRoute`, `AuxiliarRoute`.
-2. **Autenticacion:** Firebase Authentication y custom claims.
-3. **Firestore Rules:** restricciones por coleccion, rol, estado y estructura de datos.
-
-### Reglas destacadas
-
-| Recurso | Control aplicado |
+| Anexo | Ubicación |
 |---|---|
-| `cycles` | Lectura publica solo si publicado; escritura admin. |
-| `groups` | Escritura admin; lectura publica si el ciclo asociado esta publicado. |
-| `enrollments` | Creacion publica restringida por ciclo/grupo valido; lectura y actualizacion controlada. |
-| `payments` | Lectura y escritura solo admin; eliminacion bloqueada. |
-| `attendanceTokens` | Gestion admin; lectura para roles operativos autorizados. |
-| `attendanceLogs` | Creacion solo si cumple reglas de QR/token; lectura segun rol. |
-| `parentAttendance` | Consulta publica por codigo; escritura controlada. |
-| `messages` | Creacion publica; administracion solo admin. |
+| Scripts completos | `server/src/db/schema.sql`, `02_integridad.sql`, `03_programacion.sql`, `04_seguridad.sql`, `90_datos_prueba.sql`, `91_consultas.sql`, `92_pruebas_bd.sql` |
+| Capturas de ejecución | Resultado de `92_pruebas_bd.sql` (19/19), de `91_consultas.sql` (consultas + `EXPLAIN`) y de `restore.js` |
+| Resultados de consultas | Salida de `91_consultas.sql` sobre la base de prueba |
+| Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo y recuperación) |
+| Evidencia de sustentación | Exposición breve ante el docente (pendiente) |
 
-### Proteccion de datos
+## Rúbrica de Evaluación
 
-- No se expone lectura publica completa de matriculas.
-- Los pagos no se eliminan fisicamente desde cliente.
-- Las consultas de padres estan acotadas por codigo CERMAT.
-- La asistencia docente usa tokens diarios con vigencia.
-- La sincronizacion REST requiere usuario autenticado y token de Firebase.
-
-## 9. Rendimiento y optimizacion
-
-!!! tip "Estrategia de rendimiento — desnormalización deliberada"
-    El sistema usa desnormalización selectiva en Firestore (nombre del estudiante, título del ciclo, sede y monto en documentos de pago) para eliminar lecturas encadenadas y acelerar las vistas administrativas. MySQL complementa con agregados que serían costosos sobre Firestore.
-
-### Indices
-
-Firestore requiere indices segun combinaciones de filtros. El sistema evita varios indices compuestos aplicando estrategias como:
-
-- Campo `date` para filtrar asistencia docente por dia.
-- Filtros en memoria cuando evita combinaciones costosas.
-- Datos desnormalizados en pagos para visualizacion rapida.
-- Campos normalizados en matriculas para busqueda y trazabilidad.
-
-### Consultas optimizadas
-
-| Caso | Estrategia |
-|---|---|
-| Asistencia por fecha | Filtro por `date` o rango de `timestamp`. |
-| Pagos admin | Datos desnormalizados: estudiante, ciclo, sede, telefono y monto. |
-| Matriculas | Estado, ciclo, grupo y seguimiento como campos directos. |
-| Ciclos publicos | Lectura condicionada por `isPublished` y `status`. |
-| Padres | Consulta por codigo en lugar de exponer perfiles completos. |
-
-### Analisis basico de rendimiento
-
-- La SPA reduce carga del servidor tradicional.
-- Firebase escala automaticamente para lecturas/escrituras dentro de limites del plan.
-- TanStack Query evita recargas innecesarias.
-- MySQL complementa reportes agregados sin sobrecargar Firestore.
-- La sincronizacion `fire-and-forget` evita bloquear la experiencia de usuario.
-
-## 10. Consistencia con el sistema
-
-!!! success "Consistencia demostrada — datos activos en producción"
-    El modelo de datos de este entregable no es teórico. Firestore opera con datos reales desde el despliegue inicial; MySQL recibe sincronización en tiempo real de asistencia, matrículas y pagos mediante el patrón fire-and-forget implementado en `src/lib/syncService.ts`.
-
-### Soporte a requerimientos E1
-
-| Requerimiento | Datos que lo soportan |
-|---|---|
-| Gestion de ciclos | `cycles`, `cycleCategories`, `campuses` |
-| Gestion de grupos | `groups`, `studentGroupLinks` |
-| Matricula publica | `enrollments`, `cycles`, `groups` |
-| Pagos | `payments`, `enrollments` |
-| Usuarios por rol | `users`, Firebase Auth, custom claims |
-| Asistencia QR | `attendanceTokens`, `attendanceLogs`, `parentAttendance` |
-| Recursos y contenido | `resources`, `posts`, `workshops`, `config` |
-| Padres | `users.parentAccessCode`, `parentAttendance` |
-| Sincronizacion | `syncService`, API REST, MySQL |
-
-### Soporte a funcionalidad E3
-
-Aunque E3 no se desarrolla en este documento, la base de datos soporta la implementacion de programacion mediante:
-
-- APIs por dominio en `src/features/*/api.ts`.
-- Hooks por dominio en `src/features/*/hooks.ts`.
-- Validaciones Zod en `schemas.ts`.
-- Tipos TypeScript en `types.ts`.
-- Rutas y componentes React conectados a datos reales.
-
-### Integridad de datos
-
-| Riesgo | Mecanismo de control |
-|---|---|
-| Matriculas duplicadas | Claves deterministicas/reglas y validaciones de payload segun implementacion actual. |
-| Pago sin matricula | Regla Firestore exige existencia de enrollment asociado. |
-| Asistencia invalida | Token diario, usuario autenticado y validacion de estudiante/docente. |
-| Lectura no autorizada | Guards de ruta y Firestore Rules. |
-| Datos incompletos | Esquemas Zod y campos obligatorios por dominio. |
-| Caida de API REST | Sincronizacion no bloqueante; Firestore mantiene operacion principal. |
-
-## 11. Anexos
-
-| Anexo | Contenido | Ubicacion en este documento |
-|---|---|---|
-| Script SQL completo | DDL de las 6 tablas MySQL (`alumnos`, `ciclos`, `matriculas`, `pagos`, `asistencia`, `alertas`) | `server/src/db/schema.sql`, referenciado en seccion "5. Implementacion SQL" |
-| Consultas SQL documentadas | Q1-Q5 con proposito analitico y codigo completo | Seccion "6. Consultas (SQL)" |
-| Diccionario de datos Firestore | Campos, tipo logico y descripcion por coleccion | Seccion "4. Esquema de base de datos" |
-| Diagrama ER | Relaciones entre colecciones principales | Seccion "3. Modelo de datos" |
-
-## 12. Rubrica de evaluacion
-
-| Criterio | Excelente | Bueno | Regular | Deficiente | Evaluacion CERMAT |
-|---|---|---|---|---|---|
-| Modelado de datos | Modelo consistente, normalizado y alineado | Modelo adecuado | Modelo incompleto | Modelo incorrecto | Excelente |
-| Integridad y consistencia de datos | Integridad referencial completa | Integridad funcional | Problemas de consistencia | Datos inconsistentes | Bueno |
-| Implementacion y consultas SQL | Consultas correctas y eficientes | Consultas funcionales | Consultas deficientes | Sin consultas | Excelente |
-| Programacion de base de datos | Uso adecuado de logica en BD | Uso funcional | Uso limitado | No hay programacion | Bueno |
-| Seguridad y administracion | Control de accesos y seguridad definidos | Seguridad basica | Seguridad parcial | Sin seguridad | Excelente |
-| Rendimiento y optimizacion | Indices y consultas optimizadas | Rendimiento aceptable | Problemas de rendimiento | Sistema ineficiente | Bueno |
-
-!!! note "Sobre 'Bueno' en programacion de BD, integridad y rendimiento"
-    El sistema no usa procedimientos almacenados ni triggers SQL — la logica de datos vive en la capa de aplicacion (`api.ts` + Firestore Rules), una decision arquitectonica valida para Firestore pero que no demuestra programacion SQL avanzada. La integridad referencial en Firestore se aplica por reglas y convencion, no por llaves foraneas nativas. El rendimiento se apoya en desnormalizacion manual, no en analisis formal de planes de ejecucion MySQL.
-
-## Competencia evaluada
-
-!!! abstract "CE022 — Ingeniería de la Información"
-    Este entregable forma parte de un sistema integrado y no se evalúa de manera aislada. En el contexto del **EPE**, integra el modelo de datos operativo de Firestore (21 colecciones documentadas), el esquema relacional complementario en MySQL (6 tablas activas), reglas de seguridad por capa, consultas analíticas SQL, estrategias de rendimiento y consistencia completa con los requerimientos del sistema.
+| Criterio | Excelente | Bueno | Regular | Deficiente |
+|---|---|---|---|---|
+| Modelado de datos | Modelo consistente, normalizado y alineado | Modelo adecuado | Modelo incompleto | Modelo incorrecto |
+| Integridad y consistencia de datos | Integridad referencial completa | Integridad funcional | Problemas de consistencia | Datos inconsistentes |
+| Implementación y consultas SQL | Consultas correctas y eficientes | Consultas funcionales | Consultas deficientes | Sin consultas |
+| Programación de base de datos | Uso adecuado de lógica en BD | Uso funcional | Uso limitado | No hay programación |
+| Seguridad y administración | Control de accesos y seguridad definidos | Seguridad básica | Seguridad parcial | Sin seguridad |
+| Rendimiento y optimización | Índices y consultas optimizadas | Rendimiento aceptable | Problemas de rendimiento | Sistema ineficiente |
+| Sustentación y defensa técnica | Explica y defiende con dominio las decisiones tomadas | Explica con solvencia | Explica con dificultad | No sustenta |

@@ -1,191 +1,246 @@
 # E3 - Sistema de Software Funcional Integrado (CE023)
 
 !!! abstract "Evidencia CE023 — Programación"
-    Este entregable documenta el sistema de software **funcional y desplegado** que implementa los requerimientos del E1 sobre el modelo de datos del E2. No es una maqueta: es la aplicación React + TypeScript en ejecución, integrada con Firebase, una API REST Node.js y un servicio de analítica en Python, operando con datos reales de la Academia La Prepa Cermat.
+    Sistema funcional y desplegado que implementa los requerimientos del [E1](e1-definicion-sistema-ce021.md) sobre la plataforma de datos del [E2](e2-base-datos-ce022.md): una aplicación web React + TypeScript integrada con Firebase, una API REST Node.js y un servicio de analítica en Python.
 
-## 1. Informacion general
+## Portada
 
 | Campo | Detalle |
 |---|---|
-| Proyecto | Plataforma Web Integral de Gestion Academica CERMAT |
-| Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
-| Curso / Ciclo | Perfil de Egreso - Evidencia integradora (9° ciclo) |
-| Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
-| Repositorio | `academia-school-platform` (raíz del proyecto) |
-| URL de despliegue | `https://www.cermatschool.edu.pe` (dominio de producción configurado en `analytics/main.py` / CORS) — verificar que resuelve antes de la sustentación |
-| Fecha | 2026-07-05 |
+| Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
+| Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
+| Semestre | 2026-2 (9° ciclo) |
+| Fecha | 2026-10-24 |
+| Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) (Vercel) |
+| Repositorio | `github.com/yucradavid/academia-school-platform` (privado; acceso para el jurado a solicitud) |
 
-## 2. Resumen Ejecutivo
+## Resumen Ejecutivo
 
-Este entregable documenta el sistema de software **funcional y desplegado** que implementa los requerimientos del [E1](e1-definicion-sistema-ce021.md) sobre el modelo de datos del [E2](e2-base-datos-ce022.md). Describe la arquitectura de integración entre cuatro procesos reales (SPA React, API REST Node.js, servicio de analítica FastAPI y Firebase como autoridad de identidad y datos), los flujos funcionales verificados en esta iteración (QR firmado de asistencia, invitación y auto-activación de docentes, carga masiva por Excel, corrección de condiciones de carrera), los patrones de código aplicados para evitar duplicación entre módulos, y el proceso real de despliegue e instalación de cada proceso.
+**Qué resuelve.** La plataforma centraliza la operación de la academia en un solo sistema con portales por rol: oferta de ciclos, pre-matrícula en línea, aprobación y pagos, asistencia por QR y consulta de los padres. Antes había registros dispersos, duplicados y riesgo de sobrepasar los cupos.
 
-## 3. Arquitectura e integracion
+**Cómo se usa.**
 
-!!! info "Cuatro procesos, una sola fuente de verdad"
-    El sistema no es un monolito único: es una SPA que habla directamente con Firebase para toda la operación en tiempo real, y de forma opcional y no bloqueante sincroniza una copia hacia una API REST propia que alimenta MySQL y un servicio de analítica en Python. Si la API o MySQL caen, la operación principal en Firestore no se ve afectada.
+1. El visitante elige un ciclo y se pre-matricula en `/matricula`.
+2. El administrador aprueba la matrícula y registra el pago en `/admin/matriculas` y `/admin/pagos`. El alumno recibe un enlace de activación.
+3. El auxiliar registra la entrada y salida escaneando el QR firmado del alumno.
+4. El docente marca su asistencia con el QR del día.
+5. El padre consulta la asistencia con un código `CERMAT-XXXX-XXXX` en `/consulta-asistencia`.
 
-### Componentes desplegables del sistema
+**Estado.** El sistema está desplegado y en operación piloto. Al 2026-10-24 tiene 8 matrículas, 2 pagos, 7 marcas de asistencia y 8 usuarios con perfil.
 
-| Proceso | Tecnologia | Ubicacion en el repo | Rol |
+La verificación de esa fecha da:
+
+- **TypeScript:** 0 errores (`tsc --noEmit`).
+- **Build:** de producción correcto.
+- **Pruebas:** 90 automáticas, todas en verde.
+- **Calidad:** pipeline de CI con 6 trabajos (ver [E4](e4-calidad-operacion-ce024.md)).
+
+## Sección 1: Arquitectura e Integración
+
+### 1.1 Arquitectura general
+
+| Proceso | Tecnología | Ubicación en el repositorio | Rol |
 |---|---|---|---|
-| Frontend SPA | React 18 + TypeScript + Vite | `src/` | Interfaz publica y portales por rol |
-| API REST | Node.js + Express + TypeScript | `server/src/` | Sincronizacion hacia MySQL, salud del servicio |
-| Servicio de analitica | Python + FastAPI | `analytics/main.py` | Alertas de inasistencia, tendencias, endpoints protegidos |
-| Base operativa | Cloud Firestore | Firebase (config en `src/lib/firebase.ts`) | Fuente de verdad para toda la app |
-| Base complementaria | MySQL | `server/src/db/schema.sql` | Reportes relacionales y respaldo |
-
-### Integracion entre capas
+| Frontend SPA | React 18 + TypeScript + Vite | `src/` | Portales público y privados (55 rutas, 6 guardas) |
+| Identidad y datos | Firebase Auth, Cloud Firestore, Storage | `src/lib/firebase.ts`, `firestore.rules` | Fuente de verdad, protegida por reglas probadas |
+| API REST | Node.js + Express + TypeScript | `server/src/` | Sincronización a MySQL con autorización por rol |
+| Analítica | Python + FastAPI | `analytics/main.py` | Riesgo de inasistencia y resúmenes (solo admin) |
+| Base relacional | MySQL 8 | `server/src/db/` | Réplica con procedimientos, triggers y auditoría |
 
 ```mermaid
 flowchart TD
-  Browser["Navegador"] --> SPA["React SPA (Vite build)"]
-  SPA -->|"Firebase SDK"| Auth["Firebase Authentication"]
-  SPA -->|"Firebase SDK"| FS["Cloud Firestore"]
-  SPA -->|"Firebase SDK"| Storage["Firebase Storage"]
-  SPA -->|"fetch + ID token"| API["API REST Express (server/)"]
-  API -->|"firebase-admin verifyIdToken"| Auth
-  API -->|"mysql2"| MySQL[("MySQL")]
-  SPA -->|"fetch + ID token"| Analytics["FastAPI analytics"]
-  Analytics -->|"firebase_admin verify_id_token + claim admin"| Auth
-  Analytics -->|"pymysql"| MySQL
+  Browser["Navegador"] --> SPA["SPA React (Vercel)"]
+  SPA -->|"SDK + reglas"| Auth["Firebase Authentication"]
+  SPA -->|"SDK + reglas"| FS["Cloud Firestore"]
+  SPA -->|"SDK"| Storage["Firebase Storage"]
+  SPA -->|"fetch + ID token (no bloqueante)"| API["API REST Express"]
+  API -->|"verifyIdToken + rol"| Auth
+  API -->|"CALL sp_* (cuenta cermat_api)"| MySQL[("MySQL 8")]
+  SPA -->|"fetch + ID token admin"| Analytics["FastAPI"]
+  Analytics -->|"CALL sp_riesgo_inasistencia"| MySQL
 ```
 
-- El **frontend** habla con Firebase directamente para todas las operaciones críticas (matrícula, pagos, asistencia, usuarios). Es la vía síncrona y obligatoria.
-- La **API REST** (`server/src/index.ts`) expone `/health`, `/api/asistencia`, `/api/pagos`, `/api/sync`; usa `helmet`, `cors` restringido por `CORS_ORIGINS` y `morgan` para logging. Corre bajo PM2 (`npm run pm2:start`) en producción.
-- El **servicio de analítica** (`analytics/main.py`) expone endpoints de solo lectura (`GET`) y un `PATCH`, protegidos por `require_admin`: exige `Authorization: Bearer <idToken>` y verifica el custom claim `admin` de Firebase — el mismo claim que usan las Firestore Rules, para que la regla de autorización sea una sola en todo el sistema.
-- Los tres procesos comparten el mismo proyecto de Firebase como autoridad de identidad: no hay un segundo sistema de usuarios/contraseñas.
+### 1.2 Capas, módulos y servicios
 
-### Patron de sincronizacion fire-and-forget
-
-`src/lib/syncService.ts` envía copias de matrícula, pago y asistencia hacia la API REST **sin bloquear** la operación principal: si la petición falla o la API está apagada, el usuario no percibe error porque Firestore ya confirmó la escritura real. Esto evita que un componente secundario (reportes SQL) se convierta en un punto único de falla del flujo académico.
-
-## 4. Funcionalidad del sistema
-
-!!! tip "22 requerimientos funcionales, con evidencia de código para cada uno"
-    La trazabilidad completa RF01–RF22 está documentada en la sección 12 del [E1](e1-definicion-sistema-ce021.md). Aquí se describe el comportamiento observable del sistema en ejecución.
-
-### Portales por rol
-
-| Portal | Rutas raiz | Guard | Funciones principales |
-|---|---|---|---|
-| Publico | `/`, `/ciclos`, `/matricula`, `/recursos`, `/sedes`, `/talleres`, `/blog`, `/contacto` | Ninguno | Informacion institucional, matricula publica, consulta de asistencia por codigo |
-| Administrador | `/admin/*` | `AdminRoute` | Ciclos, grupos, matriculas, pagos, alumnos, docentes, auxiliares, recursos, posts, talleres, asistencia |
-| Docente | `/docente/*` | `TeacherRoute` | Cursos, alumnos, recursos, marcacion de asistencia diaria por QR |
-| Estudiante | `/student/*` | `StudentRoute` | Cursos, recursos, estado de matricula, talleres, marcacion de asistencia |
-| Auxiliar | `/auxiliar/*`, panel en `/admin` | `AuxiliarRoute` | Panel de escaneo QR, supervision de marcaciones |
-
-### Flujos funcionales implementados y verificados en esta iteracion
-
-| Flujo | Descripcion | Evidencia |
+| Capa | Contenido | Ejemplos |
 |---|---|---|
-| Matricula publica -> activacion | Visitante se matricula, admin registra pago, estudiante se activa con cuenta propia | `src/pages/MatriculaPage.tsx`, `src/pages/ActivateStudentPage.tsx` |
-| Marcacion de asistencia con QR firmado | Cada estudiante tiene un QR permanente con firma criptografica opaca almacenada en `studentQrSignatures`; el escaneo valida la firma contra Firestore Rules antes de aceptar el registro | `src/features/attendance/studentQr.ts`, `src/lib/qrPayload.ts`, `firestore.rules` |
-| Secuencia entrada/salida sin condicion de carrera | El registro de asistencia corre dentro de una `runTransaction` sobre `attendanceDayState/{studentId}_{fecha}`, evitando dobles marcaciones simultaneas | `src/features/attendance/api.ts` (`logAttendanceScan`) |
-| Validacion de secuencia de asistencia docente | El backend rechaza una salida sin entrada previa registrada el mismo dia | `src/features/attendance/api.ts` (`logTeacherAttendanceScan`) |
-| Invitacion y auto-activacion de docentes | El admin genera un enlace con token de un solo uso; el docente define su propia contraseña al activarse | `src/features/teacherInvites/api.ts`, `src/pages/ActivateTeacherPage.tsx` |
-| Carga masiva de cuentas por Excel | Alumnos, docentes y auxiliares pueden crearse en lote subiendo un `.xlsx`, reutilizando la misma validacion que el alta individual | `src/lib/excelImport.ts`, `AdminBulkQuickEnrollmentCard.tsx`, `AdminDocentesPendientesPage.tsx`, `AdminAuxiliaresPage.tsx` |
-| Analitica protegida | Los endpoints de riesgo de inasistencia y tendencias exigen token de administrador valido | `analytics/main.py` (`require_admin`), `src/features/analytics/hooks.ts` |
+| Presentación | Páginas por portal y componentes de UI | `pages/admin/*`, `pages/student/*`, `components/ui/*` (shadcn/ui) |
+| Dominio | 13 módulos con el mismo patrón de 4 archivos | `features/enrollments`, `payments`, `attendance`, `cycles`, `groups`, `users`, `teacherInvites`, `resources`, `posts`, `workshops`, `analytics`, `students`, `site` |
+| Infraestructura | Acceso a Firebase y sincronización | `lib/firebase.ts`, `lib/syncService.ts` |
+| Seguridad | Guardas de ruta y reglas del servidor | `routes/*Route.tsx`, `firestore.rules`, `server/src/middleware/auth.ts` |
 
-### Evidencia de ejecucion
+### 1.3 Integración con la base de datos
 
-- Build de produccion exitoso: `npm run build` (Vite, ~3100 modulos transformados).
-- Verificacion estatica: `npx tsc --noEmit` sin errores sobre `src/`.
-- Reglas de seguridad validadas empiricamente contra el emulador de Firestore (`@firebase/rules-unit-testing`) durante el desarrollo del QR firmado, confirmando que una firma incorrecta o ausente es rechazada y una firma correcta es aceptada.
+- **Firestore** es la base operativa. Las escrituras críticas usan transacciones, como la matrícula con su cupo y el estado diario de la asistencia.
+- **MySQL** recibe una copia de cada matrícula, pago y marca de asistencia mediante `syncService` → API → procedimiento almacenado. La cuenta de la API solo puede ejecutar procedimientos; no tiene INSERT, UPDATE ni DELETE directos.
+- La sincronización es **idempotente**: reenviar un log no lo duplica. Además, **no bloquea**: si la API está apagada, el usuario no lo nota. La vista `v_conciliacion_pagos` detecta los eventos perdidos.
 
-## 5. Codigo y diseno tecnico
+### 1.4 Integración con servicios externos
 
-### Estructura por dominio (`src/features/*`)
+| Servicio | Uso | Autenticación |
+|---|---|---|
+| Firebase Authentication | Identidad de los 5 roles | Correo y contraseña; claims `admin` y `role` |
+| Firebase Admin SDK (API y analítica) | Verificar el ID token y leer el rol | Cuenta de servicio |
+| Vercel | Publicación del frontend | Panel del equipo |
+| Sitio del colegio (cermatschool.edu.pe) | Enlaza a la plataforma de la academia | — (enlace público) |
 
-Cada dominio de negocio sigue el mismo patron de cuatro archivos, lo que hace predecible navegar cualquier modulo nuevo:
+## Sección 2: Funcionalidad del Sistema
+
+### 2.1 Flujos principales implementados
+
+| Flujo | Descripción | Evidencia |
+|---|---|---|
+| Pre-matrícula pública con cupo | Transacción con id determinístico, validación del ciclo, el grupo y el cupo, y mensaje claro ante un duplicado | `features/enrollments/api.ts` (`createEnrollment`); 6 pruebas de reglas con el código real |
+| Máquina de estados de la matrícula | Pendiente → pagado (invitado) → pagado (activo); cancelación y reapertura con autor | `updateEnrollmentStatus`, `isAdminEnrollmentUpdateAllowed` |
+| Pagos con cuotas | Registro solo admin, anulación lógica y saldo calculado | `features/payments/*`; reglas y triggers con pruebas |
+| Activación por invitación | Token de un solo uso con vencimiento para estudiantes, docentes y auxiliares | `pages/Activate*Page.tsx`; 8 pruebas de roles |
+| Asistencia con QR firmado | QR permanente del alumno con firma opaca y estado diario transaccional | `features/attendance/api.ts`, `studentQr.ts` |
+| Asistencia del docente | QR diario con token de entrada y salida y ventana de validez; no se acepta salida sin entrada | `logTeacherAttendanceScan` |
+| Consulta de padres | Código normalizado, sin caracteres ambiguos y revocable | `pages/ConsultaAsistenciaPadrePage.tsx`, `lib/parentAccess.ts` |
+| Carga masiva por Excel | Alta de alumnos, docentes y auxiliares; los errores se reportan por fila sin detener el lote | `lib/excelImport.ts` |
+| Analítica protegida | Riesgo de inasistencia sobre días lectivos, solo para administradores | `analytics/main.py`, `sp_riesgo_inasistencia` |
+
+### 2.2 Gestión de usuarios, permisos y roles
+
+| Rol | Cómo se identifica | Guarda de ruta | Alcance |
+|---|---|---|---|
+| Administrador | Claim `admin` | `AdminRoute` | Gestión completa, pagos y estados |
+| Docente | Claim `teacher` o rol en `users` | `TeacherRoute` | Sus grupos, alumnos, recursos y asistencia propia |
+| Auxiliar | Claim `auxiliar` o rol en `users`, creado solo con invitación | `AuxiliarRoute` | Paneles de escaneo de asistencia |
+| Estudiante | Rol `student` | `StudentRoute` | Sus cursos, recursos, matrícula y asistencia |
+| Padre | Código de acceso, sin cuenta | `ParentAttendanceRoute` | Asistencia de su hijo, solo lectura |
+| Visitante | Sin sesión | — | Oferta pública y pre-matrícula |
+
+### 2.3 Evidencias funcionales
+
+| Pre-matrícula | Consulta de padres |
+|---|---|
+| ![Matrícula](assets/capturas/03-matricula.png) | ![Consulta de padres](assets/capturas/04-consulta-padres.png) |
+
+Más capturas (inicio, ciclos, ingreso y vista móvil) en la [Sección 2 del E1](e1-definicion-sistema-ce021.md#22-pantallas-principales).
+
+!!! note "Capturas a adjuntar por el equipo"
+    Portales con sesión: panel admin (matrículas y pagos), escaneo de QR por el auxiliar y portal del alumno. Requieren cuentas reales y no se capturaron de forma automatizada.
+
+## Sección 3: Código y Diseño Técnico
+
+### 3.1 Estructura del repositorio
 
 ```text
-src/features/<dominio>/
-  api.ts        -> llamadas a Firestore (getDocs, runTransaction, setDoc...)
-  hooks.ts      -> hooks de TanStack Query (useX, useCreateX, useUpdateX)
-  schemas.ts    -> validacion Zod de formularios y payloads
-  types.ts      -> tipos TypeScript del dominio
-  components/   -> componentes de UI especificos del dominio
+academia-school-platform/
+├─ src/
+│  ├─ features/<dominio>/   api.ts · hooks.ts · schemas.ts · types.ts · components/
+│  ├─ pages/                55 rutas (público, admin, teacher, student, auxiliar)
+│  ├─ components/           UI compartida (shadcn/ui) y layout
+│  ├─ lib/                  firebase, syncService, qrPayload, parentAccess, date, excelImport
+│  └─ routes/               guardas por rol
+├─ server/                  API REST (src/routes, src/middleware, src/db, scripts, test)
+├─ analytics/               servicio FastAPI
+├─ tests/firestore-rules/   pruebas de reglas con emulador
+├─ firestore.rules · firebase.json
+└─ .github/workflows/ci.yml · .github/pull_request_template.md
 ```
 
-Dominios activos: `attendance`, `cycles`, `enrollments`, `groups`, `payments`, `posts`, `resources`, `students`, `teacherInvites`, `users`, `workshops`, `analytics`, `site`.
+### 3.2 Patrones y buenas prácticas aplicadas
 
-### Patrones y buenas practicas aplicadas
-
-| Patron | Proposito | Ejemplo |
+| Patrón | Propósito | Ejemplo |
 |---|---|---|
-| Hooks compartidos entre formularios similares | Elimina logica de negocio duplicada | `useQuickEnrollmentSubmit` usado por matricula individual y masiva |
-| Componentes de estado compartidos | Un solo lugar para "vacio"/"error" en toda la app | `EmptyState`, `ErrorState` en `src/components/ui/` |
-| Utilidades de importacion generics | Un solo parser de Excel para 3 roles distintos | `src/lib/excelImport.ts`, `ExcelUploadButton`, `BulkImportSummary` |
-| IDs deterministicos / documentos compuestos | Evita condiciones de carrera sin bloquear con locks externos | `attendanceDayState/{tipo}_{id}_{fecha}` |
-| Invitacion por token, no por contrasena compartida | Cada rol se activa con su propia identidad Firebase | `teacherInvites`, `auxiliarInvites`, `invites` |
-| Validacion en la frontera | Zod valida antes de llegar a Firestore; las Rules validan de nuevo en el servidor | `schemas.ts` de cada dominio + `firestore.rules` |
+| Módulo por dominio (4 archivos) | Navegación predecible y aislamiento | `features/enrollments/*` |
+| Hooks de TanStack Query | Caché, estados de carga y error | `useCreatePost`, `useQuickEnrollmentSubmit` |
+| Validación en la frontera (doble) | El cliente valida con Zod; el servidor revalida con reglas y Zod | `schemas.ts` + `firestore.rules` + `server/src/routes/sync.ts` |
+| Id determinístico y transacciones | Evitar duplicados y condiciones de carrera sin bloqueos externos | `grupo__teléfono`, `attendanceDayState/{tipo}_{id}_{fecha}` |
+| Escritura solo por procedimientos | Integridad y auditoría centralizadas en la base | `CALL sp_sync_pago(...)` |
+| Idempotencia | Reintentos seguros de la sincronización | `sp_registrar_asistencia` |
+| Invitación por token hasheado | Activar sin contraseñas compartidas; el token no se guarda | `sha256Hex(token)` como id |
+| Utilidades genéricas | Un solo parser de Excel para 3 roles | `excelImport.ts`, `runBulkRows` |
 
-### Manejo de errores y validaciones
+### 3.3 Modularidad y desacoplamiento
 
-- Formularios: validación con `zod` + `react-hook-form` antes de cualquier escritura remota.
-- Mutaciones: `TanStack Query` reporta estado `isPending`/`isError` y el UI usa `toast` (`useToast`) para feedback inmediato.
-- Cargas masivas: `runBulkRows()` no aborta el lote completo ante un error de fila individual; acumula éxitos y fallos con el número real de fila del Excel para que el administrador corrija solo lo necesario.
-- Seguridad de datos: cada regla crítica en `firestore.rules` tiene una prueba conceptual documentada — por ejemplo, la limitación descubierta de que una transacción no puede escribir un documento y, en la misma transacción, depender de un `get()` de otro documento recién escrito, fue verificada con el emulador y corregida separando la creación de la firma QR en una transacción previa e independiente.
+- Las páginas no llaman directamente a Firebase: usan los hooks y la API de su dominio.
+- La sincronización está aislada en `syncService` y se activa por configuración (`config/services`), sin recompilar.
+- La API depende de una interfaz mínima de base de datos (procedimientos), no del esquema de tablas.
 
-## 6. Despliegue e instalacion
+### 3.4 Manejo de errores y validaciones
 
-### Frontend (SPA)
-
-| Paso | Comando / archivo |
+| Situación | Tratamiento |
 |---|---|
-| Instalar dependencias | `npm install` |
-| Desarrollo local | `npm run dev` (Vite, puerto por defecto 5173/8080 segun configuracion) |
-| Build de produccion | `npm run build` -> genera `dist/` |
-| Previsualizar build | `npm run preview` |
-| Reescritura de rutas SPA | `vercel.json` (`rewrites` a `/index.html`) |
-| Reglas de Firestore | `firebase.json` -> `firestore.rules` (`firebase deploy --only firestore:rules`) |
+| Formulario inválido | Zod + react-hook-form muestran el error por campo antes de cualquier escritura |
+| Operación remota fallida | Las mutaciones exponen `isError` y la UI notifica con un toast |
+| Duplicado en la pre-matrícula pública | El permiso denegado se traduce a un mensaje comprensible (`createEnrollment`) |
+| API: datos inválidos, rechazo de la base o error inesperado | 400 con detalle de Zod / 422 con el mensaje del trigger / 500 sin filtrar detalles internos |
+| Carga masiva | Continúa ante errores por fila e informa la fila real del Excel |
+| Fechas de Firestore | `toDateSafe` convierte `Timestamp`, `Date` o texto, sin "Invalid Date" |
 
-### API REST (`server/`)
+**Correcciones de esta iteración (2026-10-24):**
 
-| Paso | Comando |
+| Defecto | Corrección |
 |---|---|
-| Desarrollo | `npm run dev` (ts-node-dev con recarga) |
-| Build | `npm run build` (tsc a `dist/`) |
-| Produccion | `npm start` o gestionado con PM2: `npm run pm2:start` / `pm2:restart` / `pm2:stop` |
-| Variables de entorno | `FIREBASE_PROJECT_ID`, `CORS_ORIGINS`, credenciales MySQL |
+| 66 errores de TypeScript | Tipos corregidos sin cambiar el JavaScript generado (verificado archivo por archivo); 0 errores |
+| Fechas del blog como "Invalid Date" | `toDateSafe` con 3 pruebas |
+| Guardar un post sin imagen fallaba (`undefined` en Firestore) | Se guarda una cadena vacía |
+| Editar un post reiniciaba su fecha de publicación | La API fija la fecha solo en la primera publicación |
+| Posts sin autor | Se registra `createdBy` con el UID del administrador |
+| Sincronización con `alumnoId` vacío | Se usa `studentUid`, que es el vínculo real |
+| Animación de entrada de la galería que nunca corría | Entrada y hover separados en dos elementos (verificado en el navegador) |
+| Ejemplo de código de padres inválido (`…AB12…` contiene "1") | Ejemplo válido `CERMAT-AB2C-D3EF` |
 
-### Servicio de analitica (`analytics/`)
+## Sección 4: Despliegue o Instalación
 
-| Paso | Comando |
+### 4.1 Instrucciones de instalación
+
+| Componente | Pasos |
 |---|---|
-| Instalar dependencias | `pip install -r requirements.txt` |
-| Ejecutar | `uvicorn main:app` (FastAPI) |
-| Variables de entorno | `ALLOWED_ORIGINS`, `FIREBASE_SERVICE_ACCOUNT_PATH`, credenciales MySQL |
+| Frontend | `npm install` · `npm run dev` (desarrollo) · `npm run build` (genera `dist/`) |
+| Calidad | `npm run typecheck` · `npm test` · `npm run test:rules` (emulador de Firestore; requiere Java y Firebase CLI) |
+| Reglas de Firestore | `firebase deploy --only firestore:rules` (o automático desde el CI) |
+| API REST | `cd server && npm install && npm run build && npm run pm2:start` · pruebas: `npm test` |
+| Base MySQL | Migraciones `02`–`04` y cuentas de mínimo privilegio según `server/src/db/README.md` |
+| Analítica | `pip install -r requirements.txt` · `uvicorn main:app` |
 
-### Respaldo de base de datos
+**Orden obligatorio al actualizar:**
 
-Existe evidencia de respaldo relacional real en `backups/` (ej. `cermat_db_2026-06-22T16-29-01.sql`) generado mediante `server/scripts/backup.js`, lo que confirma continuidad operativa más allá del entorno de desarrollo.
+1. Publicar el frontend.
+2. Publicar las reglas: las nuevas exigen la invitación que solo envía el frontend nuevo.
+3. Aplicar las migraciones de MySQL.
+4. Reiniciar la API y la analítica, que ya llaman a los procedimientos almacenados.
 
-## 7. Anexos
+### 4.2 Configuración requerida (solo nombres de variables)
 
-| Anexo | Contenido | Ubicacion en este documento |
-|---|---|---|
-| Repositorio fuente | Codigo completo de la plataforma (frontend, API REST, analitica) | Raiz del repositorio `academia-school-platform` |
-| Manual tecnico breve | Instalacion y despliegue por proceso (SPA, API REST, servicio de analitica) | Seccion "6. Despliegue e instalacion" |
-| Evidencia de funcionamiento | Flujos funcionales verificados, con archivo fuente citado por flujo | Seccion "4. Funcionalidad del sistema" |
-| Evidencia de build y tipado | `npm run build` sin errores, `tsc --noEmit` limpio | Seccion "4. Funcionalidad del sistema" -> "Evidencia de ejecucion" |
-| Evidencia de despliegue | `vercel.json`, `firebase.json`, scripts PM2, respaldo en `backups/` | Seccion "6. Despliegue e instalacion" |
+| Componente | Variables |
+|---|---|
+| Frontend | `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID` |
+| API | `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER` (`cermat_api`), `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `CORS_ORIGINS` (incluye el dominio de Vercel) |
+| Analítica | `MYSQL_*` (`cermat_analitica`), `ALLOWED_ORIGINS`, `FIREBASE_SERVICE_ACCOUNT_PATH` |
+| Respaldo | `BACKUP_MYSQL_USER` (`cermat_respaldo`), `BACKUP_MYSQL_PASSWORD`, `RESTORE_MYSQL_USER`, `MYSQLDUMP_PATH`, `MYSQL_PATH` |
 
-## 8. Rubrica de evaluacion
+### 4.3 Evidencia de despliegue y ejecución
 
-| Criterio | Excelente | Bueno | Regular | Deficiente | Evaluacion CERMAT |
-|---|---|---|---|---|---|
-| Arquitectura e integracion del sistema | Arquitectura clara e integracion completa | Integracion funcional | Integracion parcial | Sin integracion | Excelente |
-| Funcionalidad del sistema | Sistema completamente operativo | Funcionalidad mayormente correcta | Funcionalidad incompleta | No cumple requerimientos | Bueno |
-| Integracion entre capas y servicios | Comunicacion fluida entre componentes | Integracion funcional | Integracion parcial | Componentes aislados | Excelente |
-| Calidad del codigo | Codigo limpio y modular | Codigo estructurado | Codigo poco organizado | Codigo deficiente | Bueno |
-| Desempeño y comportamiento del sistema | Sistema eficiente | Rendimiento aceptable | Problemas de rendimiento | Sistema inestable | Bueno |
-| Escalabilidad y diseno tecnico | Diseño preparado para escalar | Escalabilidad parcial | Diseño rigido | No escalable | Bueno |
+| Evidencia | Resultado |
+|---|---|
+| Frontend publicado | [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) responde 200 (capturas del 2026-10-24). La versión publicada es del 15-oct-2026; los cambios de esta iteración se publican con el siguiente despliegue. |
+| Build de producción | `vite build` correcto (aviso de chunk mayor de 500 kB, registrado en el plan de mejora del E4) |
+| Tipos | `tsc --noEmit` sin errores |
+| Pruebas | 34 unitarias, 18 de API, 19 de reglas y 19 de base de datos: 90 en verde |
+| Respaldo y restauración | Restauración verificada con SHA-256 y RTO medido de 0,27 s en base de prueba ([E2](e2-base-datos-ce022.md)) |
 
-!!! note "Por que 'Bueno' y no 'Excelente' en algunos criterios"
-    El sistema es funcional y esta desplegado, pero conserva deuda tecnica real (ver [E4](e4-calidad-operacion-ce024.md)): tipado `any` pendiente en varios modulos y ausencia de pruebas automatizadas. La autoevaluacion prioriza honestidad tecnica sobre una calificacion optimista.
+## Anexos
 
-## Competencia evaluada
+| Anexo | Ubicación |
+|---|---|
+| Repositorio fuente | `github.com/yucradavid/academia-school-platform` |
+| Manual técnico breve | Sección 4 de este documento y `server/src/db/README.md` |
+| Capturas de funcionamiento | `docs/assets/capturas/` (6 capturas del sitio desplegado) |
+| Evidencia de despliegue | URL de Vercel, `vercel.json`, `firebase.json`, `.github/workflows/ci.yml` |
+| Evidencia de sustentación | Pendiente (ver [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md)) |
 
-!!! abstract "CE023 — Programación"
-    Este entregable demuestra que el sistema no es un prototipo aislado: la aplicación React/TypeScript integra Firebase, una API REST Node.js y un servicio de analítica Python bajo una arquitectura modular por dominio, con evidencia de despliegue, sincronización entre capas y patrones de código reutilizables verificados en el repositorio real.
+## Rúbrica de Evaluación
+
+| Criterio | Excelente | Bueno | Regular | Deficiente |
+|---|---|---|---|---|
+| Arquitectura e integración del sistema | Arquitectura clara e integración completa | Integración funcional | Integración parcial | Sin integración |
+| Funcionalidad del sistema | Sistema completamente operativo | Funcionalidad mayormente correcta | Funcionalidad incompleta | No cumple requerimientos |
+| Integración entre capas y servicios | Comunicación fluida entre componentes | Integración funcional | Integración parcial | Componentes aislados |
+| Calidad del código | Código limpio y modular | Código estructurado | Código poco organizado | Código deficiente |
+| Desempeño y comportamiento del sistema | Sistema eficiente | Rendimiento aceptable | Problemas de rendimiento | Sistema inestable |
+| Escalabilidad y diseño técnico | Diseño preparado para escalar | Escalabilidad parcial | Diseño rígido | No escalable |
+| Sustentación y defensa técnica | Explica y defiende con dominio las decisiones tomadas | Explica con solvencia | Explica con dificultad | No sustenta |
