@@ -193,7 +193,7 @@ const PARAMS = [
   ['vps', 'S31', 'VPS institucional imputado a la academia', 'US$ por año', [35.99, 35.99, 35.99], FMT.usd, 'Costo real del plan RackNerd vigente. Se imputa completo por prudencia: copia externa de respaldos y VPN de la capa relacional (diseño CE03) o VPS puente del mismo plan mientras no exista VM-APP01.', 'Real (costo); imputación supuesta'],
   ['firebase', 'S32', 'Firebase', 'US$ por año', [60, 0, 0], FMT.usd, 'Plan gratuito con el uso actual (real). El escenario pesimista reserva US$ 5 al mes por exceso de cuota o por pasar al plan Blaze.', 'Real (US$ 0 hoy); reserva supuesta'],
   ['ops', 'S33', 'Operación: monitoreo, respaldos y usuarios', 'h por mes', [3, 2, 1.5], FMT.num1, 'Rutina diaria, semanal y mensual de operación (E5).', 'Supuesto a validar'],
-  ['mant', 'S34', 'Mantenimiento correctivo y evolutivo', 'h por mes', [5, 3, 2], FMT.num1, 'Actualización de dependencias y correcciones; el CI con 90 pruebas reduce el esfuerzo de verificación.', 'Supuesto a validar'],
+  ['mant', 'S34', 'Mantenimiento correctivo y evolutivo', 'h por mes', [5, 3, 2], FMT.num1, 'Actualización de dependencias y correcciones; el CI con 99 pruebas reduce el esfuerzo de verificación.', 'Supuesto a validar'],
   ['__grupo', 'Inversión del proyecto (horas tomadas de la hoja Presupuesto)'],
   ['po', 'S35', 'Horas del Product Owner (Dirección)', 'h', null, FMT.num1, 'Hoja Presupuesto, fila C.1.', 'Supuesto a validar'],
   ['rev', 'S36', 'Horas de la Dirección en revisiones de sprint', 'h', null, FMT.num1, 'Hoja Presupuesto, fila C.2.', 'Supuesto a validar'],

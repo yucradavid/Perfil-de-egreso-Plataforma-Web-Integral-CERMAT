@@ -32,11 +32,11 @@
   <use href="#i-cloud" x="426" y="143" width="14" height="14" fill="#ffffff"/>
   <text x="446" y="154" font-size="11" font-weight="700" fill="#ffffff">ZONA CLOUD — Firebase + Vercel</text>
 
-  <!-- ===================== ZONA LOCAL / ON-PREMISES (contenedor) ===================== -->
+  <!-- ===================== ZONA VPS DEL COLEGIO (contenedor; antes, PC local) ===================== -->
   <rect x="390" y="500" width="784" height="266" rx="18" fill="#EEF0F2" fill-opacity="0.55" stroke="#495057" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="7 6"/>
   <rect x="414" y="486" width="252" height="28" rx="14" fill="#495057"/>
   <use href="#i-server" x="426" y="493" width="14" height="14" fill="#ffffff"/>
-  <text x="446" y="504" font-size="11" font-weight="700" fill="#ffffff">ZONA LOCAL — Servidor On-Premises</text>
+  <text x="446" y="504" font-size="11" font-weight="700" fill="#ffffff">ZONA VPS — Servidor del colegio</text>
 
   <!-- ===================== USUARIOS (columna izquierda) ===================== -->
   <rect x="70" y="150" width="210" height="32" fill="#1B2559" rx="9"/>
@@ -127,7 +127,7 @@
   <rect x="412" y="534" width="358" height="66" fill="#F1ECFC" stroke="#6741D9" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
   <rect x="424" y="546" width="28" height="28" rx="8" fill="#6741D9"/>
   <use href="#i-server" x="431" y="553" width="15" height="15" fill="#ffffff"/>
-  <text x="466" y="560" font-size="12.5" font-weight="700" fill="#1B2559">CAPA DE NEGOCIO LOCAL</text>
+  <text x="466" y="560" font-size="12.5" font-weight="700" fill="#1B2559">CAPA DE NEGOCIO (VPS)</text>
   <text x="466" y="576" font-size="9.8" fill="#4A5568">API REST · Node.js + Express</text>
   <text x="466" y="590" font-size="9.8" fill="#4A5568">Sincronización no bloqueante vía procedimientos almacenados</text>
 
@@ -142,15 +142,15 @@
   <rect x="412" y="620" width="740" height="54" fill="#FFEEE6" stroke="#D9480F" stroke-opacity="0.28" rx="12" filter="url(#cardShadow)"/>
   <rect x="424" y="631" width="28" height="28" rx="8" fill="#D9480F"/>
   <use href="#i-database" x="431" y="638" width="15" height="15" fill="#ffffff"/>
-  <text x="466" y="645" font-size="13.5" font-weight="700" fill="#1B2559">CAPA DE DATOS LOCAL — COMPLEMENTARIA (NO BLOQUEANTE)</text>
+  <text x="466" y="645" font-size="13.5" font-weight="700" fill="#1B2559">CAPA DE DATOS RELACIONAL — COMPLEMENTARIA (NO BLOQUEANTE)</text>
   <text x="466" y="663" font-size="10" fill="#4A5568">MySQL · 6 tablas (alumnos, ciclos, matrículas, pagos, asistencia, alertas) para reportes y analítica relacional</text>
 
   <!-- Infraestructura -->
   <rect x="412" y="694" width="740" height="50" fill="#EEF0F2" stroke="#495057" stroke-opacity="0.25" rx="12" filter="url(#cardShadow)"/>
   <rect x="424" y="704" width="28" height="28" rx="8" fill="#495057"/>
   <use href="#i-cog" x="431" y="711" width="15" height="15" fill="#ffffff"/>
-  <text x="466" y="718" font-size="13" font-weight="700" fill="#1B2559">INFRAESTRUCTURA LOCAL ADMINISTRADA</text>
-  <text x="466" y="735" font-size="10" fill="#4A5568">PM2 (gestión de procesos) · Respaldo de MySQL con restauración probada · Servidor local — sin Docker ni Nginx aún</text>
+  <text x="466" y="718" font-size="13" font-weight="700" fill="#1B2559">INFRAESTRUCTURA EN EL VPS DEL COLEGIO</text>
+  <text x="466" y="735" font-size="10" fill="#4A5568">PM2 y systemd · Nginx con HTTPS en api-academia y analitica-academia · Respaldo diario con restauración probada</text>
 
   <!-- ===================== Flechas / relaciones — enrutamiento ortogonal (90°), sin cruces ===================== -->
   <!-- Usuarios entra por la CAPA DE PRESENTACION (punto de entrada del sistema) -->
@@ -171,7 +171,7 @@
   <text x="454" y="838" font-size="10.2" fill="#C92A2A">MySQL nunca es requisito para que un flujo académico (matrícula, pago, asistencia) se complete.</text>
 
   <!-- Novedades -->
-  <text x="780" y="870" font-size="9.6" text-anchor="middle" fill="#5B6472" font-style="italic">Actualizado 2026-10-24: reglas de Firestore probadas en emulador · MySQL escrito solo por procedimientos almacenados · 90 pruebas automáticas e integración continua</text>
+  <text x="780" y="870" font-size="9.6" text-anchor="middle" fill="#5B6472" font-style="italic">Actualizado 2026-10-24: reglas de Firestore probadas en emulador · MySQL escrito solo por procedimientos · capa relacional en el VPS del colegio · 99 pruebas automáticas e integración continua</text>
 
   <!-- Footer chips -->
   <g font-size="11" fill="#1B2559" font-weight="700" text-anchor="middle">

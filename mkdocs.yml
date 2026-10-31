@@ -115,6 +115,7 @@ nav:
       - "E1 — SGSI (CE0321-CE0324)": infraestructura/s2-e1-sgsi-ce0321-ce0324.md
       - "E2 — Implementación, Testing y Monitoreo de Red (CE0312-CE0313)": infraestructura/s2-e2-implementacion-red-ce0312-ce0313.md
       - "E3 — Implementación y Control de Centro de Datos (CE0332-CE0333)": infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md
+      - "Evidencias del despliegue (2026-10-24)": infraestructura/evidencias-despliegue-2026-10-24.md
       - "Producto final del Semestre 2": infraestructura/s2-producto-final.md
   - Sustentación:
     - "Guía de sustentación y defensa técnica": e5-presentacion-sustentacion-ce0217.md

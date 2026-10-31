@@ -32,7 +32,7 @@
 
 ## 1. Resumen ejecutivo del diseño del centro de datos híbrido
 
-**Problema.** La capa relacional de la academia (API Node.js, MySQL 8 y analítica FastAPI) corre en una PC con PM2. Ese equipo no está pensado para servicio continuo: sin redundancia de disco, sin UPS y con respaldos en el mismo disco que la base. Además, solo sincroniza cuando está encendido. El sistema del colegio está en un VPS de 2 GB de RAM sin respaldo externo. No hay dónde alojar los servicios de seguridad que pide la línea (firewall, SIEM, honeypot, monitoreo y respaldo).
+**Problema.** La capa relacional de la academia (API Node.js, MySQL 8 y analítica FastAPI) corría en una PC con PM2. Ese equipo no está pensado para servicio continuo: sin redundancia de disco, sin UPS y con respaldos en el mismo disco que la base. Además, solo sincronizaba cuando estaba encendido. Desde el 2026-10-24 la capa corre en el VPS del colegio, mientras se implementa este diseño (nota de la sección 10.5). El sistema del colegio está en un VPS de 2 GB de RAM sin respaldo externo. No hay dónde alojar los servicios de seguridad que pide la línea (firewall, SIEM, honeypot, monitoreo y respaldo).
 
 **Solución.**
 
@@ -62,12 +62,12 @@
 |---|---|---|---|
 | Plataforma de la academia (SPA) | Vercel | Vercel | HTTPS y reversión de despliegues gestionados; sin servidor que mantener |
 | Identidad y datos operativos | Firebase | Firebase | Fuente de verdad con reglas por rol; tiempo real |
-| API de sincronización, MySQL y analítica | PC local con PM2 | VM-APP01 (sede), publicada por el VPS | Servicio 24/7, respaldos 3-2-1 y aislamiento en la VLAN 40 |
+| API de sincronización, MySQL y analítica | VPS del colegio desde el 2026-10-24 (antes, PC local con PM2) | VM-APP01 (sede), publicada por el VPS | Servicio 24/7, respaldos 3-2-1 y aislamiento en la VLAN 40 |
 | Sistema del colegio | VPS | VPS | Ya en producción con TLS y firewall |
 | Firewall, IDS/IPS y VPN | No existe | VM-FW01 (sede) | Perímetro y segmentación de la sede |
 | SIEM | No existe | VM-SIEM01 (sede) | Registros centralizados y correlación |
 | Monitoreo | No existe | VM-MON01 (sede) | Disponibilidad, certificados y capacidad |
-| Respaldo | Script en la PC local | VM-BKP01 (sede) + copias cruzadas | Regla 3-2-1 |
+| Respaldo | Respaldo diario de MySQL en el VPS y copia semanal en la PC (desde el 2026-10-24) | VM-BKP01 (sede) + copias cruzadas | Regla 3-2-1 |
 | Honeypot | No existe | VM-HPOT01 (sede, DMZ) | Detección de ataques |
 | Bastión | No existe | VM-BAS01 (sede, gestión) | Único punto de administración por SSH |
 
@@ -406,7 +406,7 @@ La aplicación ya permite cambiar la URL de la API y de la analítica desde el p
 | CD-09 | vmbr0: bridge VLAN-aware sobre bond0 con VLAN 10, 20, 30, 40, 50 y 99 (equivale a vSwitch con port groups) | On-premise | Red virtual | Conmutador virtual troncal | Crítica | Diseñado |
 | CD-10 | vmbr1 (NIC3, WAN1) y vmbr2 (NIC4, WAN2), sin IP del host | On-premise | Red virtual | Entregar los enlaces de Internet solo al firewall virtual | Alta | Diseñado |
 | CD-11 | VM-FW01: OPNsense con Suricata | On-premise | VM | Firewall perimetral virtual, IDS/IPS y VPN | Crítica | Diseñado |
-| CD-12 | VM-APP01: API Node.js, MySQL 8 y analítica FastAPI con PM2 | On-premise | VM | Réplica relacional, reportes y analítica | Alta | Diseñado (hoy en la PC local) |
+| CD-12 | VM-APP01: API Node.js, MySQL 8 y analítica FastAPI con PM2 | On-premise | VM | Réplica relacional, reportes y analítica | Alta | Diseñado (hoy en el VPS) |
 | CD-13 | VM-SIEM01: Wazuh (indexador, servidor y panel) | On-premise | VM | SIEM | Alta | Diseñado |
 | CD-14 | VM-MON01: Uptime Kuma y Netdata (padre) | On-premise | VM | Disponibilidad y métricas | Media | Diseñado |
 | CD-15 | VM-BKP01: Proxmox Backup Server | On-premise | VM | Respaldos deduplicados y verificados | Alta | Diseñado |
@@ -417,7 +417,7 @@ La aplicación ya permite cambiar la URL de la API y de la analítica desde el p
 | CD-20 | Disco externo USB cifrado (rotación mensual) | On-premise / fuera de la sede | Almacenamiento | Copia fuera de línea (regla 3-2-1) | Media | Diseñado |
 | CD-21 | Enlace de fibra (NET-01) | On-premise | Conectividad | Salida principal | Alta | Existente (por confirmar) |
 | CD-22 | Enlace 4G/LTE (NET-03) | On-premise | Conectividad | Salida alterna | Media | Diseñado |
-| CD-23 | VPS RackNerd KVM: 2 vCPU, 2 GB RAM, 35 GB SSD, New York (equivale a EC2) | Nube IaaS | Cómputo | Servidor del colegio y extremo VPN | Crítica | Implementado |
+| CD-23 | VPS RackNerd KVM: 2 vCPU, 2 GB RAM, 35 GB SSD, New York (equivale a EC2) | Nube IaaS | Cómputo | Servidor del colegio, capa relacional de la academia (desde el 2026-10-24) y extremo VPN | Crítica | Implementado |
 | CD-24 | Ubuntu 24.04 LTS con UFW (equivale a Security Group) | Nube IaaS | SO y seguridad | Base con firewall de host | Crítica | Implementado |
 | CD-25 | Nginx con Certbot (Let's Encrypt) | Nube IaaS | Servicio web | HTTPS, redirección y proxy inverso | Crítica | Implementado |
 | CD-26 | Sistema del colegio: Angular y Laravel (PHP 8.4-FPM) | Nube IaaS | Aplicación | Gestión escolar | Alta | Implementado |
@@ -430,7 +430,7 @@ La aplicación ya permite cambiar la URL de la API y de la analítica desde el p
 | CD-33 | GitHub: repositorios y Actions (CI de 6 trabajos) | Nube SaaS | Código y CI | Control de versiones y verificación | Media | Implementado (primera ejecución en GitHub pendiente) |
 | CD-34 | DNS autoritativo Punto.pe/RCP (equivale a Route 53) | Proveedor | DNS | Resolución del dominio | Alta | Implementado |
 | CD-35 | Túnel IPsec sede ↔ VPS (NET-27) | Híbrido | Integración | Respaldo, administración, monitoreo y proxy | Alta | Diseñado |
-| CD-36 | PC local actual con PM2 (API, MySQL y analítica) | On-premise (actual) | Cómputo | Servicio transitorio hasta VM-APP01 | Media | Implementado (transitorio) |
+| CD-36 | PC local con PM2 (entorno anterior de la capa) | On-premise (actual) | Cómputo | Desde el 2026-10-24 solo pruebas de restauración | Media | Retirado (2026-10-24): la capa corre en el VPS |
 
 ## 10. Dimensionamiento y capacidad
 
@@ -485,9 +485,12 @@ Con todos los escenarios, el host llega al 59 % de RAM comprometida, por debajo 
 | Agente Wazuh | 50 | Supuesto a validar | Medir tras instalar |
 | Netdata hijo sin base local (streaming) | 60 | Supuesto a validar | Alternativa más ligera: node_exporter (~15 MB) |
 | Total proyectado | 845 de 2048 (≈ 41 %) | Supuesto a validar | Aceptación: MemAvailable ≥ 25 % en hora pico |
-| Capa de la academia (API Node, MySQL 8 y FastAPI) | ≈ 600 (supuesto) | Excluida del VPS | Se aloja on-premise en VM-APP01 (riesgo R-08) |
+| Capa de la academia (API Node, MySQL 8 y FastAPI) | ≈ 200 medidos (1,5 → 1,3 GiB disponibles) | Alojada en el VPS desde el 2026-10-24 (desvío del diseño) | `free -h` antes de instalar y con todo en marcha: 685 MiB usados y 1,3 GiB disponibles (manual de despliegue §9.0 y §9.4); MySQL con buffer de 128 MB y `performance_schema` desactivado; destino de diseño: VM-APP01 (riesgo R-08) |
 
 **Decisión:** el VPS solo recibe componentes ligeros (strongSwan, agente Wazuh y Netdata en modo streaming). La capa de la academia, que con MySQL 8, Node y FastAPI necesitaría unos 600 MB adicionales (supuesto), va a VM-APP01. Si la línea base medida deja menos del 25 % de memoria disponible en hora pico, se retira Netdata del VPS y se evalúa ampliar el plan o mover el sistema del colegio al host (escenario de crecimiento).
+
+!!! note "Desvío del 2026-10-24"
+    Mientras no exista la sede, el equipo decidió alojar la capa de la academia en el VPS (ADR-08 del [E1](../e1-definicion-sistema-ce021.md)). La medición confirmó que cabe. Antes de instalarla había 1,5 GiB disponibles. Con todo en marcha quedaron 685 MiB usados y 1,3 GiB disponibles (≈ 68 %), por encima del 25 % de aceptación. La memoria disponible bajó unos 200 MB y no los 600 MB supuestos, con MySQL en un perfil de bajo consumo: buffer de 128 MB, `performance_schema` desactivado y 40 conexiones. VM-APP01 sigue como destino de diseño, y la regla del 25 % se mantiene como disparador para retirar componentes o ampliar el plan.
 
 ### 10.6 Supuestos
 
@@ -506,7 +509,7 @@ Con todos los escenarios, el host llega al 59 % de RAM comprometida, por debajo 
 | SUP-11 | Ubicación de los datos de Firestore | Desconocida | Dato a confirmar | Consola de Firebase (ubicación de la base) |
 | SUP-12 | Plan de facturación de Firebase | Desconocido (Spark o Blaze) | Dato a confirmar | Condiciona la exportación programada gestionada |
 | SUP-13 | Plan de Vercel | Desconocido | Dato a confirmar | El plan Hobby está limitado a uso personal no comercial según los términos del proveedor |
-| SUP-14 | Uso real de RAM y disco del VPS | Ver presupuesto de RAM | Supuesto a validar | free -m y df -h en el VPS |
+| SUP-14 | Uso real de RAM y disco del VPS | 1,9 GiB de RAM con 1,5 GiB disponibles y 28 GB libres antes de la capa de la academia; 1,3 GiB disponibles con ella en marcha | Medido (2026-10-24) | `free -h` y `df -h` en el VPS (manual de despliegue §9.0 y §9.4) |
 
 ## 11. Disponibilidad y continuidad
 
@@ -539,8 +542,8 @@ Con todos los escenarios, el host llega al 59 % de RAM comprometida, por debajo 
 | Plataforma web (SPA) | Vercel | Crítica | 15 min | 0 (código en Git) | Promover el despliegue anterior en Vercel o revertir el commit | REC-10 |
 | Identidad (Firebase Auth) | Firebase | Crítica | Según el proveedor | Según el proveedor | Exportación semanal de usuarios (firebase auth:export), cifrada | REC-11 |
 | Datos operativos (Firestore) | Firebase | Crítica | 4 h | 24 h | Exportación diaria programada y restauración en un proyecto de prueba | REC-11 |
-| API de sincronización y MySQL | VM-APP01 (hoy PC local) | Alta | 1 h | 24 h | backup.js diario y restore.js; resincronización desde Firestore | REC-01 a REC-05 |
-| Analítica | VM-APP01 | Baja | 24 h | 24 h | Redespliegue desde Git | REC-07 |
+| API de sincronización y MySQL | VM-APP01 (hoy VPS del colegio) | Alta | 1 h | 24 h | backup.js diario (temporizador de systemd en el VPS) y restore.js; resincronización desde Firestore | REC-01 a REC-05, REC-13 y REC-14 |
+| Analítica | VM-APP01 (hoy VPS del colegio) | Baja | 24 h | 24 h | Redespliegue desde Git | REC-07 |
 | Sistema del colegio (web, API y PostgreSQL) | VPS | Alta | 8 h (reconstrucción completa); 2 h (solo base) | 24 h | pg_dump -Fc diario con SHA256SUMS y copia en la sede | REC-06, REC-08 |
 | VPN sitio a sitio | OPNsense ↔ VPS | Media | 1 h (reconexión automática ≤ 2 min) | No aplica | DPD y reintento; configuración versionada | REC-09 |
 | Firewall perimetral | VM-FW01 | Crítica para la sede | 2 h | Último config.xml | Restaurar config.xml en una VM nueva; contingencia con el router del ISP | REC-12 |
@@ -553,7 +556,7 @@ El RTO de 1 h de la base relacional coincide con el objetivo del Project Charter
 
 | Prueba | Qué demuestra | Criterio de aceptación |
 |---|---|---|
-| REC-01 a REC-05 | Restauración de MySQL con verificación de integridad | RTO < 1 h; filas, rutinas, triggers y vistas completos |
+| REC-01 a REC-05, REC-13 y REC-14 | Restauración de MySQL con verificación de integridad, también en otro servidor | RTO < 1 h; filas, rutinas, triggers y vistas completos, y collation coherente |
 | REC-06 | Restauración de PostgreSQL del colegio | Base de verificación con las 116 migraciones registradas |
 | REC-07 | Recuperación de una VM desde PBS | VM-APP01 responde `/health` en ≤ 2 h |
 | REC-08 | Reconstrucción del VPS | Web y API del colegio en ≤ 8 h en un entorno de prueba |
@@ -582,7 +585,7 @@ Si el host PVE01 falla:
 
 | Fase | Plazo | Actividades |
 |---|---|---|
-| Continuidad inmediata | Hasta 2026-11-21 | Respaldos del VPS y de Firestore, línea base de RAM del VPS, monitoreo transitorio |
+| Continuidad inmediata | Hasta 2026-11-21 | Respaldos del VPS y de Firestore, línea base de RAM del VPS (medida el 2026-10-24), monitoreo transitorio |
 | Laboratorio (opcional) | Hasta 2026-11-21 | Proxmox de laboratorio con las 7 VM para ensayar el despliegue y las pruebas REC |
 | Adquisición | 2027-I | Cotizar y comprar host, switch, AP, UPS y discos |
 | Despliegue | Tras la adquisición | Instalar Proxmox, crear las VM, migrar la API a VM-APP01 y activar el túnel |

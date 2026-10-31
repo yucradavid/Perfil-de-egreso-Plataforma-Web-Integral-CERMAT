@@ -21,7 +21,7 @@
 
 **Alcance.** 22 requerimientos funcionales y 10 no funcionales: sitio público, matrícula en línea, gestión académica, pagos, asistencia por QR, consulta para padres, contenidos y sincronización a una base relacional. Quedan fuera la app móvil nativa, la pasarela de pagos y la facturación electrónica.
 
-**Solución.** Una aplicación web (SPA en React y TypeScript) publicada en Vercel, con Firebase como identidad y base operativa protegida por reglas por rol. Una capa relacional complementaria (API Node.js, MySQL y analítica en Python) cubre reportes y continuidad. El diseño se documenta con vistas C4, 7 decisiones arquitectónicas y diagramas UML. Cada requerimiento se traza hasta su código y, cuando existe, hasta su prueba automática (90 pruebas en el proyecto).
+**Solución.** Una aplicación web (SPA en React y TypeScript) publicada en Vercel, con Firebase como identidad y base operativa protegida por reglas por rol. Una capa relacional complementaria (API Node.js, MySQL y analítica en Python) cubre reportes y continuidad; desde el 2026-10-24 corre en el VPS del colegio. El diseño se documenta con vistas C4, 8 decisiones arquitectónicas y diagramas UML. Cada requerimiento se traza hasta su código y, cuando existe, hasta su prueba automática (99 pruebas en el proyecto).
 
 ## Sección 1: Especificación de Requerimientos
 
@@ -153,7 +153,7 @@ Capturas del sitio desplegado tomadas el 2026-10-24:
 
 | Aspecto | Estado |
 |---|---|
-| Validación funcional con el equipo | Recorridos de los flujos críticos y 90 pruebas automáticas (ver [E4](e4-calidad-operacion-ce024.md)) |
+| Validación funcional con el equipo | Recorridos de los flujos críticos y 99 pruebas automáticas (ver [E4](e4-calidad-operacion-ce024.md)) |
 | Uso real en piloto | Conteos de Firestore al 2026-10-24: 8 matrículas, 2 pagos, 7 marcas de asistencia, 8 usuarios con perfil |
 | Validación con la Dirección y usuarios finales | **Pendiente de acta firmada.** Protocolo propuesto: recorrido guiado de HU01–HU08 con la Dirección, un docente y un auxiliar; registro de observaciones y conformidad en el acta del Anexo A. |
 
@@ -190,7 +190,7 @@ flowchart LR
   classDef persona fill:#cfe2ff,stroke:#08427b,stroke-width:2px,color:#08274a
   classDef contenedor fill:#e3f0ff,stroke:#1168bd,stroke-width:2px,color:#0b2545
   U["Usuarios<br/>[Persona]<br/>Seis portales por rol"]:::persona
-  subgraph LOCAL["Capa relacional: servidor local"]
+  subgraph LOCAL["Capa relacional: VPS del colegio"]
     API["API REST<br/>[Contenedor: Node.js + Express, PM2]"]:::contenedor
     AN["Analítica<br/>[Contenedor: Python + FastAPI]"]:::contenedor
     DB[("MySQL 8<br/>[Base de datos: réplica]")]:::contenedor
@@ -243,11 +243,12 @@ flowchart TB
 |---|---|---|---|---|
 | ADR-01 | Equipo pequeño, sin servidor propio permanente, con necesidad de tiempo real y control de acceso por rol | Firebase como backend principal (Auth, Firestore, Storage) con reglas declarativas | Sin servidor que mantener para la operación diaria. La seguridad depende de reglas que deben probarse y publicarse (ver ADR-07). | Aceptada |
 | ADR-02 | Firestore no resuelve bien reportes agregados ni conciliaciones | Réplica relacional en MySQL, escrita solo mediante procedimientos almacenados | Reportes SQL, integridad por FK y CHECK, y auditoría. La cuenta de la API no puede escribir tablas directamente. | Aceptada |
-| ADR-03 | La réplica no debe detener la operación si falla | Sincronización no bloqueante, idempotente y con vista de conciliación | Un fallo de la API no afecta al usuario. Los eventos perdidos se detectan en `v_conciliacion_pagos`. | Aceptada |
+| ADR-03 | La réplica no debe detener la operación si falla | Sincronización no bloqueante, idempotente y con vista de conciliación | Un fallo de la API no afecta al usuario. Los eventos perdidos se detectan en `v_conciliacion_pagos`. Un envío fallido no se reintenta (R-28). | Aceptada |
 | ADR-04 | Muchos dominios que crecen en paralelo | Arquitectura modular por dominio en `src/features/*` | Módulos predecibles y probables por separado. Algunas páginas siguen siendo grandes (deuda registrada en E4). | Aceptada |
 | ADR-05 | Riesgo de sobrecupo y duplicados en la matrícula pública sin sesión | Transacción con id determinístico `grupo__teléfono` y regla que solo permite sumar un cupo junto con la nueva pre-matrícula | Sin sobrecupo aun con solicitudes simultáneas. Para el visitante, un duplicado se ve como permiso denegado (mensaje explicado). | Aceptada |
 | ADR-06 | Un QR con solo el id del alumno puede falsificarse | QR permanente firmado (firma en `studentQrSignatures`) más estado diario transaccional (`attendanceDayState`) | No se aceptan QR reconstruidos ni dobles marcas simultáneas. Requiere regenerar los QR del formato antiguo. | Aceptada |
 | ADR-07 | Las reglas publicadas quedaron 4 meses desactualizadas | Las reglas se prueban en un emulador y se publican solo desde el pipeline de CI | Ninguna regla sin probar llega a producción. Requiere configurar el secreto de despliegue; mientras falte, la versión corregida se publicó desde la consola el 2026-10-24, después de pasar las 19 pruebas. | Aceptada (2026-10-24) |
+| ADR-08 | La capa relacional corría en una PC y solo sincronizaba con ella encendida; la sede de diseño (VM-APP01) espera el hardware | Alojar la API, MySQL y la analítica en el VPS del colegio, con un usuario propio, puertos solo en 127.0.0.1 y Nginx con HTTPS en dos subdominios | Servicio 24/7 sin depender de una PC. Comparte con el colegio los 2 GB de RAM del VPS (medido: 1,3 GiB disponibles con todo en marcha) y depende del proveedor del VPS (R-08 y R-29). VM-APP01 sigue como destino de diseño. | Aceptada (2026-10-24) |
 
 ## Sección 4: Diseño Detallado
 

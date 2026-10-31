@@ -35,36 +35,45 @@
 | Componente del diseño | Estado | Evidencia |
 |---|---|---|
 | Nube IaaS: VPS (equivalente a EC2) con UFW (equivalente a Security Group), Nginx, TLS y PostgreSQL local | **Implementado** | Manual del propietario (2026-10-17); verificaciones PR-01 a PR-09 |
-| Nube PaaS: Vercel y Firebase | **Implementado** | PR-13; 22 colecciones con reglas; último despliegue del frontend el 2026-10-15 |
-| Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04 en una base de prueba (RTO de 0,27–0,38 s) y REC-05 en la base real (RTO de 0,23 s); falta programar el respaldo diario |
+| Nube PaaS: Vercel y Firebase | **Implementado** | PR-13; 22 colecciones con reglas; frontend y reglas publicados y verificados el 2026-10-24 |
+| Capa relacional de la academia en el VPS: API, MySQL y analítica con PM2 y systemd, publicadas por Nginx con HTTPS | **Implementado y verificado** | Manual de despliegue §9; PR-38 y PR-39; prueba de punta a punta del 2026-10-24 con respuesta 200 |
+| Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04 en una base de prueba (RTO de 0,27–0,38 s), REC-05 en la base real (0,23 s) y REC-13 y REC-14 en otro servidor (0,33 s y 0,41 s); respaldo diario en el VPS desde el 2026-10-24 |
 | Identidades de mínimo privilegio en las bases | **Implementado** | 4 roles MySQL (error 1142 ante DML directo); usuario PostgreSQL sin superusuario |
 | Host Proxmox, bridges con VLAN, bond y VM | Pendiente de ejecución | Procedimiento en la sección 3 |
 | Red interna del VPS, strongSwan y NACL | Pendiente de ejecución | Sección 4.4 y S2-E2 §3 |
-| Respaldo del VPS y de Firestore | Pendiente de ejecución | Sección 7 (no conformidades NC-04 y NC-06) |
+| Respaldo del sistema del colegio en el VPS y de Firestore | Pendiente de ejecución | Sección 7 (no conformidades NC-04 y NC-06) |
 | Monitoreo de capacidad y alertas | Parcial | `/health` y rutinas del manual; Netdata y Uptime Kuma pendientes |
 
-La capa local de la academia sigue en una PC con PM2 (CD-36) hasta que exista VM-APP01. El cumplimiento del diseño es completo en la nube y queda pendiente en la sede, por falta del hardware.
+Desde el 2026-10-24 la capa relacional de la academia corre en el VPS: usuario `academia`, servicios solo en 127.0.0.1 y publicados por Nginx con HTTPS. La PC local (CD-36) quedó retirada. Es un desvío consciente del diseño, que la ubicaba en VM-APP01 y la excluía del VPS por la memoria (R-08). La medición dejó 1,3 GiB disponibles con todo en marcha (sección 9.3). El cumplimiento del diseño es completo en la nube y queda pendiente en la sede, por falta del hardware.
 
 ## 2. Trazabilidad con el diseño del centro de datos
 
 | Elementos de S1-E2 | Implementación | Cambio o justificación |
 |---|---|---|
 | CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; se propone un laboratorio (fase 1b) para ensayar el procedimiento |
-| CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Sin cambios |
+| CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Desde el 2026-10-24 el VPS aloja también la capa relacional de la academia (desvío del diseño, sección 3.1) |
 | CD-28 (strongSwan y `dum0`) | Pendiente | Requiere OPNsense en la sede |
 | CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas publicadas y frontend con cabeceras de seguridad, verificados el 2026-10-24 (NC-01 cerrada) |
 | CD-33 (GitHub y CI) | Implementado en código | La primera ejecución en GitHub está pendiente |
 | CD-34 (DNS) | Implementado | Se agregan CAA, SPF y DMARC (PR-12) |
 | CD-35 (túnel) | Pendiente | Requiere OPNsense |
-| CD-36 (PC local) | Operativa, transitoria | Se mantiene hasta migrar a VM-APP01 |
+| CD-36 (PC local) | Retirada (2026-10-24) | La capa pasó al VPS; la PC queda para pruebas de restauración |
 | VMware ESXi | Proxmox VE | Equivalencia técnica; sin costo de licencia |
 | AWS (VPC, EC2, SG, NACL, IAM) | VPS, PaaS y controles equivalentes | Infraestructura ya contratada; sin cuenta de AWS |
 
 ## 3. Implementación del entorno on-premise
 
-### 3.1 Estado actual (operativo, transitorio)
+### 3.1 Estado actual (operativo en el VPS)
 
-La API Node.js (`cermat-api`, puerto 3001, gestionada con `npm run pm2:start`), el servicio de analítica FastAPI (puerto 8000) y MySQL 8 corren en una PC local. El respaldo usa `server/scripts/backup.js` y la restauración `server/scripts/restore.js` (sección 7). No hay hipervisor, firewall perimetral ni segmentación.
+Desde el 2026-10-24, la API Node.js (`academia-api`, puerto 3001), la analítica FastAPI (`academia-analitica`, puerto 8000) y MySQL 8.0.46 corren en el VPS del colegio, bajo el usuario `academia` y en `/opt/academia`:
+
+- PM2 los mantiene en línea y el servicio `pm2-academia` de systemd los arranca si el VPS se reinicia.
+- Los tres escuchan solo en 127.0.0.1. Nginx publica la API y la analítica por HTTPS en `api-academia.cermatschool.edu.pe` y `analitica-academia.cermatschool.edu.pe`.
+- MySQL usa un perfil de bajo consumo: buffer de 128 MB, `performance_schema` desactivado y 40 conexiones.
+- El respaldo usa `server/scripts/backup.js` con un temporizador diario y la restauración `server/scripts/restore.js` (sección 7).
+- Las capturas 13 a 18 de las [Evidencias del despliegue del 2026-10-24](evidencias-despliegue-2026-10-24.md) muestran la API por HTTPS y el panel de administración apuntando al VPS.
+
+Antes corrían en una PC local con PM2 (CD-36), que quedó retirada. En la sede todavía no hay hipervisor, firewall perimetral ni segmentación.
 
 ### 3.2 Procedimiento de despliegue en Proxmox VE
 
@@ -294,20 +303,20 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | ACT-04 | Contenido público (ciclos, sedes, posts, recursos y talleres) | Dirección de la academia | Firestore y Storage | Media | Operativo | Sitio público en Vercel (200 OK, 2026-10-24) |
 | ACT-05 | Configuración de servicios (config/services) | Líder técnico | Firestore | Alta | Operativo | src/lib/syncService.ts lee config/services |
 | ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (publicada 2026-10-24) | firestore.rules y 19 pruebas; versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026) |
-| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos); 90 pruebas |
+| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos); 99 pruebas |
 | ACT-08 | Secretos y credenciales (cuenta de servicio, contraseñas de BD, llaves SSH, credenciales de VPN) | Líder técnico | Gestor de contraseñas y servidores | Alta | Operativo (clave rotada 2026-10-24) | db-crear-usuarios.js lee contraseñas del entorno; clave de servicio rotada (H-03 corregido) |
-| ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | PC local, VPS, PBS y disco externo | Crítica | Parcial (solo MySQL) | backup.js y restore.js; REC-01, REC-02 y REC-05 (base real) |
+| ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | VPS (respaldo diario de MySQL), PC (copia semanal), PBS y disco externo | Crítica | Parcial (solo MySQL) | Temporizador `academia-respaldo` (diario, 03:00); REC-01, REC-02, REC-05, REC-13 y REC-14 |
 | ACT-10 | Datos del sistema del colegio (PostgreSQL cermat_produccion) | Dirección del colegio | VPS (New York) | Crítica | Operativo | Manual del VPS (2026-10-17): 116 migraciones, base solo en loopback |
-| ACT-11 | Registros de eventos (API, Nginx, autenticación, firewall, IDS y SIEM) | Responsable de seguridad | VPS, PC local y VM-SIEM01 | Alta | Parcial (sin centralizar) | morgan en server/src/index.ts; registros de Nginx en el VPS |
+| ACT-11 | Registros de eventos (API, Nginx, autenticación, firewall, IDS y SIEM) | Responsable de seguridad | VPS y VM-SIEM01 | Alta | Parcial (sin centralizar) | morgan en server/src/index.ts, con sus registros en PM2 del VPS; registros de Nginx en el VPS |
 | ACT-12 | Documentación técnica y del SGSI | Líder técnico | Repositorio público de documentación | Baja | Operativo | Este sitio de documentación |
 | ACT-13 | Plataforma web de la academia (SPA en Vercel) | Dirección de la academia | Vercel | Alta | Operativo | PR-13: HTTPS y HSTS con preload (2026-10-24) |
 | ACT-14 | Firebase Authentication (cuentas y claims) | Dirección de la academia | Google Cloud | Crítica | Operativo | Claim de administrador; invitaciones de un solo uso |
 | ACT-15 | Cloud Firestore y Storage | Dirección de la academia | Google Cloud | Crítica | Operativo | 22 colecciones con reglas por rol |
-| ACT-16 | API de sincronización y servicio de analítica | Líder técnico | PC local (destino: VM-APP01) | Alta | Transitorio | helmet, CORS y morgan en server/src/index.ts; 18 pruebas |
-| ACT-17 | Base MySQL 8 (réplica relacional) | Líder técnico | PC local (destino: VM-APP01) | Alta | Transitorio | Roles de 04_seguridad.sql; 19 pruebas SQL |
+| ACT-16 | API de sincronización y servicio de analítica | Líder técnico | VPS del colegio, usuario `academia` (destino de diseño: VM-APP01) | Alta | Operativo (VPS desde 2026-10-24) | helmet, CORS y morgan en server/src/index.ts; 27 pruebas; HTTPS en `api-academia` y `analitica-academia`; prueba de punta a punta del 2026-10-24 |
+| ACT-17 | Base MySQL 8 (réplica relacional) | Líder técnico | VPS del colegio (destino de diseño: VM-APP01) | Alta | Operativo (VPS desde 2026-10-24) | Roles de 04_seguridad.sql; 19 pruebas SQL; migración 05; respaldo diario |
 | ACT-18 | Sistema de gestión del colegio (Angular y Laravel) | Dirección del colegio | VPS | Alta | Operativo | PR-05: 200 en web y /up (2026-10-24) |
-| ACT-19 | VPS RackNerd (Ubuntu 24.04, UFW, Nginx y Certbot) | Dirección del colegio | New York (proveedor) | Crítica | Operativo | Manual del VPS; PR-01 a PR-09 |
-| ACT-20 | PC local con PM2 (servicios transitorios) | Dirección de la academia | PC local (ubicación por confirmar) | Alta | Transitorio | npm run pm2:start en server/package.json |
+| ACT-19 | VPS RackNerd (Ubuntu 24.04, UFW, Nginx y Certbot) | Dirección del colegio | New York (proveedor) | Crítica | Operativo | Manual del VPS; PR-01 a PR-09; desde el 2026-10-24 aloja también la capa de la academia (usuario `academia`) |
+| ACT-20 | PC local con PM2 (servicios anteriores de la capa) | Dirección de la academia | PC local (ubicación por confirmar) | Alta | Retirado (2026-10-24) | `pm2 stop` y `pm2 save` el 2026-10-24; Laragon queda para pruebas de restauración (REC-14) |
 | ACT-21 | Host hipervisor PVE01 y sus VM | Dirección de la academia | Rack de la sede | Crítica | Planificado | Diseño S1-E2; pendiente de implementación |
 | ACT-22 | Firewall OPNsense con Suricata | Dirección de la academia | VM-FW01 | Alta | Planificado | Diseño S1-E1 §13; pendiente |
 | ACT-23 | Red local: switch, AP y cableado | Dirección de la academia | Sede principal | Alta | Planificado | Diseño S1-E1 §8; pendiente |
@@ -322,13 +331,19 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | ACT-32 | Personal clave (administrador del sistema, encargado de TI y equipo técnico) | Dirección | Sede y trabajo remoto | Alta | Operativo | Matriz RACI (S2-E1 §4.2) |
 | ACT-33 | Cuarto de equipos, rack y UPS | Dirección de la academia | Sede principal, Azángaro | Media | Planificado | Diseño de rack (S1-E2 §5) |
 
-Estado del inventario: 17 activos operativos sin observaciones, 3 transitorios (PC local, API y MySQL locales), 9 planificados (infraestructura de la sede) y 4 operativos con observaciones (respaldos y registros parciales, MFA no verificado y equipos por inventariar). Las reglas de Firestore (ACT-06) y los secretos (ACT-08) dejaron de tener observaciones el 2026-10-24.
+Estado del inventario: 19 activos operativos sin observaciones, 1 retirado (la PC local, el 2026-10-24), 9 planificados (infraestructura de la sede) y 4 operativos con observaciones (respaldos y registros parciales, MFA no verificado y equipos por inventariar). Las reglas de Firestore (ACT-06) y los secretos (ACT-08) dejaron de tener observaciones el 2026-10-24, y la API y MySQL (ACT-16 y ACT-17) pasaron de la PC al VPS ese mismo día.
 
 ## 7. Continuidad: respaldo, restauración y recuperación
 
 ### 7.1 Respaldo implementado (MySQL)
 
-`server/scripts/backup.js` ejecuta `mysqldump --single-transaction --quick --routines --triggers --events --no-tablespaces` con la cuenta de solo lectura `cermat_respaldo`. La contraseña viaja en `MYSQL_PWD`, no como argumento. El script genera el `.sql` junto con su `.sha256` y conserva los 7 más recientes. Se programa con `pm2 start scripts/backup.js --name cermat-backup --cron "0 2 * * *" --no-autorestart`; esa programación en la PC productiva **está por verificar**.
+`server/scripts/backup.js` ejecuta `mysqldump --single-transaction --quick --routines --triggers --events --no-tablespaces` con la cuenta de solo lectura `cermat_respaldo`. La contraseña viaja en `MYSQL_PWD`, no como argumento. El script genera el `.sql` junto con su `.sha256` y conserva los 7 más recientes. Desde el 2026-10-24 se ejecuta a diario a las 03:00 de Perú con un temporizador de systemd en el VPS (`academia-respaldo.timer`). El temporizador reemplaza a la programación con PM2 que se proponía antes:
+
+- Con `Persistent=true`, una ejecución perdida porque el VPS estaba apagado se hace al encender.
+- Corre como `academia`, con prioridad baja, y deja los archivos con permiso 640.
+- La primera ejecución, a las 22:18, generó `cermat_db_2026-10-25T03-18-26.sql` (el nombre va en hora UTC) en 0,2 s.
+
+Una vez por semana los respaldos se copian a la PC con `scp` y se verifican con una restauración (REC-14). Esa es la copia fuera del VPS.
 
 ### 7.2 Restauración probada (ejercicios reales)
 
@@ -349,7 +364,19 @@ El origen cambió entre las dos ejecuciones porque se ajustaron las migraciones 
 {"fecha":"2026-10-24T21:35:08.790Z","respaldo":"cermat_db_2026-10-24T21-35-08.sql","integridad":"sha256 verificado","destino":"cermat_db_verificacion","rto_segundos":0.23,"filas":{"alertas":0,"alumnos":0,"asistencia":0,"auditoria":0,"ciclos":0,"matriculas":1,"pagos":1,"schema_migraciones":3},"rutinas":9,"triggers":6,"vistas":3,"objetos_completos":true}
 ```
 
-La base real tiene hoy muy pocas filas porque la réplica solo recibe eventos cuando la capa local está encendida. Por eso el RTO de 0,23 s mide sobre todo la estructura y debe volver a medirse cuando la réplica tenga volumen.
+La base real tenía muy pocas filas: la réplica solo recibía los cambios nuevos, y los datos anteriores se cargaron recién a las 22:56 ([§7.8](#78-carga-inicial-de-la-replica-relacional-2026-10-24)). Aun con ellos el volumen es bajo (10 matrículas), así que el RTO mide sobre todo la estructura y debe volver a medirse cuando la réplica tenga volumen.
+
+**REC-13, de la PC al VPS (2026-10-24).** El mismo respaldo de REC-05 (`cermat_db_2026-10-24T21-35-08.sql`) se copió al VPS y se verificó su huella. Se restauró en MySQL 8.0.46 en **0,33 s** (330 ms), con 8 tablas, 9 funciones y procedimientos, 6 triggers, 3 vistas y el pago. Fue la primera recuperación en otro servidor.
+
+**Lo que esa prueba no detectó.** La base del VPS se creó con `utf8mb4_unicode_ci`. Las tablas del respaldo traen `utf8mb4_0900_ai_ci`, y las rutinas toman la collation de la base donde se crean. Contar objetos no lo mostró: la asistencia por QR, las funciones de saldo y `sp_estado_cuenta` fallaban con `Illegal mix of collations`. El defecto se corrigió el 2026-10-24 a las 22:06 ([E4 §2.8](../e4-calidad-operacion-ce024.md#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06)). Desde entonces `restore.js` crea la base con la collation de las tablas del respaldo y verifica que coincida con la de las rutinas (`collation_coherente` en el registro). La primera ejecución con esa verificación, en la PC a las 21:06, dio un RTO de 0,3 s con la collation coherente.
+
+**REC-14, del VPS a la PC (2026-10-24, 22:22).** El primer respaldo del temporizador diario se copió a la PC con `scp`, junto con los otros 3 respaldos del VPS, y las 4 huellas coincidieron. `restore.js --archivo` lo restauró en `cermat_db_verificacion`:
+
+```json
+{"fecha":"2026-10-25T03:22:03.597Z","respaldo":"cermat_db_2026-10-25T03-18-26.sql","integridad":"sha256 verificado","destino":"cermat_db_verificacion","rto_segundos":0.41,"filas":{"alertas":0,"alumnos":0,"asistencia":0,"auditoria":2,"ciclos":1,"matriculas":2,"pagos":1,"schema_migraciones":4},"rutinas":9,"triggers":6,"vistas":3,"objetos_completos":true,"collation":"utf8mb4_0900_ai_ci","collation_coherente":true}
+```
+
+Además de contar objetos, en la copia restaurada se ejecutaron las funciones y `sp_estado_cuenta`, y no dieron errores. La copia funciona; no solo existe.
 
 ### 7.3 Recuperación de una VM (REC-07)
 
@@ -423,13 +450,34 @@ sudo -u postgres dropdb cermat_verificacion
 | REC-10 | Pendiente | Despliegue defectuoso del frontend | Vercel | Promover el despliegue anterior | 15 min | 0 | — | — | Pendiente de ejecución | Pendiente | A adjuntar: historial de despliegues |
 | REC-11 | Pendiente | Pérdida de datos operativos | Firestore | Exportar e importar en emulador o proyecto de prueba; comparar conteos agregados | 4 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: conteos antes y después |
 | REC-12 | Pendiente | Pérdida del firewall virtual | VM-FW01 | VM nueva y restaurar config.xml; repetir PR-16 y PR-17 | 2 h | Último config.xml | — | — | Pendiente de ejecución | Pendiente | A adjuntar: captura y resultado de las pruebas |
+| REC-13 | 2026-10-24 | Recuperación en otro servidor: respaldo de la PC restaurado en el VPS | MySQL 8.0.46 (VPS, `cermat_db`) | sha256sum -c del respaldo cermat_db_2026-10-24T21-35-08.sql y restauración con mysql (manual de despliegue §9.3) | < 1 h | ≤ 24 h | 0,33 s | Huella SHA-256 correcta. 8 tablas, 9 funciones y procedimientos, 6 triggers, 3 vistas y 1 pago. Hallazgo posterior: la base se creó con utf8mb4_unicode_ci y las rutinas quedaron con otra collation que las tablas (corregido el 2026-10-24 a las 22:06) | Recuperación completa; defecto de collation detectado después | Ejecutado | Manual de despliegue §9.3 y §9.6 |
+| REC-14 | 2026-10-24 22:22 (UTC−5) | Recuperación en otro servidor: respaldo diario del VPS restaurado en la PC | MySQL 8.0.30 (PC, `cermat_db_verificacion`) | Copia con scp de los 4 respaldos y sha256sum -c; node scripts/restore.js --archivo con el más reciente | < 1 h | ≤ 24 h | 0,41 s | SHA-256 verificado. Filas: matrículas 2, pagos 1, ciclos 1, auditoría 2, schema_migraciones 4, resto 0. 9 rutinas, 6 triggers y 3 vistas; collation coherente (utf8mb4_0900_ai_ci); funciones y sp_estado_cuenta sin errores | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-25T03-18-26.sql) |
+
+### 7.8 Carga inicial de la réplica relacional (2026-10-24)
+
+La sincronización solo envía las altas y los cambios nuevos, así que la réplica no tenía lo que Firestore ya guardaba (R-28). A las 22:56, `server/src/scripts/cargaInicial.ts` lo copió una sola vez al MySQL del VPS:
+
+- Usa las mismas validaciones que `/api/sync` (`server/src/sync/esquemas.ts`) y los mismos procedimientos, con la cuenta de la API. En la auditoría queda como `carga-inicial`.
+- Va en orden (matrículas, pagos y asistencias) para que ningún pago cree una matrícula provisional.
+- Calcula la hora de cada marcación en hora de Perú, aunque el VPS esté en UTC.
+- Su salida solo muestra conteos y el inicio de cada ID, sin datos personales.
+- El mismo bloque hizo antes un respaldo con el servicio de [§7.1](#71-respaldo-implementado-mysql). Si hubiera fallado, la carga no se habría ejecutado.
+
+| Paso | Resultado |
+|---|---|
+| Pruebas del servidor, en la PC | 27 de 27, incluidas 7 de la conversión de documentos de Firestore |
+| Ensayo en la PC sobre una copia del último respaldo del VPS | Dos escrituras seguidas: 10 matrículas (0 provisionales), 2 pagos y 7 asistencias. La segunda no agregó asistencias (idempotente) |
+| Modo de prueba en el VPS, sin escribir | 10 matrículas, 2 pagos y 7 asistencias válidos; 0 rechazados |
+| Carga con `--escribir` en el VPS | De 2 matrículas (1 provisional), 1 pago y 0 asistencias a **10 matrículas (0 provisionales), 2 pagos y 7 asistencias**; 0 errores |
+
+La matrícula provisional que dejó la migración recibió sus datos reales. Entre las 10 matrículas está la pre-matrícula de prueba del 24-oct. El volumen sigue siendo bajo, así que el RTO de [§7.2](#72-restauracion-probada-ejercicios-reales) debe volver a medirse cuando la réplica crezca. Sigue pendiente el reintento de los envíos que fallan (PB-19 del [E4](../e4-calidad-operacion-ce024.md)).
 
 ## 8. RTO y RPO: objetivos frente a resultados
 
 | Servicio | RTO objetivo | RTO obtenido | RPO objetivo | RPO evidenciado | Conclusión |
 |---|---|---|---|---|---|
 | MySQL (base de prueba) | < 1 h | 0,38 s (REC-01) y 0,27 s (REC-02) | ≤ 24 h | Respaldo bajo demanda | Cumple en la base de prueba |
-| MySQL (base real) | < 1 h | 0,23 s (REC-05) | ≤ 24 h | Respaldo bajo demanda; el respaldo diario falta programarlo, así que hoy el RPO no está acotado | RTO cumple; RPO pendiente de programar |
+| MySQL (base real) | < 1 h | 0,23 s (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14) | ≤ 24 h | Respaldo diario a las 03:00 en el VPS desde el 2026-10-24, con copia semanal fuera del VPS: RPO ≤ 24 h | Cumple |
 | PostgreSQL del colegio | 2 h | Pendiente (REC-06) | ≤ 24 h | Sin respaldos implantados: hoy el RPO no está acotado | **No cumple** (NC-04) |
 | VM en PBS | 2 h | Pendiente (REC-07) | ≤ 24 h | Pendiente | — |
 | VPS completo | 8 h | Pendiente (REC-08) | ≤ 24 h | Pendiente | — |
@@ -470,7 +518,7 @@ Equivalencias: Netdata cubre las métricas de host (CPU, RAM, disco y red) que d
 
 ### 9.3 Línea base de capacidad del VPS
 
-**Pendiente de ejecución.** Comandos que se ejecutan en hora pico y en hora valle para validar el presupuesto de RAM de [S1-E2 §10.5](s1-e2-diseno-centro-datos-hibrido-ce0331.md):
+**Parcial.** Comandos que se ejecutan en hora pico y en hora valle para validar el presupuesto de RAM de [S1-E2 §10.5](s1-e2-diseno-centro-datos-hibrido-ce0331.md):
 
 ```bash
 free -m; swapon --show; df -h /; uptime
@@ -479,7 +527,7 @@ ps -eo rss,comm --sort=-rss | head -n 12
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
-| Valores registrados en dos horarios; MemAvailable ≥ 25 % antes de agregar agentes | Pendiente de ejecución | Salida de los comandos con fecha y hora |
+| Valores registrados en dos horarios; MemAvailable ≥ 25 % antes de agregar agentes | Dos mediciones del 2026-10-24. Antes de la capa de la academia: 1,9 GiB de RAM con 1,5 GiB disponibles, swap de 1 GiB sin uso y 28 GB libres en disco. Con la capa en marcha (20:01): 685 MiB usados y 1,3 GiB disponibles (≈ 68 %). Falta medir en hora pico | Manual de despliegue §9.0 y §9.4 |
 
 ## 10. Control de cambios y gestión de configuración
 
@@ -521,6 +569,11 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 | 2026-10-24 | Migraciones MySQL 02 a 04, scripts de respaldo y restauración, CI y corrección de reglas (publicada el mismo día, ver la fila siguiente) | Repositorio de la aplicación | Commit `05fbe9e` |
 | 2026-10-24 | Frontend publicado (commit `c06f5a2`) con cabeceras de seguridad, tras dos despliegues bloqueados en Vercel; reglas de Firestore publicadas; clave de servicio rotada; `www.cermatschool.edu.pe` retirado del proyecto de Vercel | Vercel, Firebase y Google Cloud | [E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24) |
 | 2026-10-24 | Reestructuración de la documentación de infraestructura, matrices y diagramas | Repositorio de documentación | Este conjunto de documentos |
+| 2026-10-24 | Endurecimiento del Nginx del colegio: 5 cabeceras de seguridad y `server_tokens off` | VPS | Manual de despliegue §7; PR-10 |
+| 2026-10-24 | Capa relacional de la academia en el VPS (usuario `academia`, Node 22, PM2, MySQL 8.0.46 y analítica en 127.0.0.1; Nginx con HTTPS en `api-academia` y `analitica-academia`) y panel de admin apuntando al VPS | VPS | Manual de despliegue §9; PR-38 y PR-39 |
+| 2026-10-24 | Corrección de tres defectos de la base (migración 05, collation del VPS y transacciones abiertas tras un error) y de `restore.js`; servicios de la PC detenidos | MySQL del VPS y de la PC; API y analítica | Commit `d1e2383`; [E4 §2.8](../e4-calidad-operacion-ce024.md#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06) |
+| 2026-10-24 | Respaldo diario con un temporizador de systemd en el VPS y copia semanal verificada en la PC | VPS y PC | REC-14 |
+| 2026-10-24 | Carga inicial de Firestore a MySQL (10 matrículas, 2 pagos y 7 asistencias), con respaldo previo | MySQL del VPS | Commit `8d03fe1`; §7.8 |
 
 ### 10.3 PRO-02 · Procedimiento de gestión de cambios
 
@@ -551,21 +604,24 @@ Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SG
 |---|---|
 | Componentes del CD en el diseño | 36 (los de nube, operativos; los de la sede, pendientes) |
 | Activos en el inventario final con evidencia | 33 |
-| Ejercicios de recuperación ejecutados / pendientes | 5 / 7 |
-| RTO medido de MySQL | 0,23 s en la base real (REC-05) y 0,27–0,38 s en la base de prueba (objetivo < 1 h) |
+| Ejercicios de recuperación ejecutados / pendientes | 7 / 7 |
+| RTO medido de MySQL | 0,23 s en la base real (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14); 0,27–0,38 s en la base de prueba (objetivo < 1 h) |
 | Servicios con RPO actualmente no acotado | 2 (PostgreSQL del colegio y Firestore) |
+| Réplica relacional después de la carga inicial | 10 matrículas (0 provisionales), 2 pagos y 7 asistencias |
 
 ### 11.2 Conclusiones
 
 1. La nube del diseño está operativa y con evidencia: el VPS equivale a EC2 con Security Group, TLS y la base no expuesta, y la plataforma PaaS funciona con HTTPS y HSTS.
-2. La recuperación está demostrada para la base relacional con verificación de integridad y RTO medido, primero en una base de prueba y después en la base real (REC-05). Es el ejercicio completo que exige la guía; falta programar el respaldo diario para acotar el RPO.
+2. La recuperación está demostrada para la base relacional con verificación de integridad y RTO medido, primero en una base de prueba y después en la base real (REC-05). Es el ejercicio completo que exige la guía. También se probó en otro servidor: de la PC al VPS (REC-13) y del VPS a la PC (REC-14). El respaldo diario quedó programado en el VPS el 2026-10-24, así que el RPO de MySQL ya está acotado a 24 h.
 3. Las dos mayores brechas de continuidad son reales y prioritarias: el colegio y Firestore no tienen respaldo implantado, así que su RPO no está acotado.
 4. El entorno on-premise tiene un procedimiento reproducible (red, VM, PBS y migración), listo para ejecutarse en cuanto exista el hardware.
+5. Contar objetos no basta para dar por buena una restauración: REC-13 pasó con los objetos completos y aun así las rutinas fallaban por la collation. Desde el 2026-10-24 `restore.js` verifica la collation y la prueba ejecuta las funciones en la copia restaurada.
 
 ### 11.3 Limitaciones
 
 - Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN.
-- La base real tiene hoy muy pocas filas, así que su RTO (0,23 s) debe volver a medirse cuando la réplica tenga volumen.
+- La base real tiene muy pocas filas aun después de la carga inicial (10 matrículas, 2 pagos y 7 asistencias), así que su RTO (0,23–0,41 s) debe volver a medirse cuando tenga volumen.
+- La copia fuera del VPS es manual y semanal; falta automatizarla hacia PBS.
 - Parte de la evidencia del VPS proviene del manual del propietario y faltan las capturas.
 
 ### 11.4 Mejoras futuras

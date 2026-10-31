@@ -77,7 +77,7 @@ flowchart LR
 | Identidad | Firebase Authentication con claims de administrador | Sesión y rol | Google Cloud | Implementado |
 | Datos operativos | Cloud Firestore, 22 colecciones | Fuente de verdad de la operación | Google Cloud | Implementado; reglas corregidas publicadas el 2026-10-24 |
 | Archivos | Firebase Storage | Imágenes y recursos | Google Cloud | Implementado |
-| API de sincronización | Node.js/Express con helmet, CORS por lista y morgan | Recibe eventos y escribe en MySQL solo por procedimientos | PC con PM2 (transitorio) → VM-APP01 o VPS puente | Implementado; servicio continuo propuesto (PB-13) |
+| API de sincronización | Node.js/Express con helmet, CORS por lista y morgan | Recibe eventos y escribe en MySQL solo por procedimientos | VPS del colegio desde el 2026-10-24 (antes, PC con PM2) → VM-APP01 | Implementado; servicio continuo en curso (PB-13, CR-03) |
 | Base relacional | MySQL 8 con 3 FK, 7 CHECK, 6 triggers, 4 funciones, 5 procedimientos, 3 vistas y 4 roles | Réplica auditable, conciliación y reportes | Ídem | Implementado ([E2 de Software](../e2-base-datos-ce022.md)) |
 | Analítica | Python/FastAPI | Riesgo de inasistencia, tendencias, pagos y alertas | Ídem | Implementado |
 | Respaldo de Firestore | Exportación programada con prueba de restauración | RPO ≤ 24 h | Google Cloud | Propuesto (PB-11) |
@@ -89,7 +89,7 @@ flowchart LR
 | Origen → destino | Mecanismo | Datos | Seguridad | Estado |
 |---|---|---|---|---|
 | SPA → Firebase | SDK de Firebase | Toda la operación | Reglas por rol y claims; 19 pruebas en el emulador | Implementado |
-| SPA → API local | HTTPS POST sin bloqueo (fire-and-forget), URL en `config/services` con caché de 5 min | Matrícula, pago y marca de asistencia | Token de Firebase; `requireAuth`, `requireAdmin` y titularidad; 18 pruebas | Implementado; solo opera con la PC encendida |
+| SPA → API (VPS) | HTTPS POST sin bloqueo (fire-and-forget), URL en `config/services` con caché de 5 min | Matrícula, pago y marca de asistencia | Token de Firebase; `requireAuth`, `requireAdmin` y titularidad; 27 pruebas | Implementado; 24/7 en el VPS desde el 2026-10-24 |
 | API → MySQL | Procedimientos almacenados | Ídem | Cuenta `cermat_api` sin `INSERT`, `UPDATE` ni `DELETE` directos | Implementado |
 | Analítica → MySQL | Lectura de vistas y procedimientos | Asistencia, pagos y alertas | Cuenta de lectura | Implementado |
 | Panel admin → `/health` | HTTP | Estado de API y MySQL | Solo administradores | Implementado |
@@ -109,7 +109,7 @@ flowchart TB
   PER["Personal de la academia y del colegio"]
   subgraph ACA["Academia La Prepa Cermat"]
     SI01["SI-01 Plataforma: Vercel y Firebase"]
-    SI02["SI-02 Capa local: API, MySQL y analítica en una PC"]
+    SI02["SI-02 Capa local: API, MySQL y analítica en el VPS"]
     SI05["SI-05 Cuaderno, hojas de cálculo y WhatsApp"]
   end
   subgraph COLE["CERMAT School"]
@@ -122,7 +122,7 @@ flowchart TB
   PER --> SI05
   PER --> SI03
   PER --> SI04
-  SI01 -- "eventos solo con la PC encendida" --> SI02
+  SI01 -- "eventos nuevos, sin reintento" --> SI02
   SI05 -. "re-digitación manual" .-> SI01
   SI03 -. "sin integración hoy" .- SI01
 ```
@@ -217,7 +217,7 @@ Contrato de ejemplo (fragmento; la versión completa se publicará como OpenAPI 
 | Consentimiento de padres o tutores para datos de menores | Sin aviso de consentimiento en los formularios (búsqueda en `src/` sin resultados) | Aviso y casilla en la pre-matrícula y el registro rápido, con versión aceptada registrada (PB-16) | Dirección y equipo |
 | Información de la finalidad (política de privacidad) | No publicada | Publicar finalidad, plazo de conservación, derechos y canal de atención | Dirección |
 | Inscripción de los bancos de datos | No realizada | Inscribir los bancos "alumnos y apoderados" y "pagos" en el Registro Nacional de Protección de Datos Personales | Dirección |
-| Medidas de seguridad | Parciales: reglas probadas y publicadas (2026-10-24), cabeceras de la SPA, roles de BD, TLS | Respaldo, monitoreo y cabeceras del sitio del colegio (sección siguiente) | Equipo técnico |
+| Medidas de seguridad | Parciales: reglas probadas y publicadas, cabeceras de la SPA y del colegio, roles de BD y TLS (2026-10-24) | Respaldo de Firestore y del colegio, y monitoreo (sección siguiente) | Equipo técnico |
 | Transferencia internacional | Datos en Firebase, Vercel y VPS en EE. UU., sin informar | Declararla en la política y en el consentimiento | Dirección |
 | Derechos de acceso, rectificación, cancelación y oposición | Sin procedimiento | Canal y plazo de respuesta | Dirección |
 | Conservación y minimización | Sin regla | Eliminar pre-matrículas no concretadas al cierre de cada ciclo; conservar matrículas y pagos durante el plazo contable | Dirección |
@@ -232,7 +232,7 @@ El análisis de riesgos, la declaración de aplicabilidad y los procedimientos d
 | Causa raíz: la línea 1 de `firestore.rules` (`#`) impedía compilar y cada despliegue fallaba sin aviso | Versiones probadas que nunca llegan a producción | Comentario válido y trabajo de CI `desplegar-reglas` condicionado | Corregido y publicado (2026-10-24); falta el secreto del CI |
 | Secretos (ZIP y `.env`) en el historial del repositorio | Exposición de credenciales | Retirar del historial y rotar la clave de servicio (PB-06) | **Tratado (2026-10-24):** clave revocada y reemplazada; contraseñas de `teachers.json` restablecidas; los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
 | La SPA de la academia solo envía HSTS (2026-10-24) | Clickjacking y otros ataques de navegador | `vercel.json` con `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors` limitado al colegio; falta añadir una política de contenido completa | **Publicado y verificado (2026-10-24)** |
-| El sitio del colegio no envía cabeceras de seguridad y muestra la versión de nginx (2026-10-24) | Clickjacking, detección de tipos y reconocimiento de versión | `server_tokens off` y cabeceras equivalentes en Nginx | Pendiente (RM-04) |
+| El sitio del colegio no enviaba cabeceras de seguridad y mostraba la versión de nginx | Clickjacking, detección de tipos y reconocimiento de versión | `server_tokens off` y cabeceras equivalentes en Nginx | Hecho (2026-10-24): 5 de 5 cabeceras y versión oculta |
 | El dominio no tiene CAA, SPF, DMARC ni DNSSEC (2026-10-24) | Suplantación del correo institucional y emisión de certificados no autorizada | SPF con el remitente de Google, DKIM, DMARC en modo de monitoreo y luego cuarentena, CAA para la autoridad de los certificados; DNSSEC si el registro lo permite | Pendiente (RM-04) |
 | API del colegio con CORS sin restringir, correo saliente en modo registro y respaldos sin implantar | Acceso entre orígenes y pérdida de datos | Restringir CORS antes de N2; respaldos con `pg_dump` y restauración probada ([S2-E3](../infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md)) | Pendiente |
 
@@ -294,7 +294,7 @@ Estimación de lecturas (supuesto a validar con la pestaña de uso de Firebase):
 | PostgreSQL (colegio) | 16 | Hasta noviembre de 2028 | Migrar a una versión mayor | 2028 |
 | Ubuntu (VPS) | 24.04 LTS | Soporte estándar hasta 2029 | — | 2029 |
 
-**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 90 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
+**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 99 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
 
 ## 5.5 Plan de implementación y gestión del sistema de información (CE0144)
 
@@ -334,7 +334,7 @@ Estimación de lecturas (supuesto a validar con la pestaña de uso de Firebase):
 | Mensual | Restauración de prueba, revisión de claims de administrador, tablero de indicadores y costos de proveedores |
 | Por ciclo | Configurar la oferta, cerrar el ciclo anterior y depurar pre-matrículas no concretadas |
 
-**Continuidad:** SPA RTO de 15 min promoviendo el despliegue anterior en Vercel; MySQL RTO de 1 h y RPO de 24 h (diseño CE03; restauración ya medida en 0,23 s en la base real y en 0,27–0,38 s en la base de prueba; el respaldo diario falta programarlo); Firestore RPO ≤ 24 h cuando exista la exportación programada (PB-11).
+**Continuidad:** SPA RTO de 15 min promoviendo el despliegue anterior en Vercel; MySQL RTO de 1 h y RPO de 24 h (diseño CE03; restauración ya medida en 0,23 s en la base real, en 0,27–0,38 s en la base de prueba y en otro servidor, con 0,33 s y 0,41 s; respaldo diario en el VPS desde el 2026-10-24); Firestore RPO ≤ 24 h cuando exista la exportación programada (PB-11).
 
 ## 5.6 Indicadores de uso, valor y mejora (CE0145)
 
@@ -362,11 +362,11 @@ Línea base real: conteos agregados de Firestore al 2026-10-24, sin datos person
 | IM-01 | Seguridad de las reglas publicadas | Pruebas de reglas que pasan contra la versión publicada | 9 de 19 con las reglas de junio; tras publicar la versión corregida (2026-10-24), 0 fallas observadas en producción | 19 de 19 | CI y emulador | Cada publicación |
 | IM-02 | Cumplimiento de privacidad | Ítems cumplidos: política, consentimiento, inscripción, transferencia informada y procedimiento de derechos | 0 de 5 | 5 de 5 | Lista de verificación | Trimestral |
 | IM-03 | Disponibilidad | Minutos disponibles ÷ minutos del mes | No medida | ≥ 99 % | Monitor externo | Mensual |
-| IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL: base real restaurada en 0,23 s (REC-05, 2026-10-24) y base de prueba en 0,27–0,38 s; Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
-| IM-05 | Integridad de la réplica | Filas en `v_conciliacion_pagos` | Vista disponible; sincronización intermitente | 0 | MySQL | Semanal |
+| IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL: base real restaurada en 0,23 s (REC-05) y en otro servidor en 0,33 s y 0,41 s (REC-13 y REC-14), todas del 2026-10-24; base de prueba en 0,27–0,38 s; respaldo diario de MySQL; Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
+| IM-05 | Integridad de la réplica | Filas en `v_conciliacion_pagos` | Vista disponible; sincronización 24/7 en el VPS y carga inicial hecha (2026-10-24) | 0 | MySQL | Semanal |
 | IM-06 | Integración con el colegio | Niveles de integración activos y procesos con datos compartidos | 0 | N0 y N1 activos en 2027; ≥ 2 procesos en 2028 | Inventario de integraciones | Semestral |
-| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 90 pruebas; 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
-| IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA con cabeceras publicadas el 2026-10-24 (antes solo HSTS); colegio sin cabeceras; 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
+| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 99 pruebas; 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
+| IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA y colegio con cabeceras de seguridad (2026-10-24; antes, la SPA solo con HSTS y el colegio sin ninguna); 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
 
 **Ciclo de revisión:** el Product Owner prepara el tablero mensual con conteos agregados de Firestore y las vistas de MySQL (`v_estado_cuenta`, `v_asistencia_diaria`, `v_conciliacion_pagos`); la Dirección lo revisa en el comité mensual; cada trimestre se revisan costos y proveedores y cada año se recalcula el business case. Los indicadores de proceso IP-01 a IP-03 del [E4](e4-modelado-procesos-ce0131.md#nuevos-indicadores) complementan esta tabla.
 

@@ -165,7 +165,7 @@ Reducir la fragmentación operativa mediante un sistema único que:
 ## 7. Enfoque de solución
 
 !!! tip "Arquitectura híbrida — visión de conjunto"
-    El sistema implementa una arquitectura técnica híbrida que combina una capa cloud (Firebase) para la operación web en tiempo real con una capa local (Node.js + MySQL) para analítica, reportes y continuidad operativa.
+    El sistema implementa una arquitectura técnica híbrida que combina una capa cloud (Firebase) para la operación web en tiempo real con una capa relacional (Node.js + MySQL), alojada desde el 2026-10-24 en el VPS del colegio, para analítica, reportes y continuidad operativa.
 
     ![Arquitectura técnica híbrida](assets/arquitectura-hibrida.svg)
 
@@ -225,7 +225,7 @@ flowchart TD
 | **Negocio local** | Node.js + Express | API REST, validación, lógica, auditoría |
 | **Analítica** | Python + FastAPI | Procesamiento de históricos, alertas y tendencias |
 | **Datos local** | MySQL | Base relacional para reportes y sincronización |
-| **Infraestructura** | PM2 + respaldo verificado (`backup.js` y `restore.js`) | Gestión de servicios locales y respaldo |
+| **Infraestructura** | PM2 y systemd en el VPS del colegio, Nginx con HTTPS y respaldo diario verificado (`backup.js` y `restore.js`) | Servicios de la capa relacional y respaldo |
 
 ## 8. Viabilidad
 
@@ -235,7 +235,7 @@ flowchart TD
 | Tiempo | Viable como EPE porque integra evidencias desarrolladas previamente y documenta un sistema funcional con módulos existentes. |
 | Recursos | Viable con un equipo pequeño de desarrollo web, Firebase, Node.js y administradores institucionales para la validación. |
 | Riesgos | Dependencia de la configuración correcta de roles, reglas de Firestore, índices y calidad de los datos migrados. |
-| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 90 pruebas automáticas y pipeline de CI. |
+| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 99 pruebas automáticas y pipeline de CI. |
 
 ## 9. Alineación con competencias
 
@@ -244,10 +244,10 @@ flowchart TD
 | CE021 - Ingeniería de Requerimientos | X | El sistema cuenta con problema, actores, objetivos, alcance, requerimientos, prototipos, arquitectura y trazabilidad. |
 | CE022 - Ingeniería de la Información | X | Gestiona entidades, colecciones, reglas de seguridad, sincronización SQL, consultas e índices. |
 | CE023 - Programación | X | Implementa módulos React/TypeScript, Firebase SDK, hooks, validaciones, rutas, componentes y servicios. |
-| CE024 - QA | X | Incluye 90 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
+| CE024 - QA | X | Incluye 99 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
 
 !!! success "Resultado de viabilidad"
-    La viabilidad está **demostrada**: la plataforma está desplegada en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) con Firebase, y opera en piloto (8 matrículas, 2 pagos y 7 marcas de asistencia al 2026-10-24). La capa relacional (Node.js, MySQL y analítica) se ejecuta con PM2 en el servidor local cuando está encendido.
+    La viabilidad está **demostrada**: la plataforma está desplegada en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) con Firebase, y opera en piloto (8 matrículas, 2 pagos y 7 marcas de asistencia al 2026-10-24). La capa relacional (Node.js, MySQL y analítica) corre las 24 horas en el VPS del colegio desde el 2026-10-24, publicada por HTTPS y con respaldo diario.
 
 ## Relación con la guía oficial
 

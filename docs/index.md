@@ -36,7 +36,7 @@
 | [E1 — Requerimientos y diseño del sistema](e1-definicion-sistema-ce021.md) | CE021 | 22 RF, 10 RNF, reglas de negocio, historias, prototipo, C4, ADR, UML y trazabilidad |
 | [E2 — Plataforma de datos](e2-base-datos-ce022.md) | CE022 | Modelo, DDL/DML, procedimientos, funciones, triggers, roles, respaldo y 19 pruebas SQL |
 | [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue |
-| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 90 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
+| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 99 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
 
 ### C. Infraestructura Tecnológica (CE03)
 
@@ -61,10 +61,10 @@ Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustent
 | Colecciones de Firestore con reglas | 22 |
 | Base relacional MySQL | 6 tablas de negocio + auditoría; 4 funciones, 5 procedimientos, 6 triggers y 3 vistas |
 | Requerimientos | 22 funcionales y 10 no funcionales |
-| Pruebas automáticas | 90 (34 unitarias, 18 de API, 19 de reglas de seguridad y 19 de base de datos) |
+| Pruebas automáticas | 99 (34 unitarias, 27 de API, 19 de reglas de seguridad y 19 de base de datos) |
 | Integración continua | 6 trabajos en GitHub Actions |
 | Uso en piloto | 8 matrículas, 2 pagos, 7 marcas de asistencia y 8 usuarios con perfil |
-| Estado de producción | Frontend y reglas corregidas publicados el 2026-10-24 y verificados como visitante sin sesión ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
+| Estado de producción | Frontend y reglas corregidas publicados el 2026-10-24 y verificados como visitante sin sesión; capa relacional en el VPS del colegio, con prueba de punta a punta ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 
 ## Arquitectura
 
@@ -73,7 +73,7 @@ flowchart LR
   Colegio["Sitio del colegio<br/>cermatschool.edu.pe<br/>(Angular + Laravel en VPS)"] -->|enlace| SPA
   Usuarios["6 tipos de usuario"] --> SPA["Plataforma de la academia<br/>React + TypeScript (Vercel)"]
   SPA --> Firebase["Firebase<br/>Auth · Firestore · Storage"]
-  SPA -.no bloqueante.-> API["API Node.js + MySQL<br/>+ analítica Python (local)"]
+  SPA -.no bloqueante.-> API["API Node.js + MySQL<br/>+ analítica Python (VPS)"]
 ```
 
 | Capa | Tecnología | Rol |
@@ -81,7 +81,7 @@ flowchart LR
 | Presentación | React 18 + TypeScript + Vite en Vercel | Portales por rol |
 | Identidad y datos | Firebase Auth, Firestore y Storage | Fuente de verdad, reglas por rol probadas |
 | Réplica y analítica | Node.js + Express, MySQL 8, Python + FastAPI | Reportes, conciliación, auditoría y riesgo de inasistencia |
-| Infraestructura | Vercel, Firebase, servidor local y VPS del colegio | Base del diseño híbrido de la línea CE03 |
+| Infraestructura | Vercel, Firebase y el VPS del colegio, que desde el 2026-10-24 aloja también la capa relacional | Base del diseño híbrido de la línea CE03 |
 
 ## Evidencia técnica (repositorio `academia-school-platform`)
 
@@ -97,10 +97,11 @@ flowchart LR
 | Respaldo y restauración | `server/scripts/backup.js`, `server/scripts/restore.js` |
 
 !!! success "Cerrado en producción el 2026-10-24"
-    Frontend y reglas de Firestore corregidas publicados y verificados; pre-matrícula pública operativa; clave de servicio de Firebase rotada y contraseñas expuestas restablecidas. Base MySQL real migrada, con cuentas de mínimo privilegio y restauración probada en 0,23 s ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)).
+    Frontend y reglas de Firestore corregidas publicados y verificados; pre-matrícula pública operativa; clave de servicio de Firebase rotada y contraseñas expuestas restablecidas. Base MySQL real migrada, con cuentas de mínimo privilegio y restauración probada en 0,23 s. La capa relacional corre en el VPS del colegio con HTTPS, tiene respaldo diario y su restauración también se probó en otro servidor: 0,33 s en el VPS y 0,41 s del VPS a la PC. Esa noche la réplica recibió con una carga inicial los datos que Firestore ya tenía ([E4 §2.7](e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)).
 
 !!! warning "Pendientes que solo puede cerrar el equipo"
-    - Programar el respaldo diario de MySQL y el arranque automático de PM2 con Windows.
+    - Decidir el reintento de los envíos fallidos a MySQL: la carga inicial de los datos anteriores se hizo el 2026-10-24, pero un envío que falla no se repite.
+    - Copiar cada semana los respaldos del VPS a la PC y verificarlos con `restore.js`.
     - Configurar el secreto `FIREBASE_SERVICE_ACCOUNT` en GitHub para que el CI publique las reglas.
     - Firmar las actas de validación con la academia y la declaración de ética de seguridad.
     - Ejecutar el laboratorio de infraestructura (Semestre 2) y adjuntar sus evidencias.

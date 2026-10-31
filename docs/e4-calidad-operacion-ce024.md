@@ -15,10 +15,10 @@
 
 ## Resumen Ejecutivo
 
-**Calidad del producto.** El sistema cuenta con **90 pruebas automáticas en cuatro niveles**, y las 90 pasan:
+**Calidad del producto.** El sistema cuenta con **99 pruebas automáticas en cuatro niveles**, y las 99 pasan:
 
 - 34 pruebas unitarias del frontend.
-- 18 de integración de la API.
+- 27 de la API: 20 de sus rutas y de su conexión a MySQL, y 7 de la carga inicial desde Firestore.
 - 19 de reglas de seguridad de Firestore, ejecutadas en el emulador.
 - 19 de la base de datos MySQL.
 
@@ -26,7 +26,7 @@ La cobertura de los módulos de lógica probados es de 91 % de líneas y 94 % de
 
 Las pruebas encontraron **tres fallas activas en producción**. Las reglas publicadas, del 22-jun-2026, permitían que cualquier usuario se asignara el rol de auxiliar o docente, permitían listar sin sesión las matrículas pagadas (nombres y teléfonos) y bloqueaban la matrícula pública de visitantes. La causa raíz fue que la primera línea de `firestore.rules` (`#`) impedía compilar el archivo, así que las versiones posteriores nunca llegaron a producción. Las tres fallas quedaron corregidas en el código: con las reglas de junio fallan 10 pruebas, y con las corregidas pasan las 19. El 2026-10-24 se publicaron el frontend y las reglas corregidas, y se verificó en producción que las tres fallas quedaron cerradas ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
 
-**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y publica las reglas de Firestore solo si todo lo anterior pasó. La operación se observa con endpoints `/health`, la vista de conciliación Firestore ↔ MySQL y el registro de pruebas de restauración. Cada componente tiene una ruta de reversión documentada. Desde el 2026-10-24 la base real `cermat_db` tiene las migraciones aplicadas, y la API y la analítica se conectan con cuentas de mínimo privilegio ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
+**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y publica las reglas de Firestore solo si todo lo anterior pasó. La operación se observa con endpoints `/health`, la vista de conciliación Firestore ↔ MySQL y el registro de pruebas de restauración. Cada componente tiene una ruta de reversión documentada. Desde el 2026-10-24 la base real `cermat_db` tiene las migraciones aplicadas, y la API y la analítica se conectan con cuentas de mínimo privilegio ([sección 2.7](#27-cierre-en-produccion-2026-10-24)). Ese mismo día la capa relacional pasó al VPS del colegio, con HTTPS, respaldo diario y una prueba de punta a punta. Los tres defectos de la base que aparecieron al hacerlo se analizan en la [sección 2.8](#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06).
 
 **Calidad del proceso.**
 
@@ -63,6 +63,8 @@ Las pruebas encontraron **tres fallas activas en producción**. Las reglas publi
 | API | `/sync/enrollment`: titularidad, no auto-marcar pagado, admin | 3 |
 | API | `/sync/attendance-log`: titularidad, auxiliar sin claim, docente, manual solo admin, duplicados | 6 |
 | API | `/asistencia/log` con fecha local y solo admin; `/asistencia/riesgo` por procedimiento | 3 |
+| API | Conexión a MySQL: vuelve al pool si la llamada termina bien y se cierra si falla, para no dejar una transacción abierta | 2 |
+| API | Carga inicial desde Firestore: mismo esquema que `/api/sync`, valores por defecto, pago al contado, hora de Perú con el servidor en UTC, docente del QR diario y marcación sin hora rechazada | 7 |
 | Reglas | Matrícula pública: registro con cupo, duplicado, ciclo cerrado, sobrecupo, cupo sin matrícula, manipulación del contador | 6 |
 | Reglas | Privacidad: listar pagadas, leer existentes, verificar inexistencia, lectura del alumno con sesión | 4 |
 | Reglas | Roles: sin invitación, invitación vigente, ajena, vencida, reintento, docentes, alumno, cambio de rol | 8 |
@@ -73,17 +75,17 @@ Las pruebas encontraron **tres fallas activas en producción**. Las reglas publi
 | BD | Idempotencia de asistencia | 1 |
 | BD | Rechazos: borrar pago, cuota excedida, monto negativo, FK, borrar con pagos, 0 cuotas | 6 |
 | BD | Sin filas a medias tras un rechazo | 1 |
-| | **Total** | **90** |
+| | **Total** | **99** |
 
 ### 1.3 Reporte de ejecución (2026-10-24)
 
 | Suite | Comando | Resultado | Duración |
 |---|---|---|---|
 | Unitarias frontend | `npm run test:coverage` | **34/34 OK** | 1,9 s |
-| API REST | `cd server && npm test` | **18/18 OK** | 1,2 s |
+| API REST | `cd server && npm test` | **27/27 OK** | 1,2 s |
 | Reglas de Firestore | `npm run test:rules` | **19/19 OK** | 5,8 s + arranque del emulador |
 | Base de datos | `mysql -t cermat_prueba < server/src/db/92_pruebas_bd.sql` | **19/19 OK** | < 1 s |
-| **Total** | | **90/90 OK** | |
+| **Total** | | **99/99 OK** | |
 
 ### 1.4 Reporte de cobertura
 
@@ -133,7 +135,7 @@ La misma suite de reglas se ejecutó contra la versión **que estaba publicada e
 flowchart LR
   P["push / pull request a main"] --> F["frontend: tipos, 34 pruebas + cobertura, build"]
   P --> R["reglas-firestore: emulador + 19 pruebas"]
-  P --> A["api: tipos + 18 pruebas"]
+  P --> A["api: tipos + 27 pruebas"]
   P --> B["base-datos: MySQL 8, migraciones + 19 pruebas + EXPLAIN"]
   P --> Y["analítica: sintaxis Python"]
   F --> D{"¿todo OK y push a main?"}
@@ -169,7 +171,9 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 | Disponibilidad de API y MySQL | `GET /health` de la API y de la analítica; panel admin "Infraestructura" | Implementado |
 | Registro de accesos de la API | `morgan` (formato combined) | Implementado, sin centralizar |
 | Integridad de la réplica | `v_conciliacion_pagos` (0 filas = sin eventos perdidos) | Implementado |
-| Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO medido por prueba) | Implementado |
+| Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO medido y collation verificada en cada prueba) | Implementado |
+| Respaldos diarios de MySQL | Temporizador `academia-respaldo` de systemd en el VPS; `journalctl` registra cada ejecución | Implementado (2026-10-24) |
+| Sincronizaciones hacia MySQL | Registro de la API con la hora y el estado de cada `POST /api/sync`, y avisos `[sync]` en la consola del panel | Implementado, sin alertas |
 | Historial de despliegues del frontend | Panel de Vercel (en producción: commit `c06f5a2`, 2026-10-24) | Disponible |
 | Alertas automáticas de caída | — | **Brecha**: plan de mejora 4.5 |
 | Errores en el navegador | 105 llamadas `console.*` sin centralizar | **Brecha**: plan de mejora 4.5 |
@@ -180,8 +184,9 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 |---|---|---|
 | Frontend (Vercel) | Promover el despliegue anterior desde el panel (inmediato) o revertir el commit | Historial de despliegues de Vercel |
 | Reglas de Firestore | Revertir el commit; el pipeline publica la versión anterior ya probada. La consola de Firebase conserva el historial de rulesets. | Ruleset de producción identificado por id y fecha |
-| API local | `git checkout <versión>`, `npm run build`, `pm2 restart cermat-api` | `server/package.json` |
-| Base MySQL | `scripts/backup.js` (con `--routines`, SHA-256) y `scripts/restore.js` (verificación, RTO) | RTO medido: 0,23 s en la base real (REC-05, 2026-10-24) y 0,27–0,38 s en la base de prueba |
+| API y analítica (VPS) | Volver a la copia guardada antes de cada cambio (`dist.antes-AAAAMMDD` y `main.py.antes-AAAAMMDD`) y reiniciar con PM2 como `academia` | Manual de despliegue §9.6.2 |
+| Migración de la base | Respaldo previo con `backup.js`, servicios detenidos y migraciones re-ejecutables | Manual de despliegue §9.6.1 |
+| Base MySQL | `scripts/backup.js` (con `--routines`, SHA-256) y `scripts/restore.js` (verificación, RTO y collation) | RTO medido: 0,23 s en la base real (REC-05), 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14), todos del 2026-10-24; 0,27–0,38 s en la base de prueba |
 | Datos de Firestore | — | **Brecha**: respaldo programado en el plan de mejora |
 
 ### 2.6 Análisis del incidente: reglas sin publicar desde junio
@@ -214,11 +219,33 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 | Base MySQL real (`cermat_db`) | Respaldo previo con SHA-256 y revisión de restricciones sin conflictos. Migraciones 02–04 aplicadas: 3 FK, 7 CHECK, 4 funciones, 5 procedimientos, 6 triggers, 3 vistas y 4 roles. El único pago sin matrícula quedó con una matrícula provisional, visible en `v_conciliacion_pagos` |
 | Cuentas de mínimo privilegio | `cermat_api`, `cermat_analitica` y `cermat_respaldo`, con contraseñas aleatorias de 32 caracteres solo en `server/.env.local` y `analytics/.env.local` (no versionados). INSERT y DELETE directos de la API, y UPDATE de la analítica → error 1142 |
 | Respaldo y restauración en la base real (REC-05) | `backup.js` con `cermat_respaldo`; `restore.js` en `cermat_db_verificacion`: RTO 0,23 s, filas, 9 rutinas, 6 triggers y 3 vistas completos |
-| API y analítica | En línea con PM2; ambos `/health` responden con MySQL conectado, cada uno con su cuenta. Se corrigió el arranque de la analítica, que fallaba por una inicialización doble de Firebase |
+| API y analítica | En línea en el VPS del colegio desde el 2026-10-24: PM2 bajo el usuario `academia` con arranque por systemd, puertos solo en 127.0.0.1 y Nginx con HTTPS en `api-academia` y `analitica-academia`. Ambos `/health` responden con MySQL conectado, cada uno con su cuenta. Se corrigió el arranque de la analítica, que fallaba por una inicialización doble de Firebase |
+| Restauración en otro servidor | El respaldo de la PC se restauró en el VPS en 0,33 s (REC-13), y el primer respaldo diario del VPS se restauró en la PC en 0,41 s (REC-14) |
+| Prueba de punta a punta | A las 22:10 y 22:11, dos cambios de estado de la pre-matrícula de prueba llegaron al MySQL del VPS con respuesta 200 |
+| Respaldo diario | Temporizador de systemd en el VPS a las 03:00; primera ejecución correcta a las 22:18 |
+| Carga inicial de la réplica | A las 22:56, `cargaInicial.ts` copió lo que Firestore ya tenía, con las mismas validaciones y procedimientos que `/api/sync`. El MySQL del VPS pasó de 2 matrículas (1 provisional), 1 pago y 0 asistencias a 10 matrículas (0 provisionales), 2 pagos y 7 asistencias, sin rechazos ni errores. Repetirla no duplica |
+| Sitio del colegio | 5 de 5 cabeceras de seguridad y versión de Nginx oculta; la página sigue sirviendo los mismos 17 911 bytes |
 
 Las pruebas como visitante se hicieron con consultas REST sin credenciales que solo informan si la operación fue permitida o denegada, sin mostrar datos. Las de la base real se ejecutaron entre las 16:29 y las 16:40 (UTC−5), sin mostrar contraseñas.
 
+Las capturas del día, con los datos personales tapados, están en [Evidencias del despliegue del 2026-10-24](infraestructura/evidencias-despliegue-2026-10-24.md).
+
 **Lección aprendida.** Los despliegues de `05fbe9e` y `e96eea1` quedaron en estado *Blocked* en Vercel (plan Hobby), y el push no lo mostraba; el propietario lo resolvió desde su cuenta. Desde ahora un cambio se da por terminado solo cuando la versión en producción se verifica (bundle y cabeceras), no al hacer push.
+
+### 2.8 Análisis del incidente: sincronización con el VPS (INC-06)
+
+| Aspecto | Detalle |
+|---|---|
+| Detección | 2026-10-24, 20:40 y 20:42. Al cancelar la pre-matrícula de prueba, la consola mostró `[sync] /api/sync/enrollment respondió 500` y el registro de la API, `Data truncated for column 'turno' at row 1` |
+| Impacto | Ninguna matrícula con turno mañana, el valor por defecto, llegaba a MySQL. Una réplica del VPS mostró que además fallaban la asistencia por QR, las funciones de saldo y `sp_estado_cuenta`. Firebase siguió operando, porque la sincronización no bloquea al usuario |
+| Causa raíz 1 | La etiqueta `mañana` del ENUM `matriculas.turno` estaba guardada como `ma├▒ana`. En junio la tabla se creó desde una sesión en cp850 y `schema.sql` no fijaba la codificación. El VPS la heredó con el respaldo |
+| Causa raíz 2 | La base del VPS se creó con `utf8mb4_unicode_ci`. Las tablas del respaldo traen `utf8mb4_0900_ai_ci`, y las rutinas toman la collation de la base: `Illegal mix of collations` |
+| Causa raíz 3 | El `EXIT HANDLER FOR SQLEXCEPTION` de los procedimientos no atrapa errores de clase 01, como el 1265 en modo estricto. La API devolvía al pool la conexión con la transacción abierta. Por eso el `ALTER` de la corrección esperó más de 20 minutos, y la siguiente llamada en esa conexión habría guardado escrituras a medias |
+| Contención | API y analítica detenidas desde otra ventana: MySQL deshizo la transacción y liberó el bloqueo |
+| Corrección (22:06) | Migración `05_corregir_turno.sql` y `SET NAMES utf8mb4` en todos los scripts. Base del VPS en `utf8mb4_0900_ai_ci`, rutinas re-creadas con `03` y permisos repuestos con `04`. La API cierra la conexión cuando una llamada falla (`ejecutar` en `server/src/db/mysql.ts`) y la analítica cierra siempre la suya. `restore.js` crea la base con la collation del respaldo y la verifica |
+| Verificación | Cada defecto se reprodujo primero en la PC: con la llamada exacta de la API, con una réplica del VPS (misma collation y mismo respaldo) y con MySQL real. Con MySQL real, antes el `ALTER` quedaba bloqueado; después pasó en 51 ms y sin escrituras a medias. Las 19 pruebas de la base pasan incluso cargando los scripts desde cp850, y 2 pruebas nuevas cubren la conexión |
+| Recuperación | A las 22:10 y 22:11, dos cambios de estado de la pre-matrícula de prueba llegaron a MySQL con respuesta 200 |
+| Prevención | Migraciones con los servicios detenidos y una espera máxima de 60 s. Reproducir cada falla en una réplica antes de tocar producción. `restore.js` verifica la collation, y la prueba de restauración ejecuta las funciones en la copia |
 
 ## Sección 3: Gestión Ágil del Proyecto de Software
 
@@ -265,6 +292,9 @@ Las pruebas como visitante se hicieron con consultas REST sin credenciales que s
 | PB-10 | Carga diferida de páginas (bundle inicial de 2,8 MB) | Media | Pendiente |
 | PB-11 | Respaldo programado de Firestore con prueba de restauración | Media | Pendiente |
 | PB-12 | Pruebas de componentes de matrícula y pagos | Media | Pendiente |
+| PB-13 | Operación continua de la capa relacional (VM-APP01 o VPS puente) | Alta | En curso (2026-10-24): API, MySQL y analítica 24/7 en el VPS del colegio, con HTTPS y prueba de punta a punta; faltan los 30 días sin diferencias de conciliación y el monitor de `/health` ([Gestión TI E3](gestion-ti/e3-plan-gestion-proyecto-ce0121.md), CR-03) |
+| PB-18 | Respaldo diario automático de MySQL y copia verificada fuera del VPS | Alta | Hecho (2026-10-24): temporizador de systemd y REC-14 |
+| PB-19 | Carga inicial en MySQL de los datos anteriores de Firestore y reintento de los envíos fallidos | Media | En parte (2026-10-24): carga inicial hecha (10 matrículas, 2 pagos y 7 asistencias; 0 provisionales); el reintento sigue pendiente (decisión del equipo) |
 
 ### 3.4 Sprint Backlog — Sprint 1 "Calidad y seguridad"
 
@@ -285,6 +315,10 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Publicar reglas y verificarlas en producción | PB-04 | Hecho | Sección 2.7 |
 | Rotar la clave de servicio y las contraseñas expuestas | PB-06 | Hecho | Sección 2.7 |
 | Aplicar las migraciones MySQL en la base real | PB-05 | Hecho | Sección 2.7; REC-05 |
+| Llevar la capa relacional al VPS del colegio | PB-13 | Hecho | Manual de despliegue §9; PR-38 y PR-39 |
+| Corregir los 3 defectos de la base hallados en el VPS | — | Hecho | Sección 2.8; 2 pruebas nuevas de API |
+| Respaldo diario en el VPS y copia verificada en la PC | PB-18 | Hecho | REC-14 |
+| Carga inicial de Firestore a MySQL en el VPS | PB-19 | Hecho | 7 pruebas nuevas de API; sección 2.7 |
 
 ### 3.5 Ceremonias y métricas de avance
 
@@ -295,12 +329,13 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Revisión | Fin de sprint, con la Dirección | Acta con la aceptación de las historias |
 | Retrospectiva | Fin de sprint | Acciones de mejora (abajo) |
 
-**Métricas del Sprint 1 (al 2026-10-24):** 12 de 13 tareas hechas. Pruebas automáticas: de 0 a 90. Errores de TypeScript: de 66 a 0. Defectos corregidos en código: 15.
+**Métricas del Sprint 1 (al 2026-10-24):** 16 de 17 tareas hechas. Pruebas automáticas: de 0 a 99. Errores de TypeScript: de 66 a 0. Defectos corregidos en código: 18.
 
 - **3 críticos de seguridad en producción**, cerrados en producción el 2026-10-24.
 - **4 de lógica de datos:** riesgo calculado sobre 30 días calendario, alumnos sin asistencias que no aparecían en el cálculo de riesgo, docentes contados como alumnos y fecha UTC en el registro manual de asistencia.
 - **7 funcionales hallados al eliminar los errores de tipos:** fechas del blog como "Invalid Date", post sin imagen que no se podía guardar, fecha de publicación reiniciada al editar, post sin autor, vínculo del alumno vacío en la réplica, animación de la galería que no corría y un ejemplo inválido de código de padres.
 - **1 de operación, hallado al levantar la capa local:** la analítica no arrancaba con `python main.py` porque `uvicorn.run("main:app")` reimportaba el módulo y Firebase se inicializaba dos veces, lo que dejaba a PM2 en un ciclo de reinicios. Se corrigió pasando el objeto `app`; el defecto venía del commit `e574500` (19-ago).
+- **3 de la base relacional, hallados al llevarla al VPS** ([sección 2.8](#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06)): la etiqueta `mañana` dañada desde junio, las rutinas del VPS con otra collation que las tablas y la transacción que quedaba abierta tras errores de clase 01.
 
 **Retrospectiva del Sprint 1:**
 
@@ -310,6 +345,7 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Verificar producción después de publicar mostró que Vercel había bloqueado dos despliegues | Los push `05fbe9e` y `e96eea1` quedaron *Blocked* sin que el equipo lo notara | Dar un cambio por terminado solo al verificar la versión en producción (bundle y cabeceras) |
 | Las pruebas de BD en un MySQL aislado no tocaron datos reales | Ejecutar SQL con `cmd /c` desde PowerShell provocó una cuarentena del antivirus (falso positivo) | Ejecutar scripts desde Git Bash; excepción en el antivirus para `server/src/db` |
 | Los hallazgos quedaron documentados con su evidencia | El historial de git muestra un solo autor y commits genéricos ("mejoras") | Commits descriptivos y cambios revisados por un segundo integrante (sección 4.2) |
+| Reproducir cada falla en una réplica del VPS antes de tocar producción permitió corregir los tres defectos de una vez | La migración se aplicó con los servicios encendidos y quedó bloqueada más de 20 minutos por una transacción abierta | Migraciones con los servicios detenidos y una espera máxima de 60 s; la API cierra la conexión ante un error |
 
 ### 3.6 Comparación con otros marcos de proceso
 
@@ -334,14 +370,14 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 en producción desde el 2026-10-24 (3 con las reglas de junio) | 0 publicadas | Bajo |
 | Seguridad | Integridad | Restricciones de BD que rechazan datos inválidos | 6 de 6 | 100 % | Bajo |
 | Seguridad | Responsabilidad | Cambios de pagos y matrículas auditados | 100 % (triggers) | 100 % | Bajo |
-| Fiabilidad | Recuperabilidad | RTO de MySQL medido | 0,23 s en la base real (REC-05); 0,27–0,38 s en la base de prueba | < 1 h | Medio (falta programar el respaldo diario: RPO ≤ 24 h) |
+| Fiabilidad | Recuperabilidad | RTO de MySQL medido | 0,23 s en la base real (REC-05); 0,33 s y 0,41 s en otro servidor (REC-13 y REC-14); 0,27–0,38 s en la base de prueba | < 1 h | Bajo (respaldo diario desde el 2026-10-24: RPO ≤ 24 h) |
 | Fiabilidad | Disponibilidad | Disponibilidad medida por monitor externo | No medida | 99 % mensual | **Alto** |
 | Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 0 (66 al inicio del sprint) | 0 | Bajo |
 | Mantenibilidad | Modificabilidad | Usos de `any` (ESLint: src, server, scripts) | 233 (240 al inicio del sprint) | < 120 | Medio |
-| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 90 | En aumento cada sprint | Bajo |
+| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 99 | En aumento cada sprint | Bajo |
 | Mantenibilidad | Modularidad | Archivos de más de 800 líneas | 8 | ≤ 3 | Medio |
 | Eficiencia de desempeño | Comportamiento temporal | JS inicial | 2,84 MB (781 KB gzip) | < 1 MB | Medio |
-| Compatibilidad | Interoperabilidad | Diferencias Firestore ↔ MySQL | Vista de conciliación disponible | 0 filas | Bajo |
+| Compatibilidad | Interoperabilidad | Diferencias Firestore ↔ MySQL | Vista de conciliación disponible; los datos anteriores se cargaron el 2026-10-24 (0 matrículas provisionales); falta el reintento de los envíos fallidos (PB-19) | 0 filas | Medio |
 
 ### 4.2 Instrumentos de aseguramiento
 
@@ -357,7 +393,7 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 
 **Atributos internos (medidos):** 41 748 líneas en `src/`, organizadas en 13 módulos de dominio; TypeScript sin modo estricto pero con 0 errores; 233 usos de `any`; 8 archivos de más de 800 líneas.
 
-**Atributos externos:** 15 defectos corregidos en este sprint, encontrados por las pruebas, por la revisión de tipos y al poner en marcha la capa local (sección 3.5).
+**Atributos externos:** 18 defectos corregidos en este sprint, encontrados por las pruebas, por la revisión de tipos, al poner en marcha la capa local y al llevarla al VPS (secciones 2.8 y 3.5).
 
 | Code smell | Evidencia | Impacto | Acción |
 |---|---|---|---|
@@ -379,6 +415,9 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | 66 errores de TypeScript que ocultaban 7 defectos funcionales | 0 errores. En 19 de 20 archivos el JavaScript generado es idéntico (verificado con el compilador de Vite); los defectos se corrigieron aparte, con pruebas |
 | Conversión de fechas repetida con `new Date(...)` sobre un `Timestamp` | Un solo helper probado, `toDateSafe` |
 | `any` en la sincronización de matrículas | Tipos de dominio `SyncEnrollment` |
+| Scripts SQL sin codificación declarada: una sesión en cp850 dañó la etiqueta `mañana` | `SET NAMES utf8mb4` en todos los scripts y migración 05 |
+| La API devolvía al pool conexiones con una transacción abierta tras errores de clase 01 | La API cierra la conexión cuando una llamada falla (`ejecutar`), con 2 pruebas |
+| `restore.js` creaba la base con una collation fija y solo contaba objetos | Crea la base con la collation del respaldo y verifica que coincida con la de las rutinas |
 
 ### 4.4 Informe de auditoría técnica
 
@@ -403,7 +442,7 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 |---|---|---|
 | Desarrollo y gestión de requisitos (RDM) | RF01–RF22, RNF01–RNF10 y trazabilidad | Ampliamente implementada |
 | Solución técnica (TS) | Arquitectura y decisiones documentadas | Ampliamente implementada |
-| Verificación y validación (VV) | 90 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
+| Verificación y validación (VV) | 99 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
 | Aseguramiento de calidad del proceso (PQA) | 104 auditorías por fase | Ampliamente implementada |
 | Integración de producto (PI) | Pipeline que integra 4 componentes | Parcialmente implementada (falta la primera ejecución) |
 | Planificación (PLAN) | Charter y backlog recientes | Parcialmente implementada |
@@ -429,7 +468,8 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | 8 | Tipar los módulos de dinero y asistencia | Usos de `any` | < 120 | Sprints 2–3 |
 | 9 | Pruebas de componentes de matrícula y pagos | Casos de componentes | ≥ 20 | Sprint 3 |
 | 10 | Respaldo programado de Firestore con prueba de restauración | RPO | ≤ 24 h | Sprint 3 |
-| 11 | Programar el respaldo diario de MySQL y el arranque automático de PM2 (`pm2 save` e inicio con Windows) | RPO de MySQL | ≤ 24 h | Sprint 2 |
+| 11 | Programar el respaldo diario de MySQL y el arranque automático de los servicios | RPO de MySQL | ≤ 24 h | Hecho (2026-10-24): temporizador de systemd y servicio `pm2-academia` en el VPS |
+| 12 | Reintento de los envíos fallidos a MySQL (PB-19; la carga inicial se hizo el 2026-10-24) | Diferencias en `v_conciliacion_pagos` | 0 filas | Por decidir |
 
 Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestionado).
 

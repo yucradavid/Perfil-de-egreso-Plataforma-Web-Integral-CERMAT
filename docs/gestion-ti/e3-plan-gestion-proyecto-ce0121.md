@@ -115,7 +115,7 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 | 3.3 | Asistencia QR y consulta de padres | QR firmado, registro diario y consulta por código | Equipo | 90 | S/ 2 250 | Real |
 | 3.4 | Portales por rol | Admin, docente, alumno y auxiliar con rutas protegidas | Equipo | 110 | S/ 2 750 | Real |
 | 3.5 | Capa local | API, MySQL y analítica con PM2 | Equipo | 60 | S/ 1 500 | Real |
-| 4.1 | Pruebas automáticas y CI (PB-01) | 90 pruebas y 6 trabajos de CI | Equipo | 40 | S/ 1 000 | Real |
+| 4.1 | Pruebas automáticas y CI (PB-01) | 99 pruebas y 6 trabajos de CI | Equipo | 40 | S/ 1 000 | Real |
 | 4.2 | Corrección de reglas (PB-02) | 19 de 19 pruebas en el emulador | Equipo | 12 | S/ 300 | Real |
 | 4.3 | Capa de datos MySQL (PB-03) | Integridad, roles, respaldo y restauración probada | Equipo | 24 | S/ 600 | Real |
 | 4.4 | 0 errores de TypeScript (PB-07) | `npm run typecheck` sin errores y 7 defectos corregidos | Equipo | 12 | S/ 300 | Real |
@@ -125,7 +125,7 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 | 5.2 | Publicar reglas (PB-04) | 19 de 19 pruebas contra lo publicado y una matrícula sin sesión verificada | Líder | 4 | S/ 100 | Planificado; ejecutado el 2026-10-24 |
 | 5.3 | Migraciones en la base real (PB-05) | Migraciones aplicadas y 19 pruebas de BD en verde | Equipo | 4 | S/ 100 | Planificado; ejecutado el 2026-10-24 (migraciones 02–04 en `cermat_db`, cuentas de mínimo privilegio y restauración REC-05 verificadas) |
 | 5.4 | Retirar secretos (PB-06) | 0 archivos sensibles en el historial; clave rotada | Líder | 6 | S/ 150 | Planificado; clave rotada el 2026-10-24 (los `.env`, sin contraseñas, siguen versionados por decisión del equipo) |
-| 5.5 | Capa relacional continua (PB-13) | Servicio continuo en VM-APP01 o VPS puente; 30 días sin diferencias de conciliación | Equipo | 16 | S/ 400 | Planificado |
+| 5.5 | Capa relacional continua (PB-13) | Servicio continuo en VM-APP01 o VPS puente; 30 días sin diferencias de conciliación | Equipo | 16 | S/ 400 | Planificado; en curso desde el 2026-10-24: servicio continuo en el VPS del colegio (CR-03); faltan los 30 días sin diferencias de conciliación |
 | 5.6 | Monitor con alertas (PB-08) | Alertas sobre la URL y `/health` | Equipo | 4 | S/ 100 | Planificado |
 | 5.7 | Carga diferida (PB-10) | JS inicial < 1 MB | Equipo | 8 | S/ 200 | Planificado |
 | 5.8 | Respaldo de Firestore (PB-11) | Exportación programada y restauración probada (RPO ≤ 24 h) | Equipo | 12 | S/ 300 | Planificado |
@@ -152,8 +152,9 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 
 | ID | Fecha | Cambio | Motivo | Decisión |
 |---|---|---|---|---|
-| CR-01 | 2026-10-24 | La capa relacional se aloja en VM-APP01 o en un VPS puente, no en el VPS del colegio (PB-13) | El diseño de CE03 reserva el VPS de 2 GB para componentes ligeros | Incorporado en este plan |
+| CR-01 | 2026-10-24 | La capa relacional se aloja en VM-APP01 o en un VPS puente, no en el VPS del colegio (PB-13) | El diseño de CE03 reserva el VPS de 2 GB para componentes ligeros | Incorporado en este plan; la exclusión del VPS del colegio quedó sustituida por CR-03 |
 | CR-02 | 2026-10-24 | La integración con el sistema del colegio pasa a una fase posterior | Integrar antes de lograr adopción multiplica el riesgo sin valor (E1, 1.5) | Incorporado en este plan |
+| CR-03 | 2026-10-24 | Mientras no exista VM-APP01, la capa relacional se aloja en el VPS del colegio, con un usuario propio y servicios solo en 127.0.0.1 (PB-13) | La PC solo sincronizaba encendida. La medición dejó 1,3 GiB disponibles con todo en marcha, por encima del 25 % que exige el diseño (S1-E2 §10.5) | Aplicado el 2026-10-24 por el equipo técnico; queda pendiente su aprobación formal según este procedimiento |
 
 ## 3.3 Gestión del cronograma
 
@@ -352,11 +353,11 @@ El backlog del producto (PB-01 a PB-12, con prioridad y estado) está en el [E4 
 
 | Métrica | Fórmula | Valor al 2026-10-24 | Meta |
 |---|---|---|---|
-| Avance del sprint | Tareas hechas ÷ tareas del sprint | 12 de 13 (92 %) en el Sprint 1 | 100 % al cierre de cada sprint |
+| Avance del sprint | Tareas hechas ÷ tareas del sprint | 16 de 17 (94 %) en el Sprint 1, al 2026-10-24 | 100 % al cierre de cada sprint |
 | Velocidad | Horas de ítems terminados por sprint | Sin registro (empieza en el Sprint 2) | Estable ±15 % |
 | Desvío de estimación | Horas reales ÷ horas estimadas por ítem | Sin registro | Entre 0,85 y 1,15 |
 | Defectos escapados a producción | Defectos encontrados en producción por sprint | 3 críticos heredados de junio | 0 |
-| Pruebas automáticas | Total en CI | 90 | En aumento cada sprint |
+| Pruebas automáticas | Total en CI | 99 | En aumento cada sprint |
 | Exposición de riesgo | Suma de P × I abiertos | 89 (117 antes de cerrar R-01 y R-05 el 2026-10-24) | ≤ 40 al cierre |
 
 Las ceremonias (planificación, seguimiento diario asíncrono, revisión con la Dirección y retrospectiva) y la retrospectiva del Sprint 1 están en el [E4 de Software, 3.5](../e4-calidad-operacion-ce024.md#35-ceremonias-y-metricas-de-avance).

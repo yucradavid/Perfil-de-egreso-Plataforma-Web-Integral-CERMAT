@@ -23,11 +23,11 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 | 3–4 | Aprobación y pago | `/admin/matriculas`, `/admin/pagos` | Máquina de estados; un pago no se borra, se anula con autor |
 | 4–5 | Asistencia por QR | Portal auxiliar | QR firmado; entrada y salida alternan por día |
 | 5–6 | Consulta de padres | `/consulta-asistencia` | Código sin caracteres ambiguos, solo lectura |
-| 6–8 | Calidad | Pestaña *Actions* o terminal | 90 pruebas; las reglas de junio fallaban 10 de 19, las corregidas pasan todas y están publicadas desde el 2026-10-24 |
+| 6–8 | Calidad | Pestaña *Actions* o terminal | 99 pruebas; las reglas de junio fallaban 10 de 19, las corregidas pasan todas y están publicadas desde el 2026-10-24 |
 | 8–9 | Datos | Salida de `92_pruebas_bd.sql` y de `restore.js` | Integridad en la base, auditoría y RTO medido |
 | 9–10 | Cierre | Plan de mejora del E4 | Qué falta, por qué y con qué métrica se medirá |
 
-**Plan B sin Internet:** ejecutar en local `npm run test:rules` (emulador) y las pruebas de la base en MySQL local, y mostrar las capturas del [E1](e1-definicion-sistema-ce021.md#22-pantallas-principales).
+**Plan B sin Internet:** ejecutar en local `npm run test:rules` (emulador) y las pruebas de la base en MySQL local, y mostrar las capturas del [E1](e1-definicion-sistema-ce021.md#22-pantallas-principales) y las del [despliegue del 2026-10-24](infraestructura/evidencias-despliegue-2026-10-24.md).
 
 ## 3. Mensajes clave por entregable
 

@@ -17,7 +17,7 @@
 
 Los datos sostienen tres decisiones de la academia: quién está matriculado y cuánto debe, quién asiste y quién está en riesgo de abandonar, y qué se cobró y por qué medio. La operación diaria escribe en **Firestore** (22 colecciones protegidas por reglas por rol). Cada matrícula, pago y marca de asistencia se replica en **MySQL 8.0** mediante una API que **solo escribe a través de procedimientos almacenados**.
 
-En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones. Desde el 2026-10-24 la base real `cermat_db` tiene estas migraciones y sus cuentas de servicio, con el mínimo privilegio verificado en ella (secciones 2.3 y 4.1).
+En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones. Desde el 2026-10-24 la base real `cermat_db` tiene estas migraciones y sus cuentas de servicio, con el mínimo privilegio verificado en ella (secciones 2.3 y 4.1). Ese mismo día la base pasó al VPS del colegio, donde tiene respaldo diario, y su restauración se probó también en otro servidor (sección 4.3). Esa noche recibió, con una carga inicial, los datos que Firestore ya tenía: quedó con 10 matrículas, 2 pagos y 7 asistencias (sección 2.3).
 
 ## Sección 1: Modelo de Datos
 
@@ -165,6 +165,9 @@ erDiagram
 | `02_integridad.sql` | 3 FK, 7 CHECK, columnas `completa`, `firestore_log_id` y `sujeto_tipo`, índices compuestos `idx_ciclo_estado`, `idx_estado_fecha`, `idx_sujeto_fecha` y `idx_alumno_tipo_resuelta`. Convierte `''` en `NULL` y crea las filas padre faltantes de datos ya replicados, para que las FK se puedan aplicar sobre una base en uso. |
 | `03_programacion.sql` | Tabla `auditoria`, funciones, procedimientos, triggers y vistas |
 | `04_seguridad.sql` | Roles y privilegios |
+| `05_corregir_turno.sql` | Corrige la etiqueta `mañana` del ENUM `matriculas.turno`, dañada al crear la tabla desde una sesión en cp850. Sus sentencias van solo en ASCII (la «ñ» en hexadecimal) y es re-ejecutable |
+
+Todos los scripts empiezan con `SET NAMES utf8mb4`. Sin eso, una consola de Windows en cp850 guarda mal la «ñ» y las tildes: así se dañó la etiqueta `mañana` en junio.
 
 Fragmento de `02_integridad.sql`:
 
@@ -203,6 +206,17 @@ Migración aplicada sobre una base que ya tenía datos replicados con la versió
 2. Revisión previa sin conflictos: estaban todas las columnas que usan las migraciones y el único pago cumple los CHECK.
 3. Migraciones 02, 03 y 04 aplicadas: 3 FK, 7 CHECK, 4 funciones, 5 procedimientos, 6 triggers, 3 vistas y 4 roles; `schema_migraciones` con 3 filas.
 4. La matrícula del único pago no existía, así que la migración creó una provisional (`completa = 0`). `v_conciliacion_pagos` la muestra hasta que llegue la real, como está diseñado.
+
+**Migración 05 (2026-10-24, noche).** Primero se aplicó en la PC, después del respaldo `cermat_db_2026-10-25T01-51-20.sql` (el nombre va en hora UTC; eran las 20:51 en Perú), y después en el VPS, a las 22:06. La etiqueta `mañana` quedó correcta en la tabla y en la vista `v_estado_cuenta`, y `schema_migraciones` registra 002 a 005. Antes de aplicarla, la llamada exacta de la API reprodujo el error de producción (`1265 Data truncated`); después pasó.
+
+**Carga inicial desde Firestore (2026-10-24, 22:56).** La sincronización solo envía las altas y los cambios nuevos, así que MySQL no tenía lo que Firestore ya guardaba. `server/src/scripts/cargaInicial.ts` lo copió una sola vez:
+
+- Usa las mismas validaciones que `/api/sync` (`server/src/sync/esquemas.ts`) y los mismos procedimientos, con la cuenta de la API. En la auditoría queda como `carga-inicial`.
+- Va en orden (matrículas, pagos y asistencias) para que ningún pago cree una matrícula provisional.
+- Calcula la hora de cada marcación en hora de Perú, aunque el VPS esté en UTC.
+- Es idempotente. En la PC se escribió dos veces sobre una copia del último respaldo del VPS, y la segunda no agregó asistencias.
+
+En el VPS, después de un respaldo previo, el modo de prueba encontró válidas las 10 matrículas, los 2 pagos y las 7 asistencias de Firestore, sin rechazos. La carga con `--escribir` llevó la base de 2 matrículas (1 provisional), 1 pago y 0 asistencias a **10 matrículas (0 provisionales), 2 pagos y 7 asistencias**, sin errores. La matrícula provisional del punto 4 recibió así sus datos reales.
 
 !!! note "Capturas a adjuntar"
     `SHOW CREATE TABLE pagos;` · `SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='cermat_db';` · `SELECT * FROM schema_migraciones;` (comandos en `server/src/db/README.md`).
@@ -254,6 +268,9 @@ Fragmento de `sp_sync_pago`:
   ON DUPLICATE KEY UPDATE estado = p_estado, monto = p_monto;
   COMMIT;
 ```
+
+!!! warning "Lo que el manejador no atrapa"
+    El `EXIT HANDLER FOR SQLEXCEPTION` no atrapa errores de clase 01, como el 1265 (`Data truncated`) en modo estricto, que MySQL informa con SQLSTATE 01000. En ese caso el `ROLLBACK` no se ejecuta y la transacción queda abierta en la conexión. La API lo cubre: llama a los procedimientos con `ejecutar()` (`server/src/db/mysql.ts`), que cierra la conexión si la llamada falla, y MySQL deshace la transacción. Así ocurrió el INC-06 del 2026-10-24 ([E4 §2.8](e4-calidad-operacion-ce024.md#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06)).
 
 ### 3.3 Funciones
 
@@ -330,13 +347,17 @@ La tabla `auditoria` registra cada alta, cambio de estado o monto y anulación d
 | Elemento | Implementación |
 |---|---|
 | Respaldo | `server/scripts/backup.js`: `mysqldump --single-transaction --routines --triggers --events` con la cuenta de solo lectura. La contraseña viaja por `MYSQL_PWD`, no por la línea de comandos. Genera `.sha256` y conserva 7. |
-| Programación | **Pendiente de activar** (RPO objetivo ≤ 24 h): `pm2 start scripts/backup.js --name cermat-backup --cron "0 2 * * *" --no-autorestart`, más `pm2 save` y el inicio automático de PM2 con Windows |
-| Recuperación | `server/scripts/restore.js`: verifica el hash, restaura en `cermat_db_verificacion`, mide el RTO y compara filas, rutinas, triggers y vistas. Restaurar sobre producción exige `--confirmar-produccion`. |
+| Programación | Diaria a las 03:00 de Perú, con un temporizador de systemd en el VPS (`academia-respaldo`, desde el 2026-10-24): RPO ≤ 24 h. Una vez por semana los respaldos se copian a la PC y se verifican |
+| Recuperación | `server/scripts/restore.js`: verifica el hash, restaura en `cermat_db_verificacion`, mide el RTO y compara filas, rutinas, triggers y vistas. Crea la base con la collation de las tablas del respaldo y verifica que coincida con la de las rutinas. Restaurar sobre producción exige `--confirmar-produccion`. |
 | Registro | Cada prueba se anota en `backups/registro-restauraciones.jsonl` |
 
 En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verificación SHA-256 y se restauró en `cermat_db_verificacion` con un RTO medido de 0,38 s. Las filas, rutinas, triggers y vistas restaurados coincidieron con el origen. También se verificó que la restauración rechaza un archivo alterado ("no coincide con su .sha256") y que se niega a escribir sobre la base productiva sin confirmación.
 
 **En la base real (REC-05, 2026-10-24):** `backup.js` generó el respaldo con la cuenta de solo lectura `cermat_respaldo` y su SHA-256. `restore.js` lo restauró en `cermat_db_verificacion` con un **RTO de 0,23 s**; las tablas y filas coincidieron con el origen y las 9 rutinas, 6 triggers y 3 vistas quedaron completos. La prueba quedó anotada en `backups/registro-restauraciones.jsonl`. Los respaldos tienen datos personales, por eso `backups/` está en `.gitignore`.
+
+**En otro servidor (2026-10-24).** El respaldo de REC-05 se restauró en el MySQL del VPS en **0,33 s** (REC-13). El primer respaldo diario del VPS se restauró en la PC en **0,41 s** (REC-14), con la huella verificada, los objetos completos y la collation coherente.
+
+REC-13 mostró que contar objetos no basta. La base del VPS se había creado con `utf8mb4_unicode_ci` y las rutinas tomaron esa collation, distinta de la de las tablas (`utf8mb4_0900_ai_ci`). Por eso la asistencia, las funciones de saldo y `sp_estado_cuenta` fallaban con `Illegal mix of collations`. Desde entonces `restore.js` crea la base con la collation del respaldo y la verifica, y la prueba ejecuta las funciones en la copia restaurada. El detalle está en [S2-E3 §7.2](infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md).
 
 !!! note "Captura a adjuntar"
     Salida de `node scripts/restore.js` de la prueba REC-05 (base real, 2026-10-24), junto con su línea de `backups/registro-restauraciones.jsonl`.
@@ -346,9 +367,10 @@ En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verific
 | Indicador | Fuente |
 |---|---|
 | Disponibilidad de MySQL | `GET /health` de la API y de la analítica (ping a MySQL), mostrado en el panel admin "Infraestructura" |
-| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas. Hoy devuelve 1: el pago que espera su matrícula real |
+| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas. Antes de la carga inicial devolvía 1: el pago que esperaba su matrícula real. La carga trajo esa matrícula (0 provisionales); falta repetir la consulta |
 | Trazabilidad | `SELECT … FROM auditoria ORDER BY id DESC` |
-| Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO y objetos completos por prueba) |
+| Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO, objetos completos y collation por prueba) |
+| Respaldos diarios | `journalctl -u academia-respaldo.service` en el VPS |
 
 ## Pruebas de la capa de datos
 
@@ -374,17 +396,17 @@ En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verific
 | RF07 Pagos | `payments`; `pagos` + `sp_sync_pago` + triggers + `v_estado_cuenta` |
 | RF12–RF14 Asistencia QR | `attendanceLogs`, `attendanceDayState`; `asistencia` idempotente |
 | RF16 Padres | `parentAttendance`, `alumnos.parent_code` |
-| RF21 Sincronización | `syncService` → API → procedimientos; conciliación con `v_conciliacion_pagos` |
+| RF21 Sincronización | `syncService` → API → procedimientos; carga inicial con los mismos procedimientos; conciliación con `v_conciliacion_pagos` |
 | RNF06 Integridad y RNF10 Auditoría | FK, CHECK, triggers, `auditoria` |
 
 ## Anexos
 
 | Anexo | Ubicación |
 |---|---|
-| Scripts completos | `server/src/db/schema.sql`, `02_integridad.sql`, `03_programacion.sql`, `04_seguridad.sql`, `90_datos_prueba.sql`, `91_consultas.sql`, `92_pruebas_bd.sql` |
+| Scripts completos | `server/src/db/schema.sql`, `02_integridad.sql`, `03_programacion.sql`, `04_seguridad.sql`, `05_corregir_turno.sql`, `90_datos_prueba.sql`, `91_consultas.sql`, `92_pruebas_bd.sql` |
 | Capturas de ejecución | Resultado de `92_pruebas_bd.sql` (19/19), de `91_consultas.sql` (consultas + `EXPLAIN`) y de `restore.js` |
 | Resultados de consultas | Salida de `91_consultas.sql` sobre la base de prueba |
-| Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo y recuperación) |
+| Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo, recuperación y carga inicial) |
 | Evidencia de sustentación | Exposición breve ante el docente (pendiente) |
 
 ## Rúbrica de Evaluación

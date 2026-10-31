@@ -62,7 +62,7 @@ Menos tiempo de secretaría y de la Dirección por matrícula, pagos y reportes;
 | A. Mantener el proceso manual | Cuaderno, hojas de cálculo y WhatsApp | Sin desembolso | No controla cupos ni duplicados; sin trazabilidad ni datos para decidir |
 | B. Formularios y hojas compartidas | Formularios y hojas de Google Workspace (el dominio del colegio ya usa correo de Google) | Bajo costo y rápida | Sin transacciones de cupo, sin roles por registro, sin QR ni consulta de padres; hojas compartidas por enlace |
 | C. Software SaaS de gestión académica | Suscripción por alumno a un proveedor | Soporte del proveedor | Modelo de colegio genérico (no ciclos, grupos y turnos de academia); datos y reglas fuera del control de CERMAT; costo recurrente en dólares |
-| D. Plataforma propia (**elegida**) | La plataforma ya construida, con cierre técnico y adopción | Ajuste exacto al proceso; ya probada (90 pruebas) | Depende de mantenimiento propio y de la adopción |
+| D. Plataforma propia (**elegida**) | La plataforma ya construida, con cierre técnico y adopción | Ajuste exacto al proceso; ya probada (99 pruebas) | Depende de mantenimiento propio y de la adopción |
 | E. Extender el sistema del colegio | Construir los módulos de la academia en Laravel y Angular | Integración nativa con el colegio | Rehacer ≈ 400 h de trabajo; no estaría lista para la campaña 2027 |
 
 ### Criterios de evaluación
@@ -186,7 +186,7 @@ Los costos **reales conocidos** son: VPS RackNerd US$ 35,99 al año; Vercel en p
 | S31 | VPS institucional imputado a la academia | US$ por año | US$ 35,99 | US$ 35,99 | US$ 35,99 | Costo real del plan RackNerd vigente. Se imputa completo por prudencia: copia externa de respaldos y VPN de la capa relacional (diseño CE03) o VPS puente del mismo plan mientras no exista VM-APP01. | Real (costo); imputación supuesta |
 | S32 | Firebase | US$ por año | US$ 60,00 | US$ 0,00 | US$ 0,00 | Plan gratuito con el uso actual (real). El escenario pesimista reserva US$ 5 al mes por exceso de cuota o por pasar al plan Blaze. | Real (US$ 0 hoy); reserva supuesta |
 | S33 | Operación: monitoreo, respaldos y usuarios | h por mes | 3 | 2 | 1,5 | Rutina diaria, semanal y mensual de operación (E5). | Supuesto a validar |
-| S34 | Mantenimiento correctivo y evolutivo | h por mes | 5 | 3 | 2 | Actualización de dependencias y correcciones; el CI con 90 pruebas reduce el esfuerzo de verificación. | Supuesto a validar |
+| S34 | Mantenimiento correctivo y evolutivo | h por mes | 5 | 3 | 2 | Actualización de dependencias y correcciones; el CI con 99 pruebas reduce el esfuerzo de verificación. | Supuesto a validar |
 | S35 | Horas del Product Owner (Dirección) | h | 12 | 12 | 12 | Hoja Presupuesto, fila C.1. | Supuesto a validar |
 | S36 | Horas de la Dirección en revisiones de sprint | h | 3 | 3 | 3 | Hoja Presupuesto, fila C.2. | Supuesto a validar |
 | S37 | Horas de capacitación del personal administrativo y auxiliar | h | 9 | 9 | 9 | Hoja Presupuesto, fila C.3. | Supuesto a validar |
@@ -342,7 +342,7 @@ Escala 1 a 5 de probabilidad (P) e impacto (I); nivel por P × I: Bajo 1–4, Me
 | RB-01 | Adopción como la del piloto: el personal sigue con cuaderno | 4 | 4 | 16 Crítico | VAN base de S/ 1 247 a S/ −2 726 con la adopción pesimista | Disposición de canal único, registro rápido, capacitación y meta mensual | Dirección |
 | RB-02 | La matrícula pública vuelve a bloquearse (por ejemplo, por un despliegue que no llega a producción) o no se usan las alertas | 3 | 4 | 12 Alto | Sin captación ni retención, el VAN base baja a S/ −2 019 | Reglas corregidas publicadas y matrícula sin sesión verificada el 2026-10-24; publicar solo tras las 19 pruebas y verificar producción después de cada cambio | Equipo técnico |
 | RB-03 | El equipo no completa el cierre técnico y CERMAT lo contrata | 2 | 4 | 8 Medio | VAN base de S/ 1 247 a S/ −2 933 | Cierre dentro de los Sprints 1 a 3 y transferencia de conocimiento (C.5) | Líder del proyecto |
-| RB-04 | Mayor esfuerzo de operación y mantenimiento | 3 | 3 | 9 Medio | Con 3 + 5 h al mes, el VAN base baja a S/ −915 | CI con 90 pruebas, monitor con alertas y backlog priorizado | Responsable técnico |
+| RB-04 | Mayor esfuerzo de operación y mantenimiento | 3 | 3 | 9 Medio | Con 3 + 5 h al mes, el VAN base baja a S/ −915 | CI con 99 pruebas, monitor con alertas y backlog priorizado | Responsable técnico |
 | RB-05 | Volumen real menor al supuesto | 3 | 4 | 12 Alto | Con 40 matrículas por ciclo, VAN ≈ S/ 0 (S/ −2) | Validar el volumen con secretaría antes del 2026-12-04 | Product Owner |
 | RB-06 | Cambio de precio o de plan del hosting | 2 | 3 | 6 Medio | Con 2 miembros Pro, VAN base S/ −713 | Un solo miembro con permiso de despliegue; evaluar alternativa sin costo | Dirección |
 | RB-07 | Tipo de cambio desfavorable | 2 | 2 | 4 Bajo | Con S/ 3,74 por dólar, VAN base S/ 1 021 | Pago anual o en soles cuando sea posible | Dirección |

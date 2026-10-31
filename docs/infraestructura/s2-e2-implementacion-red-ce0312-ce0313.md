@@ -37,18 +37,21 @@
 | Perímetro de la nube (UFW: entrada denegada; 22, 80 y 443/tcp) | **Implementado** | Manual del VPS (2026-10-17), PR-01 |
 | Base de datos de la nube no expuesta (PostgreSQL solo en loopback) | **Implementado** | PR-02 |
 | HTTPS con redirección, TLS 1.2/1.3 y certificados vigentes en los 3 sitios del VPS | **Implementado y verificado** | PR-03 a PR-07 (2026-10-24); renovación PR-08 (manual) |
+| HTTPS de los 2 subdominios de la academia en el VPS (`api-academia` y `analitica-academia`) | **Implementado y verificado** | PR-38 (2026-10-24) |
+| Capa de la academia en el VPS: API y analítica solo en 127.0.0.1 detrás de Nginx, MySQL solo local y ningún dato sin sesión | **Implementado y verificado** | PR-39 (2026-10-24) |
 | HTTPS, HSTS y TLS de la plataforma de la academia (Vercel) | **Implementado y verificado** | PR-13 (2026-10-24) |
 | Bloqueo de archivos ocultos en Nginx | **Implementado y verificado** | PR-09 |
 | DNS del dominio (NS, MX y CNAME) | **Implementado y verificado** | PR-11 |
-| Cabeceras de seguridad HTTP y protección del dominio (CAA, SPF, DMARC y DNSSEC) | **No conforme** | PR-10 y PR-12: acciones en la sección 4.3 |
+| Cabeceras de seguridad HTTP y versión de Nginx oculta | **Implementado y verificado** | PR-10, repetida después del endurecimiento del 2026-10-24 (sección 4.3) |
+| Protección del dominio (CAA, SPF, DMARC y DNSSEC) | **No conforme** | PR-12: acciones en la sección 4.3 |
 | OPNsense, VLAN, DMZ y Wi-Fi de la sede | Pendiente de ejecución | Procedimiento en la sección 4.2 |
 | VPN IPsec sede ↔ VPS | Pendiente de ejecución | Procedimiento en la sección 3 |
 | Suricata, Cowrie y Wazuh | Pendiente de ejecución | Procedimiento en la sección 6 |
 | Monitoreo con Uptime Kuma y Netdata | Pendiente de ejecución | Procedimiento en la sección 7.2 |
 
-**Hallazgos.** Las verificaciones del 2026-10-24 confirman que el cifrado en tránsito es correcto en todos los sitios: TLS 1.0 y 1.1 se rechazan y TLS 1.2 y 1.3 usan cifrados AEAD. También revelan dos brechas reales: el sitio del colegio no envía cabeceras de seguridad y expone la versión de Nginx, y el dominio no publica CAA, SPF, DMARC ni DNSSEC. Se registraron 5 incidencias: 2 incidentes abiertos, 1 falso positivo cerrado y 2 observaciones.
+**Hallazgos.** Las verificaciones del 2026-10-24 confirman que el cifrado en tránsito es correcto en todos los sitios: TLS 1.0 y 1.1 se rechazan y TLS 1.2 y 1.3 usan cifrados AEAD. También revelaron dos brechas reales: el sitio del colegio no enviaba cabeceras de seguridad y exponía la versión de Nginx, lo que se corrigió el mismo día (PR-10 conforme), y el dominio no publica CAA, SPF, DMARC ni DNSSEC. Se registraron 6 incidencias: 3 incidentes (INC-01, INC-02 e INC-06, cerrados el 2026-10-24), 1 falso positivo cerrado y 2 observaciones (INC-04, cerrada, e INC-05, abierta).
 
-**Cumplimiento del diseño.** De los 31 componentes de red del diseño, los de la nube (NET-23 a NET-25, NET-28 a NET-30) están operativos. Los de la sede y el túnel dependen del hardware (fase 2) o del laboratorio de validación propuesto (fase 1b).
+**Cumplimiento del diseño.** De los 31 componentes de red del diseño, los de la nube (NET-23 a NET-25, NET-28 a NET-30) están operativos. Los de la sede y el túnel dependen del hardware (fase 2) o del laboratorio de validación propuesto (fase 1b). Desde el 2026-10-24 el VPS aloja también la capa relacional de la academia, que el diseño ubica en VM-APP01 (NET-13); la PC local (NET-31) quedó retirada.
 
 ## 2. Trazabilidad con el diseño de red
 
@@ -56,12 +59,12 @@
 |---|---|---|---|
 | UFW-01 a UFW-05 (Security Group del VPS) | Implementado | Ninguno | — |
 | UFW-06 a UFW-10 (VPN, SSH solo por VPN y fail2ban) | Pendiente | El cierre de SSH a Internet espera a la validación de la VPN | Evitar quedar sin acceso; la consola del proveedor es el acceso de emergencia |
-| NET-25 Nginx con TLS | Implementado | Se agregan cabeceras de seguridad y `server_tokens off` | Hallazgo PR-10 |
+| NET-25 Nginx con TLS | Implementado | Cabeceras de seguridad y `server_tokens off` aplicadas el 2026-10-24; sitios `api-academia` y `analitica-academia` con HTTPS | Hallazgo PR-10 (cerrado) y capa de la academia en el VPS |
 | NET-28 DNS | Implementado | Se agregan CAA, SPF, DKIM y DMARC | Hallazgo PR-12 |
 | NET-04 OPNsense, VLAN y reglas FW-01 a FW-73 | Pendiente | Ninguno | Requiere el host (fase 2) o un laboratorio (fase 1b) |
 | NET-27 túnel IPsec | Pendiente | Ninguno | Requiere OPNsense |
 | NET-05, NET-14 y NET-17 (detección) | Pendiente | Ninguno | Requiere el host |
-| NET-31 PC local | Operativa (transitoria) | Se mantiene hasta migrar a VM-APP01 | Continuidad de la réplica |
+| NET-31 PC local | Retirada (2026-10-24) | La capa relacional pasó al VPS; la PC queda para pruebas de restauración | Servicio 24/7 sin depender de una PC encendida |
 
 ## 3. Implementación de la conectividad híbrida (VPN)
 
@@ -193,8 +196,9 @@ ping -c 3 10.20.0.1
 | Renovación de certificados | Certbot con renovación automática | `certbot renew --dry-run` | Conforme | Manual, PR-08 |
 | Superficie web mínima | Raíz pública solo en `backend/public`; bloqueo de archivos ocultos; `client_max_body_size 20M` | `curl https://<host>/.env` | 403 (conforme) | PR-09 |
 | Permisos de la aplicación | Grupo `www-data`, sin 777; `.env` con permisos 640 | Revisión del manual | Conforme | Manual |
+| Capa de la academia aislada (desde el 2026-10-24) | Usuario `academia` sin sudo en `/opt/academia`; API (3001) y analítica (8000) en 127.0.0.1; MySQL con `bind-address` 127.0.0.1; sitios propios de Nginx con HTTPS; secretos con permiso 600 | `ss -lntp`; `curl` sin sesión y con otro origen | Conforme | Manual de despliegue §9, PR-38 y PR-39 |
 
-En la nube, el VPS cumple el papel de un servidor en DMZ: expone solo 80 y 443, la base escucha en loopback y la administración se cerrará al túnel.
+En la nube, el VPS cumple el papel de un servidor en DMZ: expone solo 80 y 443, las bases (PostgreSQL y MySQL) escuchan en loopback y la administración se cerrará al túnel.
 
 ### 4.2 Pendiente en la sede (OPNsense, switch y Wi-Fi)
 
@@ -237,6 +241,8 @@ curl -sI https://cermatschool.edu.pe/ | grep -iE 'strict-transport|x-content|ref
 
 Para la plataforma de la academia, el mismo conjunto (salvo HSTS, que Vercel ya envía) se declara en la sección `headers` de `vercel.json` del repositorio de la aplicación.
 
+**Aplicado el 2026-10-24 (PR-10 conforme).** En el VPS se usó otra distribución de archivos: `server_tokens off` en `/etc/nginx/conf.d/ocultar-version.conf` y las 5 cabeceras (HSTS, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` y `Permissions-Policy`) en `/etc/nginx/snippets/cabeceras-seguridad.conf`, incluido en los sitios del colegio. La ruta de `index.html` define su propio `add_header`, que en Nginx anula los heredados, así que ahí se incluye de nuevo. Resultado: 5 de 5 cabeceras en la portada, `www`, `/login`, la API y los archivos estáticos; `Server: nginx` sin versión; redirección a HTTPS intacta, y la página sigue sirviendo 17 911 bytes. El procedimiento, su verificación y su reversión están en el manual de despliegue de la plataforma (§7). Antes de aplicarlo se guardó una copia de `/etc/nginx`.
+
 **SSH (R-12).**
 
 ```bash
@@ -257,7 +263,7 @@ sudo apt install fail2ban && sudo fail2ban-client status sshd
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
-| PR-10 y PR-12 repetidas con resultado conforme; `sshd -T` con los valores esperados; fail2ban activo | Pendiente de ejecución | Salidas de `curl -sI`, `sshd -T`, `fail2ban-client` y de las consultas DNS |
+| PR-10 y PR-12 repetidas con resultado conforme; `sshd -T` con los valores esperados; fail2ban activo | PR-10 repetida y conforme (2026-10-24); PR-12, `sshd -T` y fail2ban pendientes | Salidas de `curl -sI`, `sshd -T`, `fail2ban-client` y de las consultas DNS |
 
 ## 5. Pruebas de segmentación
 
@@ -379,7 +385,8 @@ Lectura de Cowrie en el agente del honeypot y reglas locales en el servidor (`/v
 |---|---|---|---|
 | Disponibilidad de la API y de MySQL | `GET /health` con el estado de MySQL y el tiempo en línea | API y analítica | Implementado |
 | Verificación manual de servicios | Panel admin "Infraestructura": prueba `/health` y activa o desactiva la sincronización | Plataforma | Implementado |
-| Accesos HTTP a la API | `morgan` en formato *combined* | PC local | Implementado, sin centralizar |
+| Accesos HTTP a la API | `morgan` en formato *combined* | VPS (registros de PM2 del usuario `academia`) | Implementado, sin centralizar |
+| Respaldo diario de MySQL | Temporizador `academia-respaldo` de systemd (03:00 en Perú) | VPS (`journalctl`) | Implementado (2026-10-24) |
 | Registros del VPS | Nginx (acceso y error), `auth.log` y journald | VPS | Implementado, sin centralizar |
 | Historial de despliegues | Panel de Vercel | Vercel | Disponible |
 | Rutinas de operación | Revisión diaria, semanal y mensual del manual del VPS | VPS | Documentado |
@@ -427,7 +434,7 @@ Mientras no exista el host, Uptime Kuma puede correr de forma transitoria en la 
 | PR-07 | Certificados vigentes | Emisor, SAN y vigencia correctos | openssl s_client … \| openssl x509 -noout -issuer -enddate -ext subjectAltName | Emisor de confianza, SAN correcto y vigente | Let's Encrypt (YE1 y YE2); SAN: dominio y www, y api; vencen el 2027-01-15 | Conforme | Anexo B de S2-E2 |
 | PR-08 | Renovación automática de certificados | Evitar vencimientos | sudo certbot renew --dry-run | Simulación exitosa | Exitosa según el manual (2026-10-17) | Conforme | Captura a adjuntar |
 | PR-09 | Bloqueo de archivos ocultos | Evitar fuga de configuración | curl -s -o /dev/null -w "%{http_code}" https://<host>/.env | 403 o 404 | 403 en dominio y api (2026-10-24) | Conforme | Anexo B de S2-E2 |
-| PR-10 | Cabeceras de seguridad HTTP | HSTS y cabeceras recomendadas por OWASP | curl -sI https://cermatschool.edu.pe/ y https://academia-school-platform.vercel.app/ | HSTS, X-Content-Type-Options, protección contra framing, Referrer-Policy y Server sin versión | Colegio: ninguna cabecera de seguridad y Server: nginx/<versión omitida> (Ubuntu). Academia: solo HSTS en la primera medición; tras publicar `vercel.json` (2026-10-24): X-Content-Type-Options, Referrer-Policy, CSP frame-ancestors, Permissions-Policy y HSTS | No conforme (academia conforme; colegio pendiente) | Anexo B de S2-E2; acción en R-13 |
+| PR-10 | Cabeceras de seguridad HTTP | HSTS y cabeceras recomendadas por OWASP | curl -sI https://cermatschool.edu.pe/ y https://academia-school-platform.vercel.app/ | HSTS, X-Content-Type-Options, protección contra framing, Referrer-Policy y Server sin versión | Primera medición: el colegio sin cabeceras de seguridad y con Server: nginx/<versión omitida> (Ubuntu); la SPA solo con HSTS. Tras los cambios del 2026-10-24: colegio con 5 de 5 cabeceras en la portada, `www`, `/login`, la API y los archivos estáticos, y `Server: nginx` sin versión; SPA con X-Content-Type-Options, Referrer-Policy, CSP frame-ancestors, Permissions-Policy y HSTS | Conforme | Anexo B de S2-E2; manual de despliegue §7.2; acción en R-13 |
 | PR-11 | Registros DNS | Delegación y registros esperados | nslookup -type=NS \| MX \| CNAME | NS de RCP; MX de Google; www → dominio | NS.RCP.NET.pe y NS2.RCP.NET.pe; 5 registros MX de Google; www CNAME al dominio (2026-10-24) | Conforme | Anexo B de S2-E2 |
 | PR-12 | Protección del dominio | CAA, SPF, DMARC y DNSSEC | Consultas DNS sobre HTTPS (tipos CAA, TXT, DS) | Registros presentes | Sin CAA, sin SPF, sin DMARC y sin DNSSEC (2026-10-24) | No conforme | Anexo B de S2-E2; acciones en R-11 y R-14 |
 | PR-13 | HTTPS de la plataforma de la academia (PaaS) | Redirección, HSTS y TLS | curl -sI http://… y https://…; openssl s_client | Redirección a HTTPS, HSTS y TLS ≥ 1.2 | 308 a HTTPS; HSTS max-age=63072000; includeSubDomains; preload; 1.0 y 1.1 sin negociación; 1.2 y 1.3 aceptados; certificado *.vercel.app vigente hasta 2026-11-27 (renovación gestionada por Vercel) | Conforme | Anexo B de S2-E2 |
@@ -455,8 +462,10 @@ Mientras no exista el host, Uptime Kuma puede correr de forma transitoria en la 
 | PR-35 | MTU por el túnel (PC-22) | Validar Diseño VPN | sftp; ping -M do -s 1332 — origen: VM-BKP01 → VPS; destino: Transferencia SFTP de 100 MB | Sin fragmentación ni cortes (MSS 1360) | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
 | PR-36 | Base de datos de la nube no alcanzable desde Internet | Confirmar desde afuera lo verificado en PR-02 | nc -vz -w 3 <IP pública del VPS> 5432 (desde la sede o datos móviles) | Tiempo agotado o rechazo | Pendiente de ejecución | Pendiente | A adjuntar: salida de nc con fecha |
 | PR-37 | Fuerza bruta SSH detectada en el VPS | Detección de ataques reales sobre el servicio expuesto | Agente Wazuh en el VPS; revisar alertas de sshd (reglas 5710, 5712, 5716 y 5720) | Alertas con IP de origen y conteo | Pendiente de ejecución | Pendiente | A adjuntar: captura del panel de Wazuh |
+| PR-38 | HTTPS de los subdominios de la academia en el VPS | Cifrado y disponibilidad de la API y la analítica | `curl -sI http://…`; `curl -s https://api-academia…/health` y `https://analitica-academia…/health`; `certbot renew --dry-run` | 301 a HTTPS; `/health` con MySQL conectado; certificado vigente | 301 en ambos; `"status":"ok"` con MySQL conectado; certificado de Let's Encrypt para los dos subdominios, vence el 2027-01-23; renovación simulada correcta (2026-10-24) | Conforme | Manual de despliegue §9.5 |
+| PR-39 | Exposición de la capa de la academia | Solo Nginx atiende desde afuera y nada responde sin sesión | `ss -lntp` en el VPS; `curl` sin token; `OPTIONS` con un `Origin` ajeno | 3001, 8000 y 3306 solo en 127.0.0.1; 401 sin sesión; CORS solo para el origen de la academia | 3001 y 8000 solo en 127.0.0.1 y MySQL con `bind-address` 127.0.0.1; API 401 en `/api/sync/payment` y analítica 401 sin sesión; origen de Vercel permitido y origen ajeno rechazado (2026-10-24) | Conforme | Manual de despliegue §9.1, §9.4 y §9.5 |
 
-**Resumen:** 37 casos. 11 conformes y 2 no conformes con resultado real (PR-01 a PR-13); 24 pendientes de ejecución (PR-14 a PR-37). Incluye pruebas positivas (permitido), negativas (denegado) y de detección.
+**Resumen:** 39 casos. 14 conformes y 1 no conforme con resultado real (PR-01 a PR-13, PR-38 y PR-39); 24 pendientes de ejecución (PR-14 a PR-37). Incluye pruebas positivas (permitido), negativas (denegado) y de detección.
 
 ## 9. Incidencias detectadas
 
@@ -465,17 +474,19 @@ Mientras no exista el host, Uptime Kuma puede correr de forma transitoria en la 
 | INC-01 | 2026-10-24 | Reglas de Firestore publicadas el 22-jun-2026 con 3 fallas: listado público de matrículas pagadas, auto-asignación de rol y matrícula pública bloqueada | Incidente de seguridad: exposición potencial de datos personales y escalamiento de privilegios | S1 (alta) | Corrección con 19 pruebas; frontend y reglas publicados el 2026-10-24 y verificados como visitante sin sesión (listar matrículas pagadas → 403) | Una línea inválida impedía compilar y nadie verificaba el despliegue | Publicar solo por CI y verificar el ruleset publicado | Cerrado (2026-10-24) | R-01 a R-04; NC-01 y NC-02 |
 | INC-02 | 2026-10-24 | Clave de cuenta de servicio y archivos de entorno en el repositorio privado (copias ZIP y archivos versionados) | Incidente de seguridad: credencial expuesta | S1 (alta) | Clave de enero (`283b43c3…`) eliminada y reemplazada por `ddf50bfe…`; contraseñas de las cuentas de `teachers.json` restablecidas; los `.env` (sin contraseñas) siguen versionados por decisión del equipo | Copias del proyecto subidas con secretos; control preventivo ausente | Escaneo de secretos en el CI y lista de revisión de cambios | Cerrado con riesgo residual aceptado (2026-10-24) | R-05 y R-06; NC-03 |
 | INC-03 | 2026-10-24 | El antivirus puso en cuarentena scripts SQL al ejecutarlos desde PowerShell con cmd (IDP.Generic) | Evento de seguridad: falso positivo | S4 (baja) | Restaurar desde cuarentena, ejecutar desde Git Bash y exclusión acotada | Heurística del antivirus ante la cadena PowerShell → cmd | Procedimiento documentado en server/src/db/README.md | Cerrado | R-22 |
-| INC-04 | 2026-10-24 | Sitio del colegio sin cabeceras de seguridad y con la versión de Nginx expuesta; SPA de la academia solo con HSTS | Observación de seguridad (no es incidente) | S4 (baja) | No requiere | Configuración por defecto | Academia: cabeceras publicadas con `vercel.json` y verificadas el 2026-10-24. Colegio: plantilla de Nginx de la sección 4.3 | Cerrado para la academia; abierto para el colegio | R-13 |
+| INC-04 | 2026-10-24 | Sitio del colegio sin cabeceras de seguridad y con la versión de Nginx expuesta; SPA de la academia solo con HSTS | Observación de seguridad (no es incidente) | S4 (baja) | No requiere | Configuración por defecto | Academia: cabeceras publicadas con `vercel.json`. Colegio: fragmento de Nginx con 5 cabeceras y `server_tokens off`, aplicado y verificado el 2026-10-24 (sección 4.3) | Cerrado (2026-10-24) | R-13 |
 | INC-05 | 2026-10-24 | Dominio sin SPF, DMARC, CAA ni DNSSEC | Observación de seguridad (no es incidente) | S3 (media) | No requiere | Configuración DNS inicial sin controles de correo | Lista de verificación de dominio | Abierto | R-11 y R-14 |
+| INC-06 | 2026-10-24 | La sincronización con la API del VPS respondió 500 a las 20:40 y 20:42, y la migración que lo corregía quedó bloqueada más de 20 minutos | Incidente de disponibilidad e integridad de la réplica relacional; sin exposición de datos | S3 (media) | Detección: consola del panel (`[sync] … respondió 500`) y registros de PM2 (`Data truncated for column 'turno'`). Contención: API y analítica detenidas desde otra ventana, lo que liberó la transacción abierta | Tres defectos de la base: etiqueta `mañana` dañada desde junio, rutinas del VPS con otra collation y transacción abierta tras errores de clase 01 ([E4 §2.8](../e4-calidad-operacion-ce024.md#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06)) | Reproducir cada falla en una réplica antes de corregir; migrar con los servicios detenidos y una espera máxima de 60 s; la API cierra la conexión ante un error | Cerrado (2026-10-24 22:11) | R-27 y R-28; ACT-16 y ACT-17 |
 
 - **Clasificación:** según las severidades S1 a S4 del procedimiento de gestión de incidentes [PRO-01](s2-e1-sgsi-ce0321-ce0324.md) del SGSI.
-- **Contención:** INC-01 se cerró el 2026-10-24 al publicar el frontend y las reglas, con verificación en producción. INC-02 se cerró el mismo día con la clave rotada y las contraseñas restablecidas, con riesgo residual aceptado por los `.env` versionados (no contienen contraseñas). INC-03 se cerró con un procedimiento.
+- **Contención:** INC-01 se cerró el 2026-10-24 al publicar el frontend y las reglas, con verificación en producción. INC-02 se cerró el mismo día con la clave rotada y las contraseñas restablecidas, con riesgo residual aceptado por los `.env` versionados (no contienen contraseñas). INC-03 se cerró con un procedimiento. INC-06 se contuvo deteniendo la API y la analítica, lo que liberó la transacción abierta; la corrección se aplicó a las 22:06 y se cerró a las 22:11 con la prueba de punta a punta.
 - **Lecciones aprendidas:**
     - Probar contra lo publicado, no solo contra el código.
     - Verificar cada despliegue.
     - Escanear secretos antes de versionar.
     - Ejecutar los scripts desde Git Bash.
     - Incluir cabeceras y registros DNS de seguridad en la lista de verificación de cada despliegue.
+    - Reproducir cada falla en una réplica antes de corregir producción, y aplicar migraciones con los servicios detenidos.
 
 ## 10. Evidencias técnicas
 
@@ -493,6 +504,8 @@ Mientras no exista el host, Uptime Kuma puede correr de forma transitoria en la 
 | EV-08 | `config.xml` de OPNsense sanitizado y reglas exportadas | Reconstruir el perímetro | Pendiente | `infra/red/opnsense/` |
 | EV-09 | Alertas de Suricata, Cowrie y Wazuh | Demostrar la detección | Pendiente | `infra/logs/` |
 | EV-10 | Página de estado de Uptime Kuma | Demostrar el monitoreo | Pendiente | `infra/logs/` |
+| EV-11 | Manual de despliegue de la academia (2026-10-24) | Fuente de PR-38, PR-39 y de la repetición de PR-10 | Real; en el repositorio privado de la plataforma | `deploy/MANUAL-DESPLIEGUE-CERMAT.md` |
+| EV-12 | 18 capturas del 2026-10-24, con los datos personales tapados | Respaldo visual de PR-38 y PR-39 (capturas 13 a 18) y del cierre en producción | Real | [Evidencias del despliegue](evidencias-despliegue-2026-10-24.md) |
 
 ### 10.2 Repositorio técnico de red
 
@@ -518,7 +531,7 @@ infra/
 ### 11.1 Conclusiones
 
 1. El perímetro implementado en la nube cumple el diseño: entrada denegada por defecto, base de datos no expuesta, TLS 1.2/1.3 con AEAD y redirección a HTTPS en todos los sitios, verificados con evidencia reproducible.
-2. Las pruebas encontraron dos brechas reales (cabeceras HTTP y registros DNS de seguridad), con acción definida y criterio de cierre.
+2. Las pruebas encontraron dos brechas reales (cabeceras HTTP y registros DNS de seguridad), con acción definida y criterio de cierre. La de cabeceras se cerró el mismo día (PR-10 conforme); la de DNS requiere el visto bueno del colegio.
 3. La VPN, el perímetro de la sede y la detección tienen procedimiento, configuración sin secretos y criterio de aceptación, listos para ejecutarse en cuanto exista la plataforma on-premise.
 
 ### 11.2 Limitaciones
@@ -642,6 +655,8 @@ $ openssl ... academia-school-platform.vercel.app
 issuer=C=US, O=Google Trust Services, CN=WR1 · notAfter=Nov 27 19:48:08 2026 GMT · SAN *.vercel.app
 TLS 1.2: ECDHE-RSA-AES128-GCM-SHA256 · TLS 1.3: TLS_AES_128_GCM_SHA256 · TLS 1.0/1.1: sin negociación
 ```
+
+**Verificación posterior (2026-10-24).** Después del endurecimiento de la sección 4.3, el colegio responde con 5 de 5 cabeceras de seguridad y `Server: nginx` sin versión, y la SPA con las cabeceras de `vercel.json` (PR-10 conforme). Los subdominios de la academia responden por HTTPS con un certificado de Let's Encrypt vigente hasta el 2027-01-23 (PR-38 y PR-39). El detalle está en el manual de despliegue de la plataforma (§7.2 y §9.5).
 
 ## Rúbrica de evaluación
 

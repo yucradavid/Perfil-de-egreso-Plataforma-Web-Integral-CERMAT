@@ -42,6 +42,9 @@
 - No existen IDS/IPS, honeypot ni registro centralizado de eventos.
 - La sede depende de un solo enlace de Internet y no tiene UPS (supuestos SUP-02 y SUP-10).
 
+!!! note "Actualización del 2026-10-24"
+    La capa local ya no corre en la PC. Desde el 2026-10-24 la API, MySQL y la analítica corren en el VPS del colegio, con sus puertos solo en 127.0.0.1. Nginx las publica por HTTPS en `api-academia.cermatschool.edu.pe` y `analitica-academia.cermatschool.edu.pe`, así que la sincronización ya no depende de una PC encendida. El diseño de este entregable, con VM-APP01 en la sede publicada por el VPS, se mantiene como destino.
+
 **Solución propuesta.**
 
 - **Topología híbrida en tres dominios:** sede virtualizada (Proxmox VE, equivalente a ESXi), nube IaaS (VPS, equivalente a EC2 en una VPC) y PaaS (Vercel y Firebase).
@@ -105,7 +108,7 @@ La sede principal está en Azángaro. Otras sedes quedan fuera del alcance, con 
 |---|---|---|---|
 | Plataforma de la academia (SPA) | Vercel | Vercel | Todos los roles |
 | Identidad y datos operativos | Firebase (Auth, 22 colecciones de Firestore, Storage) | Firebase | Todos los roles |
-| API de sincronización, MySQL y analítica | PC local con PM2 | VM-APP01 en VLAN 40, publicada por el VPS | Administración y dirección |
+| API de sincronización, MySQL y analítica | VPS del colegio desde el 2026-10-24 (antes, PC local con PM2) | VM-APP01 en VLAN 40, publicada por el VPS | Administración y dirección |
 | Sistema de gestión del colegio | VPS (Nginx, PHP-FPM, PostgreSQL) | VPS | Colegio |
 | DNS del dominio institucional | Punto.pe (servidores de RCP) | Igual | Todos |
 | Correo institucional | Google (registros MX) | Igual | Personal |
@@ -282,7 +285,7 @@ Diagrama editable: [topologia-general-hibrida.drawio](../assets/infraestructura/
 | Nube (AWS en la guía) | VPS RackNerd (IaaS) y Vercel/Firebase (PaaS) |
 | VPN | Túnel IPsec NET-27 entre OPNsense y strongSwan |
 
-**Situación actual (AS-IS).** La sede no tiene firewall perimetral, DMZ, segmentación documentada ni UPS. La capa local corre en una PC con PM2 (NET-31). El inventario de equipos de red existentes (router del ISP, switch y puntos de acceso) está pendiente de levantamiento.
+**Situación actual (AS-IS).** La sede no tiene firewall perimetral, DMZ, segmentación documentada ni UPS. La capa local corría en una PC con PM2 (NET-31) hasta el 2026-10-24, cuando pasó al VPS. El inventario de equipos de red existentes (router del ISP, switch y puntos de acceso) está pendiente de levantamiento.
 
 ## 8. Topología lógica de red
 
@@ -472,10 +475,10 @@ flowchart LR
 |---|---|---|---|---|---|---|
 | F-01 | Usuarios (Internet o sede) | SPA en Vercel | HTTPS 443/tcp | Uso de la plataforma académica | Internet | Implementado |
 | F-02 | Navegador | Firebase Auth, Firestore y Storage | HTTPS 443/tcp | Identidad y datos operativos | Internet | Implementado |
-| F-03 | Navegador (admin, docente, auxiliar) | Proxy del VPS (subdominio propuesto api-academia) | HTTPS 443/tcp | Sincronización hacia MySQL, no bloqueante | Internet | Pendiente (hoy http://localhost:3001 en la PC local) |
-| F-04 | VPS 10.20.0.1 (Nginx) | VM-APP01 10.10.40.10 | HTTP 3001/tcp y 8000/tcp dentro de IPsec | Proxy inverso hacia la API y la analítica | Túnel IPsec | Pendiente |
-| F-05 | VM-APP01 | APIs de Google (Firebase Admin) | HTTPS 443/tcp | Verificar tokens de identidad | Internet (NAT de OPNsense) | Implementado en la PC local |
-| F-06 | API y analítica | MySQL 8 | 3306/tcp en loopback | Persistencia relacional | Local | Implementado en la PC local |
+| F-03 | Navegador (admin, docente, auxiliar) | Nginx del VPS (`api-academia.cermatschool.edu.pe`) | HTTPS 443/tcp | Sincronización hacia MySQL, no bloqueante | Internet | Implementado (2026-10-24); prueba de punta a punta con respuesta 200 |
+| F-04 | VPS 10.20.0.1 (Nginx) | VM-APP01 10.10.40.10 | HTTP 3001/tcp y 8000/tcp dentro de IPsec | Proxy inverso hacia la API y la analítica | Túnel IPsec | Pendiente (hoy Nginx entrega a la API y la analítica en 127.0.0.1 del mismo VPS) |
+| F-05 | VM-APP01 | APIs de Google (Firebase Admin) | HTTPS 443/tcp | Verificar tokens de identidad | Internet (NAT de OPNsense) | Implementado en el VPS (2026-10-24) |
+| F-06 | API y analítica | MySQL 8 | 3306/tcp en loopback | Persistencia relacional | Local | Implementado en el VPS (2026-10-24) |
 | F-07 | Visitantes | Sitio y API del colegio (VPS) | HTTP 80/tcp → 301; HTTPS 443/tcp | Sistema de gestión del colegio | Internet | Implementado |
 | F-08 | Laravel (PHP-FPM) | PostgreSQL 16 | 5432/tcp en loopback | Datos del colegio | Local | Implementado |
 | F-09 | OPNsense (WAN) | VPS (IP pública) | UDP 500 y 4500 (IKEv2, NAT-T) | Establecer el túnel | Internet | Pendiente |
@@ -509,7 +512,7 @@ flowchart LR
 | NET-10 | Host hipervisor PVE01 (gestión) | 10.10.99.10 | MGMT | Virtualización de las VM de red y de servidores | Crítica | Diseñado | General, Lógica, Física, Hipervisor |
 | NET-11 | Gestión fuera de banda del host (IPMI) | 10.10.99.11 | MGMT | Consola remota del servidor físico | Media | Diseñado | Lógica, Física |
 | NET-12 | Bastión SSH (VM-BAS01) | 10.10.99.20 | MGMT | Punto único de administración por SSH, incluida la VPN | Alta | Diseñado | General, Lógica, Zonas, Hipervisor |
-| NET-13 | Servidor de aplicaciones (VM-APP01) | 10.10.40.10 | SRV | API Node.js (3001), MySQL 8 (3306 local) y analítica FastAPI (8000) | Alta | Diseñado (hoy en la PC local) | General, Lógica, Zonas, Hipervisor |
+| NET-13 | Servidor de aplicaciones (VM-APP01) | 10.10.40.10 | SRV | API Node.js (3001), MySQL 8 (3306 local) y analítica FastAPI (8000) | Alta | Diseñado (hoy en el VPS) | General, Lógica, Zonas, Hipervisor |
 | NET-14 | SIEM Wazuh (VM-SIEM01) | 10.10.40.20 | SRV | Correlación de eventos, alertas e inventario de agentes | Alta | Diseñado | General, Lógica, Zonas, Hipervisor |
 | NET-15 | Monitoreo (VM-MON01) | 10.10.40.30 | SRV | Uptime Kuma (disponibilidad) y Netdata (métricas) | Media | Diseñado | General, Lógica, Zonas, Hipervisor |
 | NET-16 | Respaldo (VM-BKP01, Proxmox Backup Server) | 10.10.40.40 | SRV | Respaldo de VM y repositorio de copias del VPS | Alta | Diseñado | General, Lógica, Zonas, Hipervisor |
@@ -519,15 +522,15 @@ flowchart LR
 | NET-20 | Impresora de red | 10.10.10.20 | ADMIN | Impresión para ADMIN y ACAD | Baja | Por confirmar | General, Lógica |
 | NET-21 | Equipos académicos (docentes y auxiliares) | 10.10.20.100–10.10.20.250 | ACAD | Portales docente y auxiliar; lectura de QR | Media | Existentes (por inventariar) | General, Lógica |
 | NET-22 | Clientes Wi-Fi de invitados | 10.10.30.50–10.10.30.250 | GUEST | Acceso a Internet aislado | Baja | Diseñado | General, Lógica |
-| NET-23 | VPS RackNerd (KVM, Ubuntu 24.04) | IP pública del VPS; 10.20.0.1 en dum0 (planificada) | NUBE | Sistema del colegio, extremo VPN y proxy inverso | Crítica | Implementado (dum0 pendiente) | General, Zonas, Nube |
+| NET-23 | VPS RackNerd (KVM, Ubuntu 24.04) | IP pública del VPS; 10.20.0.1 en dum0 (planificada) | NUBE | Sistema del colegio, capa relacional de la academia (desde el 2026-10-24), extremo VPN y proxy inverso | Crítica | Implementado (dum0 pendiente) | General, Zonas, Nube |
 | NET-24 | Firewall de host UFW del VPS | — | NUBE | Entrada denegada por defecto; 22, 80 y 443/tcp permitidos | Alta | Implementado | General, Zonas, Nube |
-| NET-25 | Nginx con TLS (Let's Encrypt) en el VPS | IP pública del VPS: 80 → 301 y 443 | NUBE | Servidor web, API del colegio y proxy inverso hacia la sede | Crítica | Implementado (proxy hacia la sede pendiente) | General, Zonas, Nube |
+| NET-25 | Nginx con TLS (Let's Encrypt) en el VPS | IP pública del VPS: 80 → 301 y 443 | NUBE | Servidor web, API del colegio, sitios `api-academia` y `analitica-academia`, y proxy inverso hacia la sede | Crítica | Implementado (proxy hacia la sede pendiente) | General, Zonas, Nube |
 | NET-26 | strongSwan IKEv2 en el VPS | IP pública del VPS (UDP 500/4500); 10.20.0.1 | NUBE | Extremo de nube del túnel IPsec | Alta | Diseñado | General, Zonas, Nube |
 | NET-27 | Túnel IPsec sitio a sitio | 10.10.40.0/24 y 10.10.99.0/27 ↔ 10.20.0.0/24 | VPN | Respaldo, administración, monitoreo y proxy entre sede y nube | Alta | Diseñado | General, Lógica, Zonas |
 | NET-28 | DNS autoritativo (Punto.pe, servidores RCP) | Servicio del proveedor | Internet | Registros A, CNAME, MX y TXT del dominio | Alta | Implementado | General, Nube |
 | NET-29 | Vercel (SPA de la academia) | Dominio *.vercel.app | PaaS | Entrega de la plataforma por HTTPS | Crítica | Implementado | General, Nube |
 | NET-30 | Firebase (Auth, Firestore y Storage) | Servicio de Google | PaaS | Identidad y datos operativos | Crítica | Implementado | General, Nube |
-| NET-31 | PC local actual (API, MySQL y analítica con PM2) | Red actual de la sede, sin segmentar | Actual | Réplica relacional y analítica hasta migrar a VM-APP01 | Media | Implementado (transitorio) | General |
+| NET-31 | PC local (antes: API, MySQL y analítica con PM2) | Red actual de la sede, sin segmentar | Actual | Entorno anterior de la réplica; desde el 2026-10-24 solo pruebas de restauración | Media | Retirado (2026-10-24): la capa corre en el VPS | General |
 
 La matriz incluye los 31 componentes de los diagramas de topología general, lógica y de zonas; la columna "Diagramas" indica dónde aparece cada uno. Los usuarios externos e Internet son actores, no componentes.
 

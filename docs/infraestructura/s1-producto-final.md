@@ -24,7 +24,7 @@
 
 ## Resumen ejecutivo
 
-CERMAT tiene sus servicios críticos en la nube (la plataforma de la academia en Vercel y Firebase, y el sistema del colegio en un VPS), pero la capa local de la academia corre en una PC sin perímetro ni segmentación, y el VPS no tiene un canal privado con la sede. El diseño consolidado propone:
+CERMAT tiene sus servicios críticos en la nube (la plataforma de la academia en Vercel y Firebase, y el sistema del colegio en un VPS), pero la capa local de la academia corría en una PC sin perímetro ni segmentación (desde el 2026-10-24 corre en el VPS), y el VPS no tiene un canal privado con la sede. El diseño consolidado propone:
 
 1. **Una sede segmentada y virtualizada.** Seis VLAN con política por defecto de denegar, OPNsense con Suricata como perímetro, honeypot en la DMZ y un host Proxmox VE (equivalente a ESXi) con 7 VM: 14 vCPU, 24 GB de RAM y 47 % de la memoria del host comprometida.
 2. **Una nube equivalente a AWS sin costo adicional.** El VPS existente cumple el papel de EC2, UFW el de Security Group, una red interna 10.20.0.0/24 el de subred privada y strongSwan el de VPN Gateway.
