@@ -62,7 +62,7 @@ Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustent
 | Base relacional MySQL | 6 tablas de negocio + auditoría; 3 FK, 8 CHECK, 4 funciones, 6 procedimientos, 7 triggers y 3 vistas; migraciones 02 a 06 |
 | API REST | Sincronización, cuentas de alumnos (`/api/cuentas`) y administración de usuarios (`/api/usuarios`) |
 | Requerimientos | 30 funcionales y 11 no funcionales |
-| Pruebas automáticas | 372: 150 unitarias, 96 de API, 101 de reglas de seguridad y 25 de base de datos. Al 2026-11-16 pasan 366; las 6 que fallan son de la última entrega ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)) |
+| Pruebas automáticas | 372: 150 unitarias, 96 de API, 101 de reglas de seguridad y 25 de base de datos. Las 372 pasan con la corrección del 2026-11-16, que arregla 6 que había roto la última entrega. Ese día se sumaron 4 de API del respaldo de Firestore: 376 ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)) |
 | Integración continua | 6 trabajos en GitHub Actions |
 | Réplica relacional | Comparación y reparación nocturna desde Firestore (03:30) desde el 2026-11-14; ese día Firestore y MySQL coincidieron |
 | Uso en piloto | Al 2026-11-14: 10 matrículas, 3 pagos y 7 marcas de asistencia (conteo de la conciliación) |
@@ -128,13 +128,14 @@ flowchart LR
     - **Pruebas:** de 99 a 372 ([E4](e4-calidad-operacion-ce024.md)).
 
 !!! warning "Pendientes que solo puede cerrar el equipo"
-    - Corregir las 6 pruebas y los 34 errores de tipos que dejó la entrega de matrícula masiva (`f9447d8`) antes de la siguiente publicación ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
+    - Subir la corrección de la entrega de matrícula masiva (tipos, pruebas y 2 reglas) y publicar las reglas de Firestore ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
+    - Hacer que Vercel espere al CI antes de publicar (PB-27).
     - Registrar en el manual si se aplicó en el VPS la migración `06_matriculas_descuento_cronograma.sql` que necesita esa entrega.
-    - Confirmar que la academia es titular del dominio `cermatacademia.edu.pe`, que usan las cuentas de los alumnos.
+    - Registrar a nombre de la academia el dominio `cermatacademia.edu.pe`, que usan las cuentas de los alumnos y que hoy no existe en el DNS (R-31), o cambiar el dominio de las cuentas.
     - Copiar cada semana los respaldos del VPS a la PC y verificarlos con `restore.js`.
     - Configurar el secreto `FIREBASE_SERVICE_ACCOUNT` en GitHub para que el CI publique las reglas.
-    - Firmar las actas de validación con la academia y la declaración de ética de seguridad.
-    - Ejecutar el laboratorio de infraestructura (Semestre 2) y adjuntar sus evidencias.
+    - Firmar en una sola sesión con la Dirección el acta de validación, el acta de constitución, la autorización de pruebas, la validación de supuestos y el acta de revisión por la dirección; el equipo firma las dos declaraciones de ética.
+    - Ejecutar las pruebas pendientes de Infraestructura en el entorno simulado y virtual (Packet Tracer, Docker y Hyper-V), medir latencia y ancho de banda (PR-40 y PR-41) y adjuntar las evidencias.
     - Validar con la Dirección los supuestos del business case y el aviso de privacidad de la ficha de matrícula.
     - Dar acceso al jurado al repositorio.
     - Preparar la sustentación individual ([guía](e5-presentacion-sustentacion-ce0217.md)).

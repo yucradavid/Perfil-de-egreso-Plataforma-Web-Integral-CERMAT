@@ -693,7 +693,7 @@ Wazuh (VM-SIEM01) recibe los eventos del firewall, Suricata, Cowrie, el VPS, el 
 |---|---|---|
 | 0. Correcciones en la nube | Hasta 2026-10-31 | Reglas de Firestore corregidas publicadas (hecho el 2026-10-24); MFA en cuentas de proveedores |
 | 1. Endurecimiento de lo existente | Hasta 2026-11-21 | Cabeceras de seguridad y DNS (CAA, SPF, DMARC); verificación de SSH y fail2ban en el VPS |
-| 1b. Laboratorio de validación (opcional) | Hasta 2026-11-21 | Reproducir la sede en un Proxmox de laboratorio para ejecutar PR-14 a PR-35; las evidencias se rotulan como de laboratorio |
+| 1b. Validación en un entorno simulado y virtual | Hasta 2026-11-27 | Reproducir la sede en Packet Tracer, Docker y Hyper-V para ejecutar PR-14 a PR-35 sin comprar hardware; las evidencias se rotulan como de simulación (S2-E2 §8 y S2-E3 §3.3) |
 | 2. Implementación en la sede | Sujeta a la adquisición del hardware (2027-I) | Switch, AP, host, OPNsense, VLAN, VPN, Suricata, honeypot y Wazuh |
 | 3. Operación | Continuo | Revisión trimestral de reglas; pruebas de detección mensuales |
 

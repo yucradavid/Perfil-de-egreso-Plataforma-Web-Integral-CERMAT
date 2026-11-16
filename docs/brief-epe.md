@@ -121,7 +121,7 @@ Reducir la fragmentación operativa mediante un sistema único que:
 - Firestore es la fuente principal para la operación web.
 - MySQL funciona como almacenamiento complementario cuando la API REST está habilitada.
 - Los procesos de validación institucional, pagos y estados finales dependen de administradores autorizados.
-- La academia es titular del dominio `cermatacademia.edu.pe`, que se usa para los usuarios internos de los alumnos (por confirmar).
+- La academia registrará a su nombre el dominio `cermatacademia.edu.pe`, que se usa para los usuarios internos de los alumnos. Al 2026-11-16 no existe en el DNS (R-31).
 
 ## 6. Datos
 

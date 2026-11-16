@@ -26,7 +26,7 @@ El proceso de matrícula se eligió con una matriz de priorización (4,80 de 5) 
 | Tiempo de ciclo (consulta → confirmación) | 1 a 3 días (supuesto) | ≤ 24 h (meta medida con marcas de tiempo) | — |
 | Sobrecupo y duplicados | Posibles y no medidos | 0 por diseño (transacción e id determinístico) | Calidad |
 
-**Condición:** las mejoras de calidad y de captación solo se materializan cuando se publiquen las reglas corregidas: con las reglas vigentes del 22-jun-2026 la pre-matrícula pública no se completa.
+**Condición, cumplida el 2026-10-24:** las mejoras de calidad y de captación dependían de publicar las reglas corregidas, porque con las del 22-jun-2026 la pre-matrícula pública no se completaba. Las reglas corregidas se publicaron y se verificaron en producción con una pre-matrícula de prueba sin sesión.
 
 ## Identificación y caracterización de procesos (CE0131)
 

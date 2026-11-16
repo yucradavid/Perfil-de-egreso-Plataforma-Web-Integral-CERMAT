@@ -29,14 +29,14 @@
 
 **Estado.** El sistema está desplegado y en operación piloto. Al 2026-10-24 tenía 8 matrículas, 2 pagos, 7 marcas de asistencia y 8 usuarios con perfil. Al 2026-11-14, la conciliación contó 10 matrículas, 3 pagos y 7 marcas.
 
-La verificación del 2026-11-16, sobre el commit `f9447d8`, con los mismos comandos del CI, da:
+La verificación del 2026-11-16, con los mismos comandos del CI, da:
 
 - **Build:** de producción correcto.
-- **Pruebas:** 372 automáticas; pasan 366.
-- **TypeScript:** la API no tiene errores. El frontend tiene 34, todos en 4 archivos de matrícula que cambió esa entrega (30 en la tarjeta de matrícula masiva por Excel).
+- **Pruebas:** 372 automáticas, todas en verde.
+- **TypeScript:** 0 errores en el frontend y en la API.
 - **Calidad:** pipeline de CI con 6 trabajos.
 
-Los errores de tipos y las 6 pruebas que fallan se corrigen antes de la siguiente publicación ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
+La entrega de matrícula masiva (`f9447d8`) se había publicado con 34 errores de tipos y 6 pruebas en rojo. Se corrigieron ese mismo día, y la corrección está lista para subir ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
 
 ## Sección 1: Arquitectura e Integración
 
@@ -295,8 +295,8 @@ Las contraseñas de MySQL van en `server/.env.local` y `analytics/.env.local`. N
 | API de cuentas en el VPS (2026-11-16) | `https://api-academia.cermatschool.edu.pe/api/cuentas/usuario-disponible` y `/api/usuarios` responden 401 sin sesión: las rutas están montadas y protegidas. `/health` responde 200 |
 | Paquetes del VPS de noviembre | 12-nov, 20:52: marcas borradas, activación y cuentas desactivadas (`9 de 9` permisos). 12-nov, 21:07: conciliación de marcas (nada que borrar). 14-nov, 21:47: réplica reparable y temporizador, con la comparación final «coinciden» ([E2 §2.3](e2-base-datos-ce022.md#23-evidencias-de-creacion)) |
 | Build de producción | `vite build` correcto (aviso de chunk mayor de 500 kB, registrado en el plan de mejora del E4) |
-| Tipos | 2026-10-24: `tsc --noEmit` sin errores. 2026-11-16: 0 en la API y 34 en el frontend, en la entrega de matrícula masiva |
-| Pruebas | 2026-10-24: 99 en verde. 2026-11-16: 150 unitarias, 96 de API, 101 de reglas y 25 de base de datos; 366 de 372 en verde |
+| Tipos | 2026-10-24: `tsc --noEmit` sin errores. 2026-11-16: 0 en la API y en el frontend, tras corregir los 34 de la entrega de matrícula masiva |
+| Pruebas | 2026-10-24: 99 en verde. 2026-11-16: 150 unitarias, 96 de API, 101 de reglas y 25 de base de datos; 372 en verde con la corrección (366 en la entrega publicada) |
 | Respaldo y restauración | Restauración verificada con SHA-256: RTO de 0,23 s en la base real (REC-05) y de 0,27 s en la base de prueba; en otro servidor, 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14) ([E2](e2-base-datos-ce022.md)) |
 | Capa relacional en el VPS | `https://api-academia.cermatschool.edu.pe/health` y `https://analitica-academia.cermatschool.edu.pe/health` responden `"status":"ok"` con MySQL conectado; sincronización de punta a punta con respuesta 200 (2026-10-24, 22:10 y 22:11) |
 | Respaldo diario | Temporizador de systemd en el VPS, a las 03:00 de Perú; primera ejecución correcta el 2026-10-24 a las 22:18 |

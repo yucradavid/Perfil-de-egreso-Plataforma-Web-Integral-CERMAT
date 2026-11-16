@@ -44,7 +44,7 @@
 
 **Disponibilidad.** Tier I con elementos de Tier II. Si la sede falla, la matrícula, los pagos y la asistencia siguen en la nube. RTO de 1 h y RPO de 24 h para la base relacional.
 
-**Siguientes pasos.** Cotizar y adquirir el hardware; mientras tanto, implantar en S2-E3 los respaldos del VPS y de Firestore y validar el diseño en un laboratorio.
+**Siguientes pasos.** Cotizar y adquirir el hardware; mientras tanto, implantar en S2-E3 los respaldos del VPS y de Firestore y validar el diseño en un entorno simulado y virtual (S2-E3 §3.3).
 
 | Cifra del diseño | Valor |
 |---|---:|
@@ -586,7 +586,7 @@ Si el host PVE01 falla:
 | Fase | Plazo | Actividades |
 |---|---|---|
 | Continuidad inmediata | Hasta 2026-11-21 | Respaldos del VPS y de Firestore, línea base de RAM del VPS (medida el 2026-10-24), monitoreo transitorio |
-| Laboratorio (opcional) | Hasta 2026-11-21 | Proxmox de laboratorio con las 7 VM para ensayar el despliegue y las pruebas REC |
+| Validación en un entorno virtual | Hasta 2026-11-27 | Hyper-V con VM mínimas para ensayar el conmutador virtual, las VLAN, las VM y las pruebas REC (S2-E3 §3.3) |
 | Adquisición | 2027-I | Cotizar y comprar host, switch, AP, UPS y discos |
 | Despliegue | Tras la adquisición | Instalar Proxmox, crear las VM, migrar la API a VM-APP01 y activar el túnel |
 | Operación | Continuo | Restauraciones de prueba mensuales y revisión de capacidad trimestral |

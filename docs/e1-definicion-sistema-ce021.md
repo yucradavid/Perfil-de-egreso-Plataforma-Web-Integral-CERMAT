@@ -115,7 +115,7 @@ Cada regla está aplicada en el código o en las reglas de seguridad, no solo de
 | Operativa | Las fechas de asistencia usan la zona horaria de Perú (America/Lima). |
 | Operativa | La capa relacional (API, MySQL y analítica) es complementaria: su caída no detiene matrícula, pagos ni asistencia. |
 | Legal | El sistema trata datos personales de menores de edad: aplica la Ley N.° 29733 de Protección de Datos Personales. La pre-matrícula pública pide la autorización (del apoderado si el alumno es menor) y muestra «Cómo usamos tus datos». El texto del aviso, el plazo de conservación y la inscripción del banco de datos están por validar con la academia. |
-| Operativa | Los usuarios de los alumnos usan el dominio `cermatacademia.edu.pe`. Si otra persona lo registrara, recibiría los correos de restablecimiento: la academia debe confirmar que es su titular. |
+| Operativa | Los usuarios de los alumnos usan el dominio `cermatacademia.edu.pe`. Ese dominio no existe en el DNS (NXDOMAIN, verificado el 2026-11-16): si otra persona lo registrara, recibiría los correos de restablecimiento. La academia debe registrarlo a su nombre o cambiar el dominio de las cuentas (R-31 del SGSI). |
 | Alcance | Sin app móvil nativa, pasarela de pagos, facturación electrónica ni integración con ERP. |
 | Despliegue | La academia usa su propio dominio en Vercel, separado del sistema de gestión del colegio (cermatschool.edu.pe). |
 
@@ -605,7 +605,7 @@ flowchart TB
 | RF29 | — | `pages/admin/AdminInstitutionalConfigPage.tsx`, `features/institucion/*` | — |
 | RF30 | — | `server/src/scripts/compararReplica.ts`, `server/src/replica/*`, `deploy/systemd/academia-replica.*` | API › comparación (10), conversión desde Firestore (11) y conciliación de marcas (9); BD 11, 14–15 |
 
-Cobertura de trazabilidad: 30 de 30 RF con componente identificado; 28 de 30 con al menos una prueba automática. Las 2 restantes (RF19 y RF29) se cubren con revisión en los emuladores. Al 2026-11-16 no pasan 6 pruebas de RF12, RF21, RF24, RF25, RF28 y RF30, que fallan desde la entrega de matrícula masiva ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
+Cobertura de trazabilidad: 30 de 30 RF con componente identificado; 28 de 30 con al menos una prueba automática. Las 2 restantes (RF19 y RF29) se cubren con revisión en los emuladores. Las 6 pruebas de RF12, RF21, RF24, RF25, RF28 y RF30 que había roto la entrega de matrícula masiva se corrigieron el 2026-11-16 ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
 
 ### Anexo C — Diagramas complementarios
 

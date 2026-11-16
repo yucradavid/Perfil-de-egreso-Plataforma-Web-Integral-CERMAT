@@ -127,5 +127,5 @@ Las capturas del 2026-10-24 (Vercel, pre-matrícula pública, clave rotada, VPS 
 | Activos del SGSI | 33 |
 | Riesgos evaluados (ISO/IEC 27005) | 29 |
 | Controles del Anexo A en la SoA | 93 (92 aplicables) |
-| Pruebas de red con resultado real / pendientes | 14 conformes y 1 no conforme / 24 pendientes |
+| Pruebas de red con resultado real / pendientes | 14 conformes y 1 no conforme / 27 pendientes |
 | Pruebas de recuperación ejecutadas / pendientes | 7 / 7 (REC-05 en la base real: 0,23 s; REC-13 y REC-14 en otro servidor: 0,33 s y 0,41 s) |

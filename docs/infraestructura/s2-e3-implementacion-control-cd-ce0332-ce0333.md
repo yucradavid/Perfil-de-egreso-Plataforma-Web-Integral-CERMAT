@@ -28,7 +28,7 @@
 | Informe de implementación, gestión y control de centro de datos | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
 | Evidencias técnicas de configuración | Configuraciones sanitizadas y salidas de comandos | Secciones 3, 4, 5 y 7 | Incluye nube (VPC/EC2/SG/NACL/IAM equivalentes) e hipervisor (vSwitch/VLAN/VM equivalentes) | Parcial: nube con evidencia; hipervisor con procedimiento pendiente |
 | Registro de prueba de recuperación | XLSX y sección 7.7 | [s2-e3-registro-prueba-recuperacion.xlsx](../assets/infraestructura/s2-e3-registro-prueba-recuperacion.xlsx) | Al menos un ejercicio de recuperación completo, documentado | **Cumplido**: 4 ejercicios ejecutados (REC-01 a REC-04); 8 pendientes |
-| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: scripts versionados; carpeta `infra/` por crear; secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
+| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: `infra/` creada el 2026-11-16 (README, nginx y cabeceras del VPS, Uptime Kuma, scripts de prueba y evidencias), más el respaldo de Firestore verificado en el emulador; falta lo del entorno simulado y virtual. Secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
 
 ## 1. Resumen ejecutivo de la implementación del centro de datos
 
@@ -50,7 +50,7 @@ Desde el 2026-10-24 la capa relacional de la academia corre en el VPS: usuario `
 
 | Elementos de S1-E2 | Implementación | Cambio o justificación |
 |---|---|---|
-| CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; se propone un laboratorio (fase 1b) para ensayar el procedimiento |
+| CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; el conmutador, las VLAN, las VM y su recuperación se validan en Hyper-V (fase 1b, sección 3.3) |
 | CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Desde el 2026-10-24 el VPS aloja también la capa relacional de la academia (desvío del diseño, sección 3.1) |
 | CD-28 (strongSwan y `dum0`) | Pendiente | Requiere OPNsense en la sede |
 | CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas publicadas y frontend con cabeceras de seguridad, verificados el 2026-10-24 (NC-01 cerrada) |
@@ -171,6 +171,24 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
 | `qm list` con las 7 VM y sus etiquetas; `bond0` con 2 enlaces activos; VM-APP01 responde `/health`; primer respaldo de PBS verificado | Pendiente de ejecución | Captura del resumen del host, `/etc/network/interfaces` sanitizado, salida de `qm list` y de `/proc/net/bonding/bond0` y registro del trabajo de PBS |
+
+### 3.3 Entorno de validación del hipervisor (fase 1b)
+
+Mientras no exista el host de la sede, el hipervisor se valida en Hyper-V, que viene con Windows 10 Pro, en la PC del equipo. Como ESXi, Hyper-V es un hipervisor de tipo 1, y la guía de la línea de Infraestructura admite un entorno virtual ([S2-E2, sección 8](s2-e2-implementacion-red-ce0312-ce0313.md)). La evidencia lleva la palabra **SIMULACIÓN**. El procedimiento de Proxmox de la sección 3.2 sigue siendo el de la sede.
+
+| ESXi (guía) | Proxmox (diseño de la sede) | Hyper-V (validación) | Evidencia |
+|---|---|---|---|
+| vSwitch | Bridge `vmbr0` con VLAN | Conmutador virtual interno | `Get-VMSwitch` |
+| Port group con VLAN | Etiqueta de VLAN en la NIC de la VM | VLAN de acceso en la NIC de cada VM | `Get-VMNetworkAdapterVlan`; ping dentro de la misma VLAN sí, entre VLAN distintas no |
+| Máquina virtual | VM | 2 VM mínimas (Alpine Linux) y una Ubuntu Server para REC-08 | `Get-VM` |
+| Snapshot y respaldo de la VM | Snapshot y Proxmox Backup Server | Punto de control, exportación e importación | REC-07 |
+| Métricas del host | Métricas de Proxmox | Medición de recursos por VM y contadores del host | `Measure-VM` y `Get-Counter` |
+
+Pruebas de recuperación en el entorno de validación:
+
+- **REC-07:** exportar la VM, borrarla, importarla como copia nueva y comprobar su servicio.
+- **REC-08:** reconstruir la capa de la academia en una VM Ubuntu Server de 2 GB con el manual de despliegue (§9) y el último respaldo, y validar `/health`. La VM se borra al terminar.
+- **REC-09 y REC-12:** en Packet Tracer ([S2-E2, sección 8](s2-e2-implementacion-red-ce0312-ce0313.md)): cortar el túnel y medir cuánto tarda en volver; restaurar la configuración del router en un equipo nuevo y repetir PR-16 y PR-17.
 
 ## 4. Implementación del entorno de nube
 
@@ -448,7 +466,7 @@ sudo -u postgres dropdb cermat_verificacion
 | REC-08 | Pendiente | Pérdida total del VPS (recurso de nube) | VPS | Reconstruir en una VM de prueba con el manual y el último respaldo; validar web y API | 8 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: bitácora con tiempos por paso |
 | REC-09 | Pendiente | Interrupción simulada del túnel | IPsec OPNsense ↔ VPS | swanctl --terminate --ike sede-azangaro en el VPS, o desconectar WAN1 | ≤ 2 min automático; 1 h manual | No aplica | — | — | Pendiente de ejecución | Pendiente | A adjuntar: registro de IPsec y alerta de Uptime Kuma |
 | REC-10 | Pendiente | Despliegue defectuoso del frontend | Vercel | Promover el despliegue anterior | 15 min | 0 | — | — | Pendiente de ejecución | Pendiente | A adjuntar: historial de despliegues |
-| REC-11 | Pendiente | Pérdida de datos operativos | Firestore | Exportar e importar en emulador o proyecto de prueba; comparar conteos agregados | 4 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: conteos antes y después |
+| REC-11 | Pendiente | Pérdida de datos operativos | Firestore | server/src/scripts/respaldoFirestore.ts exporta; restaurarFirestore.ts restaura en el emulador y compara conteos y huella del contenido | 4 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | Procedimiento verificado en el emulador con datos ficticios (2026-11-16: 237 documentos, huella idéntica, 0,63 s); falta correrlo con el respaldo real |
 | REC-12 | Pendiente | Pérdida del firewall virtual | VM-FW01 | VM nueva y restaurar config.xml; repetir PR-16 y PR-17 | 2 h | Último config.xml | — | — | Pendiente de ejecución | Pendiente | A adjuntar: captura y resultado de las pruebas |
 | REC-13 | 2026-10-24 | Recuperación en otro servidor: respaldo de la PC restaurado en el VPS | MySQL 8.0.46 (VPS, `cermat_db`) | sha256sum -c del respaldo cermat_db_2026-10-24T21-35-08.sql y restauración con mysql (manual de despliegue §9.3) | < 1 h | ≤ 24 h | 0,33 s | Huella SHA-256 correcta. 8 tablas, 9 funciones y procedimientos, 6 triggers, 3 vistas y 1 pago. Hallazgo posterior: la base se creó con utf8mb4_unicode_ci y las rutinas quedaron con otra collation que las tablas (corregido el 2026-10-24 a las 22:06) | Recuperación completa; defecto de collation detectado después | Ejecutado | Manual de despliegue §9.3 y §9.6 |
 | REC-14 | 2026-10-24 22:22 (UTC−5) | Recuperación en otro servidor: respaldo diario del VPS restaurado en la PC | MySQL 8.0.30 (PC, `cermat_db_verificacion`) | Copia con scp de los 4 respaldos y sha256sum -c; node scripts/restore.js --archivo con el más reciente | < 1 h | ≤ 24 h | 0,41 s | SHA-256 verificado. Filas: matrículas 2, pagos 1, ciclos 1, auditoría 2, schema_migraciones 4, resto 0. 9 rutinas, 6 triggers y 3 vistas; collation coherente (utf8mb4_0900_ai_ci); funciones y sp_estado_cuenta sin errores | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-25T03-18-26.sql) |
@@ -562,7 +580,7 @@ ps -eo rss,comm --sort=-rss | head -n 12
 - `.github/pull_request_template.md`.
 - En el repositorio de documentación: diagramas, matrices y `scripts/generar-matrices-infra.mjs`.
 
-**Estructura propuesta para la configuración de infraestructura**, con carpetas separadas para diagramas, hipervisor (ESXi en la guía), nube (AWS en la guía), scripts y registros:
+**Estructura de la configuración de infraestructura** (creada el 2026-11-16 en `infra/`; lo del entorno simulado y virtual se completa al ejecutarlo), con carpetas separadas para diagramas, hipervisor (ESXi en la guía), nube (AWS en la guía), scripts y registros:
 
 ```text
 infra/
@@ -606,7 +624,7 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 1. **Solicitud:** issue o PR con la plantilla (qué cambia, por qué y cómo revertirlo).
 2. **Evaluación:** impacto en los riesgos y en la SoA; los cambios en reglas, firewall, VPN o bases son "de seguridad".
 3. **Respaldo previo:** `backup.js`, `pg_dump`, `config.xml` o snapshot de la VM, según el componente.
-4. **Prueba** en un entorno de prueba: emulador de Firestore, `cermat_prueba`, VM clonada o laboratorio.
+4. **Prueba** en un entorno de prueba: emulador de Firestore, `cermat_prueba`, VM clonada o entorno simulado.
 5. **Aprobación:** un segundo integrante; la Dirección en los cambios mayores.
 6. **Ejecución** en una ventana acordada; en el VPS se sigue el procedimiento de actualización sin pérdida del manual.
 7. **Verificación:** se repiten las pruebas PR o REC afectadas y se compara lo publicado con lo versionado.
@@ -646,14 +664,14 @@ Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SG
 
 ### 11.3 Limitaciones
 
-- Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN.
+- Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN en la sede; la fase 1b la obtiene en Hyper-V y Packet Tracer (sección 3.3 y S2-E2 §8), rotulada como simulación.
 - La base real tiene muy pocas filas aun después de la carga inicial (10 matrículas, 2 pagos y 7 asistencias), así que su RTO (0,23–0,41 s) debe volver a medirse cuando tenga volumen.
 - La copia fuera del VPS es manual y semanal; falta automatizarla hacia PBS.
 - Parte de la evidencia del VPS proviene del manual del propietario y faltan las capturas.
 
 ### 11.4 Mejoras futuras
 
-- Laboratorio de validación con Proxmox (fase 1b).
+- Repetir en la sede, con Proxmox y el hardware, lo validado en Hyper-V (fase 2).
 - Segundo host y clúster cuando la operación lo justifique.
 - Respaldo inmutable fuera del sitio.
 - Pruebas de restauración automatizadas, con su resultado publicado en Uptime Kuma.

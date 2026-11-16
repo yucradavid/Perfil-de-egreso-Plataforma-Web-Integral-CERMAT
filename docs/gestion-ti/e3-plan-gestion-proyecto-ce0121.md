@@ -48,9 +48,9 @@ El proyecto empezó el **2026-01-02** (primer commit de desarrollo, "Implement A
 | Restricciones | Fin del semestre académico en diciembre de 2026 · CERMAT no tiene presupuesto de TI aprobado: su aporte es tiempo del personal y la operación desde 2027 · 4 estudiantes a tiempo parcial y un solo autor que conoce el código · el VPS del colegio (2 GB) queda reservado a componentes ligeros según CE03 · los scripts SQL no se ejecutan desde PowerShell por los falsos positivos del antivirus · cumplimiento de la Ley N.° 29733 |
 | Riesgos de alto nivel | Publicación de reglas postergada (R-01), baja disponibilidad del equipo (R-02), Product Owner sin designar (R-03) y resistencia del personal (R-06) (sección 3.5) |
 | Presupuesto resumido | BAC S/ 21 346 valorizado; desembolso de CERMAT en el año 0: S/ 1 166 en tiempo de su personal; operación desde 2027: S/ 2 438 al año (escenario base) |
-| Criterios de éxito | 19 de 19 pruebas de reglas contra lo publicado · 6 de 6 trabajos del CI en verde · 30 días con 0 diferencias en `v_conciliacion_pagos` · RPO ≤ 24 h de Firestore probado con una restauración · 100 % del personal capacitado · acta de aceptación de los flujos críticos firmada por la Dirección · criterios del hito de continuidad cumplidos ([E2, 2.4.6](e2-business-case-ce0113.md#246-recomendacion-y-criterios-del-hito-de-continuidad)) |
+| Criterios de éxito | 100 % de las pruebas de reglas en verde contra lo publicado (101 al 2026-11-16) · 6 de 6 trabajos del CI en verde · 30 días con 0 diferencias en `v_conciliacion_pagos` · RPO ≤ 24 h de Firestore probado con una restauración · 100 % del personal capacitado · acta de aceptación de los flujos críticos firmada por la Dirección · criterios del hito de continuidad cumplidos ([E2, 2.4.6](e2-business-case-ce0113.md#246-recomendacion-y-criterios-del-hito-de-continuidad)) |
 | Relación con otros documentos | El Project Charter de software del [E4 de Software, 3.1](../e4-calidad-operacion-ce024.md#31-project-charter) es el derivado de esta acta para el producto: comparte sponsor, equipo y objetivos |
-| Aprobación | **Pendiente de ejecución.** Procedimiento: presentar el acta en la revisión del Sprint 1 (2026-11-06) y recoger la firma del sponsor y del director del proyecto. Criterio de aceptación: acta firmada sin observaciones abiertas. Evidencia a adjuntar: acta firmada en PDF. |
+| Aprobación | **Pendiente de firma.** No se firmó en la revisión del Sprint 1 (2026-11-06), como estaba previsto. Se presenta en una sola sesión con la Dirección junto con las demás actas (fecha propuesta: 2026-11-20) para recoger la firma del sponsor y del director del proyecto. Criterio de aceptación: acta firmada sin observaciones abiertas. Evidencia a adjuntar: acta firmada en PDF. |
 
 ## 3.2 Gestión del alcance
 
@@ -222,7 +222,7 @@ gantt
 | H0 | Inicio del desarrollo | 2026-01-02 | Real | Commit "Implement Admin & Public MVP" |
 | H0b | Publicación de las reglas vigentes (con 3 fallas) | 2026-06-22 | Real | Ruleset de producción identificado en el [E4 de Software](../e4-calidad-operacion-ce024.md#26-analisis-del-incidente-reglas-sin-publicar-desde-junio) |
 | H0c | Última publicación del frontend | 2026-10-15 | Real | Historial de despliegues de Vercel |
-| H1 | Acta de constitución firmada | 2026-11-06 | Planificado | Firma del sponsor |
+| H1 | Acta de constitución firmada | 2026-11-06; reprogramado a la sesión con la Dirección (propuesta: 2026-11-20) | Planificado, atrasado | Firma del sponsor |
 | H2 | Reglas corregidas publicadas y matrícula sin sesión verificada | 2026-11-06 (cumplido el 2026-10-24) | Real | Consulta sin sesión denegada (403) y pre-matrícula de prueba exitosa ([E4 de Software, 2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 | H3 | Capa relacional en servicio continuo con monitor | 2026-11-20 | Planificado | Alertas activas y 0 diferencias de conciliación |
 | H4 | Línea base AS-IS medida | 2026-11-20 | Planificado | 10 trámites cronometrados |

@@ -79,7 +79,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 
 ## 3. Análisis de riesgos
 
-31 riesgos evaluados con ISO/IEC 27005: 7 críticos, 10 altos y 14 medios. 17 provienen de hallazgos reales. Tras el tratamiento quedarían 19 bajos y 12 medios. R-30 y R-31 se agregaron el 2026-11-16, por el acceso directo de los alumnos, y R-28 quedó tratado el 2026-11-14.
+31 riesgos evaluados con ISO/IEC 27005: 7 críticos, 10 altos y 14 medios. 18 provienen de hallazgos reales. Tras el tratamiento quedarían 19 bajos y 12 medios. R-30 y R-31 se agregaron el 2026-11-16, por el acceso directo de los alumnos, y R-28 quedó tratado el 2026-11-14.
 
 | Riesgo crítico | Nivel | Tratamiento | Plazo | Estado |
 |---|---|---|---|---|
@@ -119,7 +119,7 @@ La declaración de ética de seguridad ([S2-E1 §12.7](s2-e1-sgsi-ce0321-ce0324.
 
 | Tipo | Total | Con resultado real | Pendientes |
 |---|---:|---:|---:|
-| Pruebas de red y perímetro (PR) | 39 | 14 conformes y 1 no conforme | 24 |
+| Pruebas de red y perímetro (PR) | 42 | 14 conformes y 1 no conforme | 27 |
 | Pruebas de recuperación (REC) | 14 | 7 | 7 |
 | Pruebas automáticas de software (E4) | 99 | 99 en verde con las reglas corregidas | Primera ejecución del CI en GitHub |
 
@@ -156,7 +156,7 @@ Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respa
 | 5 | Agregar cabeceras de seguridad y `server_tokens off`; verificar SSH e instalar fail2ban; publicar CAA | R-12 a R-14 | Cabeceras y `server_tokens off`: hechos el 2026-10-24 en la academia y en el colegio. SSH, fail2ban y CAA: 2026-11-07 a 2026-11-14 |
 | 6 | Desplegar Uptime Kuma (de forma transitoria) con latido externo y medir la disponibilidad | R-09 y NC-05 | 2026-11-14 |
 | 7 | Programar la exportación de Firestore y ejecutar REC-11 | R-10 y NC-06 | 2026-11-21 |
-| 8 | Montar un laboratorio con Proxmox para ejecutar PR-14 a PR-35, REC-07, REC-09 y REC-12, rotulando la evidencia como de laboratorio | R-15, R-16 y R-20 | 2026-11-21 |
+| 8 | Validar la sede en un entorno simulado y virtual (Packet Tracer, Docker y Hyper-V): PR-14 a PR-35, PR-42, REC-07, REC-09 y REC-12, con la evidencia rotulada como simulación (S2-E2 §8) | R-15, R-16 y R-20 | 2026-11-27 |
 | 9 | Realizar la revisión por la dirección: aprobar las políticas, designar roles, aceptar los riesgos residuales y decidir el presupuesto | Cláusula 9.3 | Semana del 2026-11-23 |
 | 10 | Adquirir el hardware y ejecutar la fase 2 en la sede | R-15 a R-19, R-26 y R-28 | 2027-I |
 
@@ -187,7 +187,7 @@ Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respa
 | 4–6 | Seguridad de aplicación | Suite de 19 pruebas en el emulador: 19/19 con las reglas corregidas y 10 fallas con las de junio; consulta sin sesión que hoy devuelve 403 en producción |
 | 6–8 | Recuperación en vivo | `node scripts/backup.js` y `node scripts/restore.js` en la base de prueba, con el RTO medido y la línea del registro |
 | 8–10 | SGSI | Del riesgo R-01 al control 5.15 de la SoA y a su evidencia, con la no conformidad NC-01, su acción y su cierre del 2026-10-24 |
-| 10–12 | Pendientes y plan | Hoja de ruta, laboratorio y decisiones que se piden a la Dirección |
+| 10–12 | Pendientes y plan | Hoja de ruta, entorno simulado y decisiones que se piden a la Dirección |
 
 ## 12. Evaluación de cierre de la línea
 
@@ -195,13 +195,13 @@ La guía exige demostrar coherencia entre requerimientos, diseño, implementaci�
 
 | Aspecto | Evidencia disponible | Brecha pendiente |
 |---|---|---|
-| Requerimientos | 15 requisitos trazados a diseño y prueba (Producto final S1 §6) | Validar los supuestos con mediciones (ISP, energía y carga) |
+| Requerimientos | 15 requisitos trazados a diseño y prueba (Producto final S1 §6) | Validar los supuestos con mediciones: latencia y ancho de banda (PR-40 y PR-41), energía y carga |
 | Diseño | Red, centro de datos, equivalencias, matrices y diagramas editables (S1) | — |
 | Implementación | Nube y capa de datos operativas | Sede on-premise, VPN y detección |
 | Seguridad | SGSI con riesgos, SoA, políticas y auditoría real; mínimo privilegio en las bases | Cerrar NC-04 a NC-08 (NC-01 a NC-03 se cerraron el 2026-10-24) |
-| Operación | Procedimientos del VPS; respaldo y restauración de MySQL | Respaldos del VPS y de Firestore; laboratorio |
+| Operación | Procedimientos del VPS; respaldo y restauración de MySQL | Respaldos del VPS y de Firestore; recuperación de VM en el entorno virtual |
 | Monitoreo | `/health` y registros locales | Uptime Kuma, Netdata y Wazuh |
-| Documentación | 8 documentos versionados con evidencia y pendientes declarados; PDF consolidado | Adjuntar capturas del laboratorio |
+| Documentación | 8 documentos versionados con evidencia y pendientes declarados; PDF consolidado | Adjuntar capturas del entorno simulado |
 | Repositorio técnico | Scripts, CI, pruebas, matrices reproducibles y diagramas | Carpeta `infra/` con configuraciones sanitizadas; limpiar secretos del historial |
 | Sustentación | Guion del recorrido técnico | Grabación y defensa individual |
 

@@ -22,7 +22,7 @@
 - 101 de reglas de seguridad de Firestore, ejecutadas en el emulador (19 al 2026-10-24).
 - 25 de la base de datos MySQL (19 al 2026-10-24).
 
-El 2026-11-16 pasan **366 de 372**. Las 6 que fallan (2 de API y 4 de reglas) y 34 errores de tipos del frontend aparecieron con la última entrega, la de matrícula masiva por Excel (`f9447d8`). Se registran como defectos abiertos en la [sección 1.3](#13-reporte-de-ejecucion-2026-11-16). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
+Las 372 pasan. La verificación para este informe encontró que la última entrega, la de matrícula masiva por Excel (`f9447d8`), se había publicado con 6 pruebas en rojo (2 de API y 4 de reglas) y 34 errores de tipos. Se corrigió el mismo día, y la corrección está lista para subir ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
 
 Las pruebas encontraron **tres fallas activas en producción**. Las reglas publicadas, del 22-jun-2026, permitían que cualquier usuario se asignara el rol de auxiliar o docente, permitían listar sin sesión las matrículas pagadas (nombres y teléfonos) y bloqueaban la matrícula pública de visitantes. La causa raíz fue que la primera línea de `firestore.rules` (`#`) impedía compilar el archivo, así que las versiones posteriores nunca llegaron a producción. Las tres fallas quedaron corregidas en el código: con las reglas de junio fallan 10 pruebas, y con las corregidas pasan las 19. El 2026-10-24 se publicaron el frontend y las reglas corregidas, y se verificó en producción que las tres fallas quedaron cerradas ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
 
@@ -97,31 +97,47 @@ Inventario al 2026-11-16, por archivo de prueba (unitarias y API) y por bloque (
 
 ### 1.3 Reporte de ejecución (2026-11-16)
 
-Commit `f9447d8`, con el script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQL 8.0.30).
+Script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQL 8.0.30). Se midieron dos versiones:
 
-| Suite | Comando | Resultado 2026-11-16 | Resultado 2026-10-24 |
-|---|---|---|---|
-| Tipos del frontend | `npm run typecheck` | **34 errores** | 0 |
-| Tipos de la API | `cd server && npm run typecheck` | **0 errores** | 0 |
-| Unitarias frontend | `npm run test:coverage` | **150/150 OK** (2,2 s) | 34/34 |
-| API REST | `cd server && npm test` | **94/96** (1,4 s) | 27/27 |
-| Reglas de Firestore | `npm run test:rules` | **97/101** (23 s con el emulador) | 19/19 |
-| Base de datos | `mysql -t cermat_prueba < server/src/db/92_pruebas_bd.sql` | **25/25 OK** | 19/19 |
-| Build de producción | `npm run build` | **OK** | OK |
-| **Total de pruebas** | | **366/372** | 99/99 |
+- el commit publicado `f9447d8`;
+- la corrección hecha ese mismo día, todavía sin subir.
 
-!!! danger "Defectos abiertos: la entrega de matrícula masiva (`f9447d8`) se publicó sin pasar las comprobaciones del CI"
-    | Defecto | Dónde | Efecto |
+| Suite | Comando | `f9447d8` (publicado) | Con la corrección | 2026-10-24 |
+|---|---|---|---|---|
+| Tipos del frontend | `npm run typecheck` | **34 errores** | **0 errores** | 0 |
+| Tipos de la API | `cd server && npm run typecheck` | 0 errores | **0 errores** | 0 |
+| Unitarias frontend | `npm run test:coverage` | 150/150 | **150/150 OK** (3,0 s) | 34/34 |
+| API REST | `cd server && npm test` | **94/96** | **96/96 OK** (1,5 s) | 27/27 |
+| Reglas de Firestore | `npm run test:rules` | **97/101** | **101/101 OK** (15 s más el arranque del emulador) | 19/19 |
+| Base de datos | `mysql -t cermat_prueba < server/src/db/92_pruebas_bd.sql` | 25/25 | 25/25 (la corrección no toca SQL) | 19/19 |
+| Build de producción | `npm run build` | OK | **OK** | OK |
+| **Total de pruebas** | | **366/372** | **372/372** | 99/99 |
+
+Ese mismo día se agregaron 4 pruebas de API para el respaldo de Firestore (REC-11). Con ellas, la API tiene 100 y el proyecto **376**, todas en verde según la verificación posterior del CI.
+
+!!! warning "La entrega de matrícula masiva (`f9447d8`) se publicó sin pasar el CI; se corrigió el mismo día"
+    La verificación para este informe encontró los defectos. Vercel publica `main` sin esperar al CI (PB-27).
+
+    | Falla | Causa | Corrección |
     |---|---|---|
-    | 34 errores de tipos | `AdminBulkQuickEnrollmentCard.tsx` (30), `bulkEnrollmentImport.ts` y su prueba (3), `AdminQuickEnrollmentCard.tsx` (1) | El tipo `BulkEnrollmentEntry` cambió y la tarjeta usa la forma anterior. El build pasa porque Vite no comprueba tipos, pero el CI falla |
-    | Prueba de API: conversión desde Firestore | `server/test/desdeFirestore.test.ts:39` | Usa un descuento en cuotas, que la regla nueva prohíbe: hay que corregir el dato de la prueba |
-    | Prueba de API: matrícula activada | `server/test/sync.test.ts:233` | La API responde 400 en vez de 200 |
-    | Regla: indicador de contraseña | `reglas.test.ts:538` | El alumno puede volver a poner `passwordInicial` en `true`. Solo reactiva su propio aviso; no puede apagarlo |
-    | Regla: comprobantes del alumno | Bloque «comprobantes de pago» | Se deniega que el alumno liste los comprobantes de su matrícula |
-    | Regla: QR fuera del perfil | Bloque «QR del alumno fuera del perfil» | Se deniega que el alumno borre el QR que quedó en su perfil |
-    | Regla: cuenta desactivada | Bloque «docentes y auxiliares desactivados» | Se deniega que una cuenta desactivada lea su propio perfil |
+    | 34 errores de tipos | El proyecto compila sin `strictNullChecks`, y así `if (row.ok)` no estrecha la unión `BulkEnrollmentEntry`. Además faltaba `cycleId` en `QuickEnrollGroup` y un import, y se leía `cycle.name` de un tipo que no lo tiene | Guardas `isValidBulkRow` e `isInvalidBulkRow`; tipo e import completos. No cambia lo que hace la pantalla |
+    | API: conversión desde Firestore | La prueba usaba un descuento en cuotas, que la regla nueva prohíbe | La prueba usa cuotas sin descuento, y agrega un caso al contado con descuento |
+    | API: matrícula activada (400) | El cuerpo de la prueba (descuento 999 sobre un precio de 1) ya no pasa el esquema, que se valida antes de leer Firestore | Cuerpo válido pero distinto de Firestore: la prueba sigue mostrando que la API usa Firestore |
+    | Regla: indicador de contraseña | La prueba escribía el valor que ya tenía (`true`), y eso no es un cambio. No había hueco | La prueba intenta borrar el indicador, y se rechaza |
+    | Regla: comprobantes del alumno | A la prueba le faltaba el perfil de alumno, que la regla exige desde el 15-nov. En producción los alumnos lo tienen | Perfiles en la preparación de la prueba |
+    | Regla: QR fuera del perfil | Al pasar de `changedKeys()` a `affectedKeys()`, borrar un campo cuenta como cambio, y `studentQR` no estaba en la lista. El alumno ya no podía borrar su QR viejo | `studentQR` va en la lista; otra condición impide volver a escribirlo |
+    | Regla: cuenta desactivada | Desde el 15-nov, una cuenta desactivada no leía su propio perfil. El docente o auxiliar lo necesita para ver «Tu cuenta está desactivada» | El personal desactivado lee su perfil; el alumno desactivado sigue sin leerlo |
 
-    Las tres últimas son funciones que el sistema necesita y que hoy se deniegan. Si estas reglas ya se publicaron desde la consola, «Mis comprobantes» del alumno falla en producción. El CI no habría publicado estas reglas: solo lo hace con todo en verde. Acción: corregir y volver a 372/372 antes de la siguiente publicación (plan de mejora, acción 13).
+    **Impacto.** Solo dos fallas eran defectos del sistema, ambos de bajo impacto si esas reglas ya se publicaron:
+
+    - el QR viejo no se borra del perfil (la migración del VPS ya los había borrado);
+    - el personal desactivado no ve su aviso (igual no tiene acceso).
+
+    Las otras cuatro eran de las pruebas o de los tipos.
+
+    **Mejora de seguridad.** El cambio a `affectedKeys()` de esa entrega cierra un hueco. Con `changedKeys()`, el alumno podía agregar o borrar campos de su perfil fuera de la lista, por ejemplo borrar `passwordInicial` y esconder el aviso.
+
+    **Pendiente:** subir la corrección y publicar las reglas.
 
 ### 1.4 Reporte de cobertura
 
@@ -229,7 +245,7 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 | Paquetes del VPS | Cada paquete lleva `SHA256SUMS`, respaldo previo y un bloque que se detiene ante el primer error y vuelve a levantar los servicios | Manual §9.7.7 a §9.7.9 |
 | Migración de la base | Respaldo previo con `backup.js`, servicios detenidos y migraciones re-ejecutables | Manual de despliegue §9.6.1 |
 | Base MySQL | `scripts/backup.js` (con `--routines`, SHA-256) y `scripts/restore.js` (verificación, RTO y collation) | RTO medido: 0,23 s en la base real (REC-05), 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14), todos del 2026-10-24; 0,27–0,38 s en la base de prueba |
-| Datos de Firestore | — | **Brecha**: respaldo programado en el plan de mejora |
+| Datos de Firestore | `respaldoFirestore.js` exporta todo a NDJSON con `.sha256` y manifiesto; `restaurarFirestore.js` restaura solo en el emulador y compara conteos y huella | Verificado con datos ficticios el 2026-11-16 (237 documentos, huella idéntica, 0,63 s). **Falta** programarlo en el VPS y correrlo con datos reales (PB-11) |
 
 ### 2.6 Análisis del incidente: reglas sin publicar desde junio
 
@@ -301,7 +317,7 @@ Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el V
 | 2026-11-13/14 | Push de `22dba3a`: réplica reparable | CI #22 en verde; Vercel publicó el frontend |
 | 2026-11-14, 21:47 | VPS: réplica reparable y conciliación nocturna | 22 huellas; 3 diferencias de milisegundos reparadas; comparación final «coinciden»; temporizador habilitado y primera corrida `SUCCESS` |
 | 2026-11-15/16 | VPS: rutas `/api/cuentas` y `/api/usuarios` (manual §9.7.10, sin hora registrada) | El 2026-11-16 responden 401 sin sesión |
-| 2026-11-16 | Push de `f9447d8`: matrícula masiva por fila y configuración institucional | Vercel la publicó (el bundle contiene sus textos), aunque no pasa las comprobaciones del CI ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). El manual aún no registra la migración 06 en el VPS |
+| 2026-11-16 | Push de `f9447d8`: matrícula masiva por fila y configuración institucional | Vercel la publicó (el bundle contiene sus textos), aunque no pasaba las comprobaciones del CI. Se corrigió el mismo día, pendiente de subir ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). El manual aún no registra la migración 06 en el VPS |
 
 **Lección aprendida.** Desde el 2026-10-28 cada entrega declara su orden de publicación (reglas o frontend primero) con una tabla de qué combinación falla. Así la ventana de riesgo queda del lado del administrador, que es quien despliega ([E3 §4.1](e3-sistema-funcional-ce023.md#41-instrucciones-de-instalacion)). La entrega del 16-nov muestra el hueco que queda: Vercel publica `main` aunque el CI esté en rojo.
 
@@ -353,7 +369,7 @@ Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el V
 | PB-08 | Monitor externo con alertas sobre la URL y `/health` | Media | Pendiente |
 | PB-09 | Reducir `any` en módulos de dinero y asistencia | Media | Hecho en lo medido: 71 usos en todo el código (meta < 120); 0 en `features/payments` y 1 en `features/attendance` |
 | PB-10 | Carga diferida de páginas (bundle inicial de 2,8 MB; 3,1 MB al 2026-11-16) | Media | Pendiente |
-| PB-11 | Respaldo programado de Firestore con prueba de restauración | Media | Pendiente |
+| PB-11 | Respaldo programado de Firestore con prueba de restauración | Media | En parte: scripts y prueba de restauración listos (2026-11-16, `infra/README.md`); falta programarlo en el VPS |
 | PB-12 | Pruebas de componentes de matrícula y pagos | Media | Pendiente |
 | PB-13 | Operación continua de la capa relacional (VM-APP01 o VPS puente) | Alta | En curso: API, MySQL y analítica 24/7 en el VPS del colegio desde el 2026-10-24, con HTTPS y prueba de punta a punta. Desde el 2026-11-14, la comparación nocturna mide las diferencias cada día. Faltan los 30 días seguidos sin diferencias y el monitor de `/health` ([Gestión TI E3](gestion-ti/e3-plan-gestion-proyecto-ce0121.md), CR-03) |
 | PB-18 | Respaldo diario automático de MySQL y copia verificada fuera del VPS | Alta | Hecho (2026-10-24): temporizador de systemd y REC-14 |
@@ -364,7 +380,7 @@ Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el V
 | PB-23 | Seguridad de accesos: activación sin leer la matrícula, códigos de padres revocables, firma fuera del perfil y de las marcas, QR rotativo del docente y cuentas desactivadas | Alta | Hecho (28-oct y 12-nov), con su migración en el VPS |
 | PB-24 | Editar matrícula, Estado de cuenta, talleres con cupo y varios docentes por grupo | Alta | Hecho (2026-11-12) |
 | PB-25 | Ficha de matrícula y acceso directo de alumnos; módulo Usuarios | Alta | Hecho en el código; las rutas de la API están activas en el VPS al 2026-11-16. Falta confirmar la titularidad de `cermatacademia.edu.pe` y validar el aviso de privacidad |
-| PB-26 | Matrícula masiva por fila y configuración institucional de pago | Alta | En el código y publicado (2026-11-16); falta volver a 372/372 pruebas, corregir los 34 errores de tipos y registrar la migración 06 en el VPS |
+| PB-26 | Matrícula masiva por fila y configuración institucional de pago | Alta | En el código y publicado (2026-11-16). La corrección de tipos y pruebas (372/372) está lista para subir; falta registrar la migración 06 en el VPS |
 | PB-27 | Que Vercel publique solo los commits con el CI en verde | Alta | Pendiente (lección del 2026-11-16) |
 
 ### 3.4 Sprint Backlog — Sprint 1 "Calidad y seguridad"
@@ -413,7 +429,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Borrado auditado de marcas en MySQL y conciliación de las anteriores | PB-19 | Hecho (12-nov, aplicado en el VPS) | `sp_eliminar_asistencia`; 9 pruebas de conciliación |
 | Réplica reparable y conciliación nocturna | PB-19 | Hecho (14-nov, aplicado en el VPS) | 10 pruebas de comparación; temporizador en `SUCCESS` |
 | Ficha de matrícula, acceso directo de alumnos y módulo Usuarios | PB-25 | Hecho (15-nov) | API: 21 de cuentas y 10 de usuarios; reglas: 101 |
-| Matrícula masiva por fila y configuración institucional | PB-26 | En corrección | 6 pruebas y 34 errores de tipos pendientes (sección 1.3) |
+| Matrícula masiva por fila y configuración institucional | PB-26 | Hecho; corrección lista para subir | 372/372 y 0 errores de tipos (sección 1.3) |
 | Actualizar la documentación del EPE | — | Hecho (16-nov) | Este documento |
 | Exigir el CI en verde antes de publicar en Vercel | PB-27 | Pendiente | — |
 
@@ -428,7 +444,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 
 **Métricas del Sprint 1:** al 2026-10-24 estaban hechas 16 de las 17 tareas planificadas; al cierre, las 17 y las 5 agregadas. Pruebas automáticas: de 0 a 99 el 2026-10-24. Errores de TypeScript: de 66 a 0. Defectos corregidos en código hasta el 2026-10-24: 18.
 
-**Métricas del Sprint 2 (al 2026-11-16):** 7 de 9 tareas hechas. Pruebas automáticas: de 99 a 372, con 366 en verde. Usos de `any`: de 233 a 71. Los defectos de lógica y seguridad corregidos en octubre y noviembre se listan en el [E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones).
+**Métricas del Sprint 2 (al 2026-11-16):** 8 de 9 tareas hechas. Pruebas automáticas: de 99 a 372, todas en verde después de corregir la última entrega. Usos de `any`: de 233 a 71. Los defectos de lógica y seguridad corregidos en octubre y noviembre se listan en el [E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones).
 
 - **3 críticos de seguridad en producción**, cerrados en producción el 2026-10-24.
 - **4 de lógica de datos:** riesgo calculado sobre 30 días calendario, alumnos sin asistencias que no aparecían en el cálculo de riesgo, docentes contados como alumnos y fecha UTC en el registro manual de asistencia.
@@ -474,15 +490,15 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Característica | Atributo | Métrica | Valor actual | Meta | Riesgo |
 |---|---|---|---|---|---|
 | Adecuación funcional | Corrección | Flujos críticos con pruebas automáticas | 6 de 6 | 6 de 6 | Bajo |
-| Adecuación funcional | Corrección | Pruebas automáticas en verde | 366 de 372 (2026-11-16) | 100 % antes de publicar | **Alto** hasta corregir la entrega del 16-nov |
-| Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 fallas de seguridad publicadas desde el 2026-10-24 (3 con las reglas de junio). Al 2026-11-16, 4 pruebas de reglas en rojo: 3 deniegan funciones legítimas y 1 deja al alumno reactivar su propio aviso de contraseña | 0 publicadas | Medio |
+| Adecuación funcional | Corrección | Pruebas automáticas en verde | 372 de 372 con la corrección del 2026-11-16 (366 en la entrega publicada `f9447d8`) | 100 % antes de publicar | Medio: falta impedir que se publique con el CI en rojo (PB-27) |
+| Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 fallas de seguridad publicadas desde el 2026-10-24 (3 con las reglas de junio). En `f9447d8`, 2 reglas negaban funciones legítimas (borrar el QR viejo y el aviso del personal desactivado), sin abrir accesos; se corrigieron el 2026-11-16 | 0 publicadas | Bajo |
 | Seguridad | Confidencialidad | Datos que el personal no debe leer: documento del alumno, firma del QR, secreto del QR del docente | Ninguno legible por docentes ni auxiliares (pruebas de reglas) | 0 | Bajo |
 | Seguridad | Autenticidad | Contraseñas iniciales de alumnos sin cambiar | No medido; el panel muestra la métrica «Contraseña inicial» | 0 después de 7 días | Medio (riesgo aceptado, ADR-11) |
 | Seguridad | Integridad | Restricciones de BD que rechazan datos inválidos | 9 de 9 | 100 % | Bajo |
 | Seguridad | Responsabilidad | Cambios de pagos y matrículas auditados | 100 % (triggers) | 100 % | Bajo |
 | Fiabilidad | Recuperabilidad | RTO de MySQL medido | 0,23 s en la base real (REC-05); 0,33 s y 0,41 s en otro servidor (REC-13 y REC-14); 0,27–0,38 s en la base de prueba | < 1 h | Bajo (respaldo diario desde el 2026-10-24: RPO ≤ 24 h) |
 | Fiabilidad | Disponibilidad | Disponibilidad medida por monitor externo | No medida | 99 % mensual | **Alto** |
-| Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 34 en el frontend y 0 en la API (2026-11-16); 0 el 2026-10-24 y 66 al inicio del Sprint 1 | 0 | Medio |
+| Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 0 con la corrección del 2026-11-16 (34 en `f9447d8`; 0 el 2026-10-24 y 66 al inicio del Sprint 1) | 0 | Bajo |
 | Mantenibilidad | Modificabilidad | Usos de `any` (ESLint: src, server, scripts) | 71 (233 el 2026-10-24; 240 al inicio del Sprint 1) | < 120 | Bajo |
 | Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 372 (99 el 2026-10-24) | En aumento cada sprint | Bajo |
 | Mantenibilidad | Modularidad | Archivos de más de 800 líneas | 11 (8 el 2026-10-24) | ≤ 3 | Medio |
@@ -507,7 +523,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 **Atributos internos (medidos el 2026-11-16):**
 
 - 56 685 líneas en `src/` (41 748 el 2026-10-24), organizadas en 17 módulos de dominio.
-- TypeScript sin modo estricto: 34 errores en el frontend, de la última entrega.
+- TypeScript sin modo estricto: 0 errores después de corregir los 34 de la última entrega. Sin `strictNullChecks`, `if (x.ok)` no estrecha una unión discriminada: esa fue la causa, y se resolvió con guardas de tipo.
 - 71 usos de `any`.
 - 11 archivos de más de 800 líneas.
 
@@ -553,8 +569,8 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Ingeniería | Requisitos trazables a código y pruebas | Cumple (E1, Anexo B: 28 de 30 RF con prueba) |
 | Ingeniería | Arquitectura documentada | Cumple (E1 y E3) |
 | Ingeniería | Validación con usuarios mediante acta | **No cumple** |
-| Software | Build reproducible y pruebas automáticas | Cumple; al 2026-11-16, 6 de 372 pruebas en rojo |
-| Software | Cero errores de compilación de tipos | Cumplía el 2026-10-24; **no cumple** el 2026-11-16 (34 errores de la última entrega) |
+| Software | Build reproducible y pruebas automáticas | Cumple (372 en verde con la corrección del 2026-11-16) |
+| Software | Cero errores de compilación de tipos | Cumple; la entrega del 16-nov lo rompió (34 errores) y se corrigió el mismo día |
 | Software | Solo se publica lo que pasa el CI | Cumple para las reglas (las publica el CI). **No cumple** para el frontend: Vercel publicó `f9447d8` sin esperar al CI |
 | Software | Repositorio sin secretos | Cumple parcialmente: la clave de los ZIP fue revocada y las contraseñas de docentes restablecidas (2026-10-24); los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
 | Software | Cambios revisados por un segundo integrante | **No cumple** (plantilla creada, sin revisiones registradas; solo revisiones automatizadas de scripts críticos) |
@@ -593,7 +609,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | 10 | Respaldo programado de Firestore con prueba de restauración | RPO | ≤ 24 h | Sprint 3 |
 | 11 | Programar el respaldo diario de MySQL y el arranque automático de los servicios | RPO de MySQL | ≤ 24 h | Hecho (2026-10-24): temporizador de systemd y servicio `pm2-academia` en el VPS |
 | 12 | Reparar los envíos fallidos a MySQL (PB-19; la carga inicial se hizo el 2026-10-24) | Diferencias Firestore ↔ MySQL | 0 | Hecho (2026-11-14): conciliación nocturna; meta siguiente, 30 días seguidos en `SUCCESS` |
-| 13 | Corregir la entrega del 16-nov: 34 errores de tipos, 2 pruebas de API y 4 de reglas | Pruebas en verde y errores de tipos | 372 de 372 y 0 | Antes de la siguiente publicación |
+| 13 | Corregir la entrega del 16-nov: 34 errores de tipos, 2 pruebas de API y 4 de reglas | Pruebas en verde y errores de tipos | 372 de 372 y 0 | Hecho en el código (2026-11-16); falta subirlo y publicar las reglas |
 | 14 | Agregar a la cobertura los módulos nuevos con prueba (ficha, accesos, comprobantes, estado de cuenta, código rotativo) | Módulos medidos | ≥ 13 | Sprint 3 |
 | 15 | Hacer que Vercel espere los checks de GitHub (PB-27) | Publicaciones con el CI en rojo | 0 | Sprint 2 |
 | 16 | Medir las contraseñas iniciales sin cambiar después de 7 días | Cuentas con `passwordInicial` vencida | 0 | Sprint 3 |
