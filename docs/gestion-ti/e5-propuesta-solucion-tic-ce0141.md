@@ -36,7 +36,7 @@ flowchart LR
   end
   subgraph FB["Google Firebase"]
     AUTH["Authentication: identidad y claims"]
-    FS["Cloud Firestore: 22 colecciones con reglas por rol"]
+    FS["Cloud Firestore: 27 colecciones con reglas por rol"]
     ST["Storage: imágenes y archivos"]
     BK["Exportación programada de Firestore (PB-11)"]
   end
@@ -75,10 +75,10 @@ flowchart LR
 |---|---|---|---|---|
 | SPA multi-portal | React 18, TypeScript, Vite, TanStack Query, Tailwind | Sitio público y portales admin, docente, alumno, auxiliar y consulta de padres | Vercel (plan Hobby; plan comercial presupuestado) | Implementado |
 | Identidad | Firebase Authentication con claims de administrador | Sesión y rol | Google Cloud | Implementado |
-| Datos operativos | Cloud Firestore, 22 colecciones | Fuente de verdad de la operación | Google Cloud | Implementado; reglas corregidas publicadas el 2026-10-24 |
+| Datos operativos | Cloud Firestore, 27 colecciones | Fuente de verdad de la operación | Google Cloud | Implementado; reglas corregidas publicadas el 2026-10-24 |
 | Archivos | Firebase Storage | Imágenes y recursos | Google Cloud | Implementado |
 | API de sincronización | Node.js/Express con helmet, CORS por lista y morgan | Recibe eventos y escribe en MySQL solo por procedimientos | VPS del colegio desde el 2026-10-24 (antes, PC con PM2) → VM-APP01 | Implementado; servicio continuo en curso (PB-13, CR-03) |
-| Base relacional | MySQL 8 con 3 FK, 7 CHECK, 6 triggers, 4 funciones, 5 procedimientos, 3 vistas y 4 roles | Réplica auditable, conciliación y reportes | Ídem | Implementado ([E2 de Software](../e2-base-datos-ce022.md)) |
+| Base relacional | MySQL 8 con 3 FK, 8 CHECK, 7 triggers, 4 funciones, 6 procedimientos, 3 vistas y 4 roles; reparación nocturna desde Firestore | Réplica auditable, conciliación y reportes | Ídem | Implementado ([E2 de Software](../e2-base-datos-ce022.md)) |
 | Analítica | Python/FastAPI | Riesgo de inasistencia, tendencias, pagos y alertas | Ídem | Implementado |
 | Respaldo de Firestore | Exportación programada con prueba de restauración | RPO ≤ 24 h | Google Cloud | Propuesto (PB-11) |
 | Monitor | Servicio externo de chequeo HTTP con alertas | Disponibilidad medida de la SPA y de `/health` | Externo o VM-MON01 de CE03 | Propuesto (PB-08) |
@@ -122,7 +122,7 @@ flowchart TB
   PER --> SI05
   PER --> SI03
   PER --> SI04
-  SI01 -- "eventos nuevos, sin reintento" --> SI02
+  SI01 -- "eventos nuevos y reparación nocturna" --> SI02
   SI05 -. "re-digitación manual" .-> SI01
   SI03 -. "sin integración hoy" .- SI01
 ```
@@ -130,8 +130,8 @@ flowchart TB
 | Proceso | SI-01 Plataforma | SI-02 Capa local | SI-03 Colegio | SI-04 Correo | SI-05 Informales |
 |---|---|---|---|---|---|
 | Captación y admisión | ◐ sitio y pre-matrícula (operativa desde el 2026-10-24) | — | — | — | ● llamadas y WhatsApp |
-| Matrícula | ◐ 8 matrículas | ◐ réplica | — | — | ● cuaderno y hojas |
-| Cobranza | ◐ 2 pagos | ◐ estado de cuenta | — | — | ● caja manual |
+| Matrícula | ◐ 8 matrículas (10 al 2026-11-14) | ◐ réplica | — | — | ● cuaderno y hojas |
+| Cobranza | ◐ 2 pagos (3 al 2026-11-14), comprobantes con QR y estado de cuenta | ◐ estado de cuenta | — | — | ● caja manual |
 | Asistencia | ◐ 7 marcas (ene–abr) | ◐ riesgo | — | — | ● listas |
 | Comunicación con familias | ◐ código (0 consultas) | — | — | — | ● WhatsApp |
 | Gestión escolar del colegio | — | — | ● | — | ◐ |
@@ -147,7 +147,7 @@ flowchart TB
 | N1 Dominio institucional | `academia.cermatschool.edu.pe` como dominio de la plataforma | Registro CNAME en Punto.pe hacia Vercel; TLS automático | Ninguno | Plan comercial de hosting; registros CAA | RM-08 (2027) |
 | N2 Intercambio de datos | API de la academia ↔ API Laravel del colegio | REST/JSON con contrato OpenAPI 3.1 | Verificación booleana de alumno del colegio; oferta pública de la academia | CORS del colegio restringido; credencial de servicio; consentimiento | RM-11 (2028) |
 | N3 Identidad compartida | Personal (administración y docentes) inicia sesión con su cuenta institucional en ambos sistemas | OpenID Connect con Google: Firebase Authentication y Laravel (Socialite) restringidos al dominio | Identidad del personal; el rol sigue en cada sistema | Cuentas institucionales para todo el personal | RM-10 (2028) |
-| N4 Notificaciones | Confirmación de matrícula, enlace de activación y alertas de inasistencia | Correo autenticado desde el dominio; WhatsApp como opción evaluada por costo | Correo del apoderado y mensaje mínimo | SPF, DKIM y DMARC configurados | RM-12 (2028) |
+| N4 Notificaciones | Confirmación de matrícula, acceso del alumno (hoy, tarjeta por WhatsApp o impresa), recordatorios de deuda y alertas de inasistencia | Correo autenticado desde el dominio; WhatsApp como opción evaluada por costo | Correo del apoderado y mensaje mínimo | SPF, DKIM y DMARC configurados | RM-12 (2028) |
 
 **Decisiones de diseño:** alumnos y padres no entran a la identidad compartida (son menores o externos y el código de padres ya resuelve su necesidad). Cada sistema conserva su base y sus roles; solo se intercambia lo mínimo necesario.
 
@@ -294,7 +294,7 @@ Estimación de lecturas (supuesto a validar con la pestaña de uso de Firebase):
 | PostgreSQL (colegio) | 16 | Hasta noviembre de 2028 | Migrar a una versión mayor | 2028 |
 | Ubuntu (VPS) | 24.04 LTS | Soporte estándar hasta 2029 | — | 2029 |
 
-**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 99 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
+**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 372 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
 
 ## 5.5 Plan de implementación y gestión del sistema de información (CE0144)
 
@@ -365,7 +365,7 @@ Línea base real: conteos agregados de Firestore al 2026-10-24, sin datos person
 | IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL: base real restaurada en 0,23 s (REC-05) y en otro servidor en 0,33 s y 0,41 s (REC-13 y REC-14), todas del 2026-10-24; base de prueba en 0,27–0,38 s; respaldo diario de MySQL; Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
 | IM-05 | Integridad de la réplica | Filas en `v_conciliacion_pagos` | Vista disponible; sincronización 24/7 en el VPS y carga inicial hecha (2026-10-24) | 0 | MySQL | Semanal |
 | IM-06 | Integración con el colegio | Niveles de integración activos y procesos con datos compartidos | 0 | N0 y N1 activos en 2027; ≥ 2 procesos en 2028 | Inventario de integraciones | Semestral |
-| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 99 pruebas; 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
+| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 372 pruebas (99 al 2026-10-24); 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
 | IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA y colegio con cabeceras de seguridad (2026-10-24; antes, la SPA solo con HSTS y el colegio sin ninguna); 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
 
 **Ciclo de revisión:** el Product Owner prepara el tablero mensual con conteos agregados de Firestore y las vistas de MySQL (`v_estado_cuenta`, `v_asistencia_diaria`, `v_conciliacion_pagos`); la Dirección lo revisa en el comité mensual; cada trimestre se revisan costos y proveedores y cada año se recalcula el business case. Los indicadores de proceso IP-01 a IP-03 del [E4](e4-modelado-procesos-ce0131.md#nuevos-indicadores) complementan esta tabla.

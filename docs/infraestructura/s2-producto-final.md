@@ -36,7 +36,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 - La **nube**: VPS con firewall de host, TLS 1.2/1.3, redirección a HTTPS y base de datos solo en loopback, y la plataforma PaaS con HSTS y, desde el 2026-10-24, con cabeceras de seguridad y las reglas de Firestore corregidas publicadas. Ese día el sitio del colegio también pasó a enviar cabeceras de seguridad sin mostrar la versión de Nginx, y el VPS empezó a alojar la capa relacional de la academia, publicada por HTTPS en dos subdominios. Verificado el 2026-10-24.
 - La **capa de datos de la academia**: migraciones aplicadas en la base real, cuentas de mínimo privilegio, auditoría y respaldo con restauración probada (RTO de 0,23 s en la base real y 0,27–0,38 s en la base de prueba). Desde el 2026-10-24 corre en el VPS, con respaldo diario y copia semanal fuera de él; su restauración también se probó en otro servidor (0,33 s en el VPS y 0,41 s del VPS a la PC). Esa noche recibió, con una carga inicial, los datos que Firestore ya tenía.
 - Las **pruebas automáticas** de reglas, API y base de datos.
-- El **SGSI completo**: 33 activos, 29 riesgos, una SoA de 93 controles, 6 políticas y procedimientos y una auditoría interna real con 11 hallazgos.
+- El **SGSI completo**: 33 activos, 31 riesgos, una SoA de 93 controles, 6 políticas y procedimientos y una auditoría interna real con 11 hallazgos.
 
 **Qué está pendiente.** Todo lo que requiere el hardware de la sede: hipervisor, VM, OPNsense, VLAN, VPN, Suricata, honeypot y Wazuh. Cada componente tiene procedimiento, configuración sin secretos, criterio de aceptación y evidencia por adjuntar.
 
@@ -79,7 +79,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 
 ## 3. Análisis de riesgos
 
-29 riesgos evaluados con ISO/IEC 27005: 7 críticos, 10 altos y 12 medios. 16 provienen de hallazgos reales. Tras el tratamiento quedarían 18 bajos y 11 medios.
+31 riesgos evaluados con ISO/IEC 27005: 7 críticos, 10 altos y 14 medios. 17 provienen de hallazgos reales. Tras el tratamiento quedarían 19 bajos y 12 medios. R-30 y R-31 se agregaron el 2026-11-16, por el acceso directo de los alumnos, y R-28 quedó tratado el 2026-11-14.
 
 | Riesgo crítico | Nivel | Tratamiento | Plazo | Estado |
 |---|---|---|---|---|

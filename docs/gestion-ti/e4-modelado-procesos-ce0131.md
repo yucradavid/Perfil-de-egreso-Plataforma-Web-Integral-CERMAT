@@ -177,15 +177,15 @@ Costo hora supuesto: secretaría S/ 10 y Dirección S/ 30 (supuestos S08 y S09 d
 
 ### Rediseño del flujo
 
-El TO-BE ya está implementado en la plataforma; falta su adopción y la publicación de las reglas corregidas.
+El TO-BE ya está implementado en la plataforma y las reglas corregidas se publicaron el 2026-10-24; falta su adopción. Entre octubre y noviembre se agregaron la ficha del alumno, el comprobante con QR y el acceso directo del alumno, que reemplaza al enlace de activación como opción predeterminada.
 
-1. **Dos canales de entrada con las mismas reglas.** El postulante registra la pre-matrícula en línea desde el sitio público, o secretaría la registra con el registro rápido del panel cuando acude a la sede.
-2. **Validación automática en una transacción:** ciclo abierto, grupo del ciclo y de la sede, cupo disponible y teléfono no repetido en el grupo. Si algo falla, el postulante ve el motivo.
+1. **Dos canales de entrada con las mismas reglas.** El postulante registra la pre-matrícula en línea desde el sitio público, con la ficha del alumno y la autorización de datos. O secretaría la registra en el panel cuando acude a la sede, o con un Excel si son muchos.
+2. **Validación automática en una transacción:** ciclo abierto, grupo del ciclo y de la sede, precio del plan, cupo disponible y teléfono no repetido en el grupo. Si algo falla, el postulante ve el motivo.
 3. La matrícula queda **pendiente** con id determinístico `grupo__teléfono` y el cupo se descuenta en la misma transacción.
 4. Secretaría revisa la pre-matrícula y registra el pago en el panel. Si no hay pago, cancela y el cupo se libera.
-5. Al **aprobar**, el sistema genera la invitación de activación (vigencia de 7 días) y el código de consulta para el padre, y registra quién aprobó y cuándo.
-6. Secretaría envía el enlace; el alumno activa su cuenta; el padre consulta la asistencia con su código.
-7. En paralelo, la matrícula y el pago se replican en MySQL por procedimientos almacenados y la vista de conciliación detecta cualquier evento perdido.
+5. Al **aprobar**, el sistema emite el comprobante del pago con su QR, reserva el código de consulta para el padre y registra quién aprobó y cuándo.
+6. Secretaría crea el acceso del alumno y le entrega la tarjeta con su usuario (o, si la academia usa ese modo, le envía el enlace de activación). El alumno entra y cambia su contraseña inicial, y el padre consulta la asistencia con su código.
+7. En paralelo, la matrícula y el pago se replican en MySQL por procedimientos almacenados. La vista de conciliación detecta un evento perdido y la conciliación nocturna lo repara.
 
 La autorización de la Dirección deja de ser un paso del flujo: la Dirección define las reglas (cupos, precios, ciclos abiertos) y revisa indicadores en el panel.
 
@@ -201,14 +201,14 @@ flowchart TB
     T1["T1 Registra la pre-matrícula en línea"]
     R1["Ve el motivo del rechazo"]
     F1((("Fin: pre-matrícula rechazada")))
-    T8["Activa su cuenta con el enlace"]
+    T8["Entra con su usuario y cambia la contraseña inicial"]
     F3((("Fin: alumno activo y padre con código")))
   end
   subgraph PLA["Carril: plataforma CERMAT (automático)"]
     T2["T2 Valida ciclo, grupo, cupo y duplicado en una transacción"]
     G1{"¿Válida?"}
     T2B["Crea la matrícula pendiente con id grupo__teléfono y descuenta el cupo"]
-    T4B["Genera la invitación de 7 días y el código de padres; registra quién aprobó"]
+    T4B["Emite el comprobante con QR, reserva el código de padres y registra quién aprobó"]
   end
   subgraph ADM["Carril: secretaría (panel)"]
     S2(("Inicio: postulante en la sede"))
@@ -218,7 +218,7 @@ flowchart TB
     T3B["Cancela la matrícula y libera el cupo"]
     F2((("Fin: matrícula cancelada")))
     T4["T4 Aprueba la matrícula"]
-    T5["T5 Envía el enlace de activación"]
+    T5["T5 Crea el acceso del alumno y entrega la tarjeta"]
   end
   subgraph LOC["Carril: capa relacional (API y MySQL)"]
     T6["T6 Registra por procedimiento y concilia"]
@@ -241,11 +241,12 @@ flowchart TB
 | Validación transaccional de cupo | `createEnrollment` lee el grupo dentro de `runTransaction`, rechaza si `enrolledCount >= capacity` y suma el cupo en la misma transacción; `updateEnrollmentStatus` lo libera al cancelar (`src/features/enrollments/api.ts`) | Sobrecupo por listas desincronizadas (A3) | 6 pruebas de reglas de matrícula pública: sobrecupo, cupo sin matrícula y manipulación del contador, entre otras |
 | Deduplicación por id determinístico | El id de la matrícula es `groupId__teléfonoNormalizado`; si ya existe, la transacción falla con un mensaje claro | Alumno registrado dos veces (A2) | Prueba de reglas "duplicado" |
 | Ciclo abierto y grupo válido | Funciones `isEnrollmentCycleOpen`, `isEnrollmentGroupInCycle` e `isEnrollmentGroupCampusValid` en `firestore.rules` | Matrículas en ciclos cerrados o grupos ajenos | Prueba de reglas "ciclo cerrado" |
-| Activación por invitación | `markPaidAndCreateStudentInvite` crea, en una transacción, una invitación con token aleatorio de 24 caracteres cuyo hash SHA-256 es el id, con vencimiento de 7 días; reutiliza la vigente si existe | Confirmación verbal sin acceso (A7) | 3 pruebas unitarias de tokens; 8 pruebas de reglas de roles |
-| Código de consulta para padres | Se genera al aprobar, sin caracteres ambiguos (0/O, 1/I) | Llamadas del padre para conocer la asistencia | 4 pruebas unitarias del código de padres |
+| Acceso del alumno | Desde el 2026-11-15 el modo predeterminado es el acceso directo: la API crea la cuenta, con usuario `nombre.apellido` y contraseña inicial `cermat` + documento, calculada en el servidor. Se entrega una tarjeta para imprimir o enviar por WhatsApp (`src/features/accesos/*`, `server/src/routes/cuentas.ts`). Si la academia elige el modo invitación, `markPaidAndCreateStudentInvite` crea una invitación de 7 días, cuyo id es el SHA-256 de un token de 24 caracteres | Confirmación verbal sin acceso (A7) | 21 pruebas de API de cuentas; 11 unitarias de usuario y contraseña; 3 unitarias de tokens; 6 de reglas de activación |
+| Código de consulta para padres | Se genera al aprobar, sin caracteres ambiguos (0/O, 1/I), y se puede revocar | Llamadas del padre para conocer la asistencia | 4 pruebas unitarias del código de padres; 4 de reglas de registro y revocación |
+| Comprobante de pago | Se crea en la misma transacción del pago, con número correlativo y QR que lo verifica sin sesión | Recibo manual sin control de numeración | 3 unitarias y 3 de reglas de comprobantes |
 | Trazabilidad de decisiones | `approvedBy`, `approvedAt`, `cancelledBy`, `cancelledAt` y `statusUpdatedAt` en cada matrícula; auditoría por triggers en MySQL | Autorización sin registro (A4) | Pruebas de BD de auditoría de anulación |
-| Sincronización conciliable | `syncService` envía matrícula y pago a la API sin bloquear la operación; la API escribe solo por procedimientos y `v_conciliacion_pagos` lista los pagos sin matrícula (0 filas = sin eventos perdidos) | Conciliación manual del pago (A6) | 8 pruebas de API de sincronización; 2 de BD de conciliación |
-| Registro rápido por secretaría | `useQuickEnrollmentSubmit` registra en el panel a quien acude a la sede con las mismas validaciones | Canal presencial sin control | 4 pruebas unitarias del formulario de matrícula |
+| Sincronización conciliable | `syncService` envía matrícula y pago a la API sin bloquear la operación; la API escribe solo por procedimientos y `v_conciliacion_pagos` lista los pagos sin matrícula (0 filas = sin eventos perdidos). Desde el 2026-11-14 la réplica se compara y repara cada noche | Conciliación manual del pago (A6) | 22 pruebas de API de sincronización; 10 de comparación de la réplica; 2 de BD de conciliación |
+| Registro rápido por secretaría | `useQuickEnrollmentSubmit` registra en el panel a quien acude a la sede, con la misma ficha y las mismas validaciones; también hay matrícula masiva por Excel | Canal presencial sin control | 5 unitarias del esquema de matrícula y 14 de la ficha |
 
 ### Actividades y tiempos del TO-BE
 
@@ -254,8 +255,8 @@ flowchart TB
 | T1 | Pre-matrícula en línea (autoservicio) o registro rápido de secretaría (promedio ponderado) | Postulante o secretaría | 4 | 0,67 |
 | T2 | Validar ciclo, grupo, cupo y duplicado en una transacción | Sistema | 0 | 0,00 |
 | T3 | Revisar la pre-matrícula y registrar el pago en el panel | Secretaría | 4 | 0,67 |
-| T4 | Aprobar: el sistema genera la invitación y el código de padres | Secretaría | 1 | 0,17 |
-| T5 | Enviar el enlace de activación | Secretaría | 1 | 0,17 |
+| T4 | Aprobar: el sistema emite el comprobante y reserva el código de padres | Secretaría | 1 | 0,17 |
+| T5 | Crear el acceso del alumno y entregar la tarjeta (o enviar la invitación, en ese modo) | Secretaría | 1 | 0,17 |
 | T6 | Sincronizar con MySQL y conciliar | Sistema | 0 | 0,00 |
 | T7 | Revisar indicadores de matrícula en el panel (prorrateo por matrícula) | Dirección | 0,5 | 0,25 |
 | | **Total por matrícula** | | **10,5** (10 + 0,5) | **1,92** |
@@ -269,7 +270,7 @@ flowchart TB
 | IV-03 | Costo de personal por matrícula | Σ (minutos × costo hora del rol) | Cronometraje y supuestos S08 y S09 | ≤ S/ 2,50 | Por ciclo |
 | IV-04 | Incidentes de sobrecupo o duplicado | Grupos con matrículas activas > `capacity`; duplicados detectados después del registro | Firestore `groups` y `enrollments` | 0 | Por ciclo |
 | IU-01 | Adopción | Matrículas en la plataforma ÷ matrículas totales | Firestore y registro de secretaría | ≥ 60 % en 2027 | Mensual |
-| IP-01 | Activación oportuna | Invitaciones usadas en 7 días ÷ invitaciones emitidas | Firestore `invites` (`used`, `usedAt`) | ≥ 90 % | Por ciclo |
+| IP-01 | Acceso oportuno | Modo directo: contraseñas iniciales cambiadas en 7 días ÷ accesos creados. Modo invitación: invitaciones usadas en 7 días ÷ invitaciones emitidas | Firestore `users` (`passwordInicial`, `passwordEmitidaAt`, `passwordCambiadaAt`) o `invites` (`used`, `usedAt`) | ≥ 90 % | Por ciclo |
 | IP-02 | Conciliación | Filas en `v_conciliacion_pagos` | MySQL | 0 | Mensual |
 | IP-03 | Confirmación verificable | Matrículas pagadas con código de padres ÷ matrículas pagadas | Firestore `enrollments` | 100 % | Por ciclo |
 
@@ -278,7 +279,7 @@ flowchart TB
 | Medida | AS-IS | TO-BE | Variación |
 |---|---|---|---|
 | Actividades manuales | 7 | 4 | −3 |
-| Actividades automáticas | 0 | 4 (validación, alta con cupo, invitación y código, réplica) | +4 |
+| Actividades automáticas | 0 | 4 (validación, alta con cupo, comprobante y código, réplica) | +4 |
 | Decisiones que requieren a la Dirección | 1 por matrícula | 0 (la Dirección fija reglas) | −1 |
 | Minutos de personal por matrícula | 40 | 10,5 | −73,8 % |
 | Horas de personal al año (162 matrículas) | 108 h | 28,4 h | −79,7 h |
@@ -315,8 +316,8 @@ flowchart TB
 | Matrícula en ciclo cerrado | Posible | Bloqueada por las reglas | Prueba de reglas "ciclo cerrado" |
 | Trazabilidad de la aprobación | No sistemática | 100 %: autor y fecha en cada matrícula | Campos `approvedBy` y `approvedAt` |
 | Conciliación de pagos | Manual | Automática; meta de 0 filas en la vista | Pruebas de BD de conciliación |
-| Confirmación al padre | Verbal | 100 % de las pagadas con enlace de activación y código de padres | Indicador IP-03 |
-| Protección de datos | Papel sin control de acceso | Acceso por rol verificado con 19 pruebas y publicado en producción el 2026-10-24 | [E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales) |
+| Confirmación al padre | Verbal | 100 % de las confirmadas con acceso del alumno, comprobante y código de padres | Indicador IP-03 |
+| Protección de datos | Papel sin control de acceso | Acceso por rol verificado (19 pruebas al publicarlo en producción el 2026-10-24; 101 al 2026-11-16) y documento del alumno visible solo para el administrador | [E4 de Software, 1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales) |
 
 ### 4.3.4 Plan de medición
 
@@ -327,7 +328,7 @@ flowchart TB
 | 1. Línea base AS-IS | Cronometrar N = 10 matrículas manuales reales (al menos 3 presenciales y 3 telefónicas), con hora de inicio y fin de cada actividad A1 a A7, sin intervenir. Registrar también la fecha de la primera consulta y la de confirmación. | Sprint 2 (2026-11-09 a 2026-11-20) | 10 trámites completos. Con un coeficiente de variación supuesto de 0,3, 10 observaciones estiman la media con ±21 % al 95 % (t₉ = 2,26); si el coeficiente medido supera 0,4, se amplía a 20 trámites | Hojas de cronometraje firmadas por el observador |
 | 2. Validación del modelo | Revisar con la secretaría las actividades A1 a A7 y corregir el diagrama si difiere | Sprint 2 | Diagrama AS-IS aprobado por la secretaría | Versión corregida del `.bpmn` |
 | 3. Medición TO-BE en el sistema | Exportar de `enrollments` solo `createdAt`, `approvedAt`, `cancelledAt` y `status`, sin nombres ni teléfonos; calcular p50 y p90 del tiempo de respuesta. Excluir registros de prueba (creados y aprobados por una cuenta de administrador en menos de 2 minutos se revisan uno por uno) | Campaña 2027 (enero) | p90 ≤ 24 h (OBJ-3) | CSV agregado y cálculo |
-| 4. Medición TO-BE de personal | Cronometrar 10 trámites en el panel (registro rápido, revisión, pago, aprobación y envío del enlace) | Campaña 2027 | Promedio ≤ 12 min (OBJ-2) | Hojas de cronometraje |
+| 4. Medición TO-BE de personal | Cronometrar 10 trámites en el panel (registro rápido, revisión, pago, aprobación y creación del acceso) | Campaña 2027 | Promedio ≤ 12 min (OBJ-2) | Hojas de cronometraje |
 | 5. Actualización del modelo | Reemplazar los supuestos S12 y S13 del libro por los valores medidos y recalcular | Antes del 2027-03-31 | Libro recalculado para el hito de continuidad | `business-case.xlsx` actualizado |
 
 ## Referencias

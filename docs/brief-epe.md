@@ -13,7 +13,7 @@
 | Tipo | [ ] PS &nbsp;&nbsp; [ ] PI &nbsp;&nbsp; [x] EPE |
 | Curso / Ciclo | Perfil de Egreso - Integración de evidencias profesionales (9° ciclo) |
 | Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
-| Fecha | 2026-06-22 (actualizado el 2026-10-24) |
+| Fecha | 2026-06-22 (actualizado el 2026-10-24 y el 2026-11-16) |
 
 ## 2. Problema
 
@@ -90,24 +90,26 @@ Reducir la fragmentación operativa mediante un sistema único que:
 
 - Sitio público institucional: inicio, ciclos, sedes, blog, recursos, talleres, contacto y matrícula.
 - Gestión académica: ciclos, categorías, sedes, grupos, cupos, modalidad, turnos y horarios.
-- Matrícula en línea: registro público, validación de ciclo y grupo, seguimiento y estados.
-- Gestión de pagos: registro, método de pago, cuotas, comprobantes, cancelación lógica y resumen administrativo.
-- Gestión de usuarios: administradores, docentes, estudiantes y auxiliares.
-- Activación de cuentas por invitación para estudiantes, docentes y auxiliares.
+- Matrícula en línea: registro público con ficha completa del alumno y autorización de datos (Ley N.° 29733), validación de ciclo, grupo y precio, seguimiento y estados.
+- Matrícula desde el panel, individual o masiva por Excel (una fila por alumno), con edición de datos y cambio de grupo.
+- Gestión de pagos: registro, método de pago, cuotas con cronograma, descuento al contado, comprobante numerado con QR de verificación, anulación lógica y estado de cuenta con deuda vencida.
+- Gestión de usuarios: administradores, docentes, estudiantes y auxiliares en un solo módulo, con desactivación de cuentas.
+- Acceso de alumnos con usuario y contraseña creados por el administrador; activación por invitación para docentes y auxiliares (y para alumnos, si se activa esa opción).
+- Grupos con docente responsable y cursos por materia con varios docentes; horario por grupo.
 - Portal administrativo completo.
 - Portal docente con cursos, recursos y asistencia.
-- Portal estudiante con cursos, recursos, matrícula, talleres y asistencia.
+- Portal estudiante con cursos, recursos, matrícula, comprobantes, inscripción a talleres con cupo, asistencia y cambio de contraseña.
 - Portal auxiliar para supervisión de asistencia.
-- Consulta de asistencia para padres mediante código CERMAT.
-- Gestión de recursos, blog, talleres y contenido del sitio.
+- Consulta de asistencia para padres mediante código CERMAT revocable.
+- Gestión de recursos, blog, talleres, solicitudes (contacto y WhatsApp), contenido del sitio y configuración institucional (inscripción, cuentas bancarias y teléfonos).
 - Reglas de seguridad de Firestore por rol y colección.
-- Sincronización opcional hacia API REST + MySQL para asistencia, pagos y matrículas.
+- Sincronización hacia API REST + MySQL para asistencia, pagos y matrículas, con comparación y reparación nocturna.
 
 ### No incluye
 
 - Aplicación móvil nativa.
 - Pasarela de pagos automatizada con bancos o proveedores externos.
-- Facturación electrónica integrada.
+- Facturación electrónica integrada (el comprobante interno con QR no reemplaza a la boleta ni a la factura electrónica).
 - Envío masivo de notificaciones push.
 - Inteligencia artificial predictiva avanzada.
 - Integración directa con sistemas gubernamentales o ERP externos.
@@ -119,6 +121,7 @@ Reducir la fragmentación operativa mediante un sistema único que:
 - Firestore es la fuente principal para la operación web.
 - MySQL funciona como almacenamiento complementario cuando la API REST está habilitada.
 - Los procesos de validación institucional, pagos y estados finales dependen de administradores autorizados.
+- La academia es titular del dominio `cermatacademia.edu.pe`, que se usa para los usuarios internos de los alumnos (por confirmar).
 
 ## 6. Datos
 
@@ -130,9 +133,12 @@ Reducir la fragmentación operativa mediante un sistema único que:
 | `cycles` | Ciclos académicos publicados o internos. |
 | `cycleCategories` | Niveles y categorías académicas. |
 | `campuses` | Sedes. |
-| `groups` | Grupos por ciclo, sede, turno, horario, docente y cupo. |
-| `enrollments` | Matrículas, estados, pagos esperados y datos del estudiante. |
+| `groups` | Grupos por ciclo, sede, turno, horario, docente responsable, cursos por materia y cupo. |
+| `enrollments` | Matrículas, estados, pagos esperados, descuento y cronograma de cuotas. |
+| `fichasMatricula`, `documentosAlumnos` | Ficha completa del alumno y registro de su documento; solo los lee el administrador. |
 | `payments` | Pagos registrados por matrícula. |
+| `receipts`, `counters` | Comprobantes de pago con QR y su numeración correlativa. |
+| `workshopRegistrations` | Inscripciones de alumnos a talleres con cupo. |
 | `attendanceTokens` | Tokens diarios para asistencia QR. |
 | `attendanceLogs` | Registros de entrada y salida de estudiantes y docentes. |
 | `studentQrSignatures`, `attendanceDayState` | Firma del QR permanente y estado diario de asistencia (evitan QR falsificados y dobles marcas). |
@@ -141,7 +147,7 @@ Reducir la fragmentación operativa mediante un sistema único que:
 | `posts` | Blog institucional. |
 | `workshops` | Talleres públicos y privados. |
 | `messages` | Mensajes de contacto. |
-| `config` | Configuración dinámica del sitio y servicios. |
+| `config` | Configuración dinámica del sitio, de los servicios, del modo de acceso de los alumnos y de los datos institucionales de pago. |
 | `invites`, `teacherInvites`, `auxiliarInvites` | Activación e invitaciones por rol. |
 
 ### Origen de datos
@@ -161,6 +167,7 @@ Reducir la fragmentación operativa mediante un sistema único que:
 - La asistencia requiere usuario autenticado y tokens válidos.
 - Los pagos solo pueden ser administrados por usuarios admin.
 - La eliminación de pagos y matrículas no es libre; se prioriza la trazabilidad.
+- El número de documento del alumno solo lo lee el administrador: nunca se guarda en `users`, en `enrollments` ni en MySQL.
 
 ## 7. Enfoque de solución
 
@@ -235,7 +242,7 @@ flowchart TD
 | Tiempo | Viable como EPE porque integra evidencias desarrolladas previamente y documenta un sistema funcional con módulos existentes. |
 | Recursos | Viable con un equipo pequeño de desarrollo web, Firebase, Node.js y administradores institucionales para la validación. |
 | Riesgos | Dependencia de la configuración correcta de roles, reglas de Firestore, índices y calidad de los datos migrados. |
-| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 99 pruebas automáticas y pipeline de CI. |
+| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 372 pruebas automáticas, pipeline de CI y conciliación nocturna de la réplica. |
 
 ## 9. Alineación con competencias
 
@@ -244,10 +251,10 @@ flowchart TD
 | CE021 - Ingeniería de Requerimientos | X | El sistema cuenta con problema, actores, objetivos, alcance, requerimientos, prototipos, arquitectura y trazabilidad. |
 | CE022 - Ingeniería de la Información | X | Gestiona entidades, colecciones, reglas de seguridad, sincronización SQL, consultas e índices. |
 | CE023 - Programación | X | Implementa módulos React/TypeScript, Firebase SDK, hooks, validaciones, rutas, componentes y servicios. |
-| CE024 - QA | X | Incluye 99 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
+| CE024 - QA | X | Incluye 372 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
 
 !!! success "Resultado de viabilidad"
-    La viabilidad está **demostrada**: la plataforma está desplegada en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) con Firebase, y opera en piloto (8 matrículas, 2 pagos y 7 marcas de asistencia al 2026-10-24). La capa relacional (Node.js, MySQL y analítica) corre las 24 horas en el VPS del colegio desde el 2026-10-24, publicada por HTTPS y con respaldo diario.
+    La viabilidad está **demostrada**. La plataforma está desplegada en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) con Firebase y opera en piloto: al 2026-11-14 tenía 10 matrículas, 3 pagos y 7 marcas de asistencia. La capa relacional (Node.js, MySQL y analítica) corre las 24 horas en el VPS del colegio desde el 2026-10-24, publicada por HTTPS. Tiene respaldo diario y, desde el 2026-11-14, se compara y repara cada noche a partir de Firestore.
 
 ## Relación con la guía oficial
 

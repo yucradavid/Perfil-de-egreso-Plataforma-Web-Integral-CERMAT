@@ -107,7 +107,7 @@ La sede principal está en Azángaro. Otras sedes quedan fuera del alcance, con 
 | Servicio | Ubicación actual | Ubicación de diseño | Usuarios |
 |---|---|---|---|
 | Plataforma de la academia (SPA) | Vercel | Vercel | Todos los roles |
-| Identidad y datos operativos | Firebase (Auth, 22 colecciones de Firestore, Storage) | Firebase | Todos los roles |
+| Identidad y datos operativos | Firebase (Auth, 27 colecciones de Firestore, Storage) | Firebase | Todos los roles |
 | API de sincronización, MySQL y analítica | VPS del colegio desde el 2026-10-24 (antes, PC local con PM2) | VM-APP01 en VLAN 40, publicada por el VPS | Administración y dirección |
 | Sistema de gestión del colegio | VPS (Nginx, PHP-FPM, PostgreSQL) | VPS | Colegio |
 | DNS del dominio institucional | Punto.pe (servidores de RCP) | Igual | Todos |

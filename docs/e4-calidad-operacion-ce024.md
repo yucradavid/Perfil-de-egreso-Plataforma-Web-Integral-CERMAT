@@ -1,7 +1,7 @@
 # E4 - Gestión del Proyecto y Calidad de Software (CE024)
 
 !!! abstract "Evidencia CE024 — Calidad de Software"
-    Calidad del **producto**, con pruebas automatizadas e integración, despliegue y operación continuas, y calidad del **proceso**, con gestión ágil del proyecto, aseguramiento y auditoría. Todas las cifras de este documento se midieron el 2026-10-24 sobre el repositorio `academia-school-platform`.
+    Calidad del **producto**, con pruebas automatizadas e integración, despliegue y operación continuas, y calidad del **proceso**, con gestión ágil del proyecto, aseguramiento y auditoría. Las cifras se midieron por primera vez el 2026-10-24. Se volvieron a medir el 2026-11-16 sobre el commit `f9447d8` del repositorio `academia-school-platform`, con los mismos comandos del CI. Cada tabla indica la fecha de su medición.
 
 ## Portada
 
@@ -10,27 +10,36 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-10-24 |
+| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
 | Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
 
 ## Resumen Ejecutivo
 
-**Calidad del producto.** El sistema cuenta con **99 pruebas automáticas en cuatro niveles**, y las 99 pasan:
+**Calidad del producto.** El sistema cuenta con **372 pruebas automáticas en cuatro niveles**; el 2026-10-24 eran 99:
 
-- 34 pruebas unitarias del frontend.
-- 27 de la API: 20 de sus rutas y de su conexión a MySQL, y 7 de la carga inicial desde Firestore.
-- 19 de reglas de seguridad de Firestore, ejecutadas en el emulador.
-- 19 de la base de datos MySQL.
+- 150 pruebas unitarias del frontend (34 al 2026-10-24).
+- 96 de la API: rutas de sincronización, cuentas de alumnos, usuarios del personal, conexión a MySQL, conversión desde Firestore, comparación de la réplica y migración de accesos (27 al 2026-10-24).
+- 101 de reglas de seguridad de Firestore, ejecutadas en el emulador (19 al 2026-10-24).
+- 25 de la base de datos MySQL (19 al 2026-10-24).
 
-La cobertura de los módulos de lógica probados es de 91 % de líneas y 94 % de ramas.
+El 2026-11-16 pasan **366 de 372**. Las 6 que fallan (2 de API y 4 de reglas) y 34 errores de tipos del frontend aparecieron con la última entrega, la de matrícula masiva por Excel (`f9447d8`). Se registran como defectos abiertos en la [sección 1.3](#13-reporte-de-ejecucion-2026-11-16). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
 
 Las pruebas encontraron **tres fallas activas en producción**. Las reglas publicadas, del 22-jun-2026, permitían que cualquier usuario se asignara el rol de auxiliar o docente, permitían listar sin sesión las matrículas pagadas (nombres y teléfonos) y bloqueaban la matrícula pública de visitantes. La causa raíz fue que la primera línea de `firestore.rules` (`#`) impedía compilar el archivo, así que las versiones posteriores nunca llegaron a producción. Las tres fallas quedaron corregidas en el código: con las reglas de junio fallan 10 pruebas, y con las corregidas pasan las 19. El 2026-10-24 se publicaron el frontend y las reglas corregidas, y se verificó en producción que las tres fallas quedaron cerradas ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
 
-**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y publica las reglas de Firestore solo si todo lo anterior pasó. La operación se observa con endpoints `/health`, la vista de conciliación Firestore ↔ MySQL y el registro de pruebas de restauración. Cada componente tiene una ruta de reversión documentada. Desde el 2026-10-24 la base real `cermat_db` tiene las migraciones aplicadas, y la API y la analítica se conectan con cuentas de mínimo privilegio ([sección 2.7](#27-cierre-en-produccion-2026-10-24)). Ese mismo día la capa relacional pasó al VPS del colegio, con HTTPS, respaldo diario y una prueba de punta a punta. Los tres defectos de la base que aparecieron al hacerlo se analizan en la [sección 2.8](#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06).
+**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y publica las reglas de Firestore solo si todo lo anterior pasó. Su ejecución #22 en GitHub, la del commit `22dba3a` (réplica reparable), terminó en verde.
+
+La operación se observa con:
+
+- los endpoints `/health`;
+- la vista de conciliación Firestore ↔ MySQL;
+- la comparación nocturna de la réplica (desde el 2026-11-14);
+- el registro de pruebas de restauración.
+
+Cada componente tiene una ruta de reversión documentada. Desde el 2026-10-24 la base real `cermat_db` tiene las migraciones aplicadas, y la API y la analítica se conectan con cuentas de mínimo privilegio ([sección 2.7](#27-cierre-en-produccion-2026-10-24)). Ese mismo día la capa relacional pasó al VPS del colegio, con HTTPS, respaldo diario y una prueba de punta a punta. Los tres defectos de la base que aparecieron al hacerlo se analizan en la [sección 2.8](#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06). Los paquetes del VPS del 12 y el 14 de noviembre se describen en la [sección 2.9](#29-entregas-de-noviembre-en-produccion).
 
 **Calidad del proceso.**
 
-- **Gestión ágil:** Project Charter, historias de usuario con criterios de aceptación ligados a pruebas, Product Backlog priorizado y Sprint 1 en curso, con su retrospectiva.
+- **Gestión ágil:** Project Charter, historias de usuario con criterios de aceptación ligados a pruebas, Product Backlog priorizado, Sprint 1 cerrado con su retrospectiva y Sprint 2 en curso.
 - **Aseguramiento:** matriz de calidad ISO/IEC 25010 con métricas reales, lista de revisión obligatoria para cada cambio e inventario de defectos de código.
 - **Auditoría CMMI-DEV 2.0 (estilo SCAMPI C):** ubica al proyecto en **nivel 1**, con prácticas de nivel 2 parcialmente implementadas. El plan de mejora prioriza las brechas para alcanzar el nivel 2.
 
@@ -40,80 +49,109 @@ Las pruebas encontraron **tres fallas activas en producción**. Las reglas publi
 
 | Nivel | Herramienta | Qué valida | Ubicación |
 |---|---|---|---|
-| Unitarias (frontend) | Vitest 3.2 | Lógica pura: códigos de padres, payload del QR, fechas locales, montos en soles, importación Excel, tokens de invitación y esquemas Zod | `src/**/*.test.ts` |
-| Integración de la API | Vitest + Supertest; Firebase Admin y MySQL simulados | Autenticación, autorización por rol y titularidad, validación, manejo de errores y fecha local | `server/test/*.test.ts` |
-| Seguridad (reglas) | Vitest + `@firebase/rules-unit-testing` + emulador de Firestore | Reglas por rol, privacidad, control de cupos y **el código real de `createEnrollment`** ejecutado como visitante | `tests/firestore-rules/reglas.test.ts` |
-| Base de datos | Procedimientos de aserción SQL sobre MySQL 8.0 | Funciones, triggers, restricciones, idempotencia y `ROLLBACK` | `server/src/db/92_pruebas_bd.sql` |
+| Unitarias (frontend) | Vitest 3.2 | Lógica pura: códigos de padres, payload y resumen del QR, código rotativo, fechas locales, montos, importación Excel, ficha de matrícula, usuario y contraseña del alumno, comprobantes, estado de cuenta, docentes por grupo, horarios, filtros de listas y esquemas Zod | `src/**/*.test.ts` |
+| Integración de la API | Vitest + Supertest; Firebase Admin y MySQL simulados | Autenticación, autorización por rol y titularidad, cuentas de alumnos y de personal, validación, manejo de errores, fecha local, conversión desde Firestore y comparación de la réplica | `server/test/*.test.ts` |
+| Seguridad (reglas) | Vitest + `@firebase/rules-unit-testing` + emulador de Firestore | Reglas por rol, privacidad, ficha y documento, control de cupos y de precio, comprobantes, QR rotativo, cuentas desactivadas, talleres y **el código real de `createEnrollment`** ejecutado como visitante | `tests/firestore-rules/reglas.test.ts` |
+| Base de datos | Procedimientos de aserción SQL sobre MySQL 8.0 | Funciones, triggers, restricciones, idempotencia, reparación, borrado auditado y `ROLLBACK` | `server/src/db/92_pruebas_bd.sql` |
 
 ### 1.2 Casos de prueba automatizados
+
+Inventario al 2026-11-16, por archivo de prueba (unitarias y API) y por bloque (reglas y BD).
 
 | Suite | Grupo de casos | N° |
 |---|---|---:|
 | Unitarias | Código de acceso para padres: formato, normalización y caracteres ambiguos | 4 |
-| Unitarias | QR permanente firmado, QR diario y rechazo de QR ajenos | 5 |
-| Unitarias | Fechas locales (no UTC), cambio de mes y últimos N días | 5 |
-| Unitarias | Conversión segura de fechas de Firestore (Timestamp, texto, valores inválidos) | 3 |
-| Unitarias | Formato en soles y valores inválidos | 3 |
-| Unitarias | Importación Excel: celdas, listas y lote que no se detiene por un error | 3 |
+| Unitarias | QR permanente firmado, resumen de la firma por día y sentido, y código rotativo del docente | 9 |
+| Unitarias | Fechas locales (no UTC), rangos de fechas de los filtros y conversión segura de fechas de Firestore | 22 |
+| Unitarias | Montos en soles, teléfonos para WhatsApp, CSV y textos sin tildes | 15 |
+| Unitarias | Importación Excel genérica y matrícula masiva por fila | 7 |
 | Unitarias | Tokens de invitación: SHA-256 y unicidad | 3 |
-| Unitarias | Formulario de matrícula: turno, cuotas, nombre, teléfono, correo y precio | 4 |
-| Unitarias | Registro de pagos: monto, cuota y método | 4 |
-| API | Autenticación (sin token / token inválido) | 1 |
-| API | `/sync/payment`: solo admin, registrador del token, validación, 422 del trigger, 500 sin filtrar detalles | 5 |
-| API | `/sync/enrollment`: titularidad, no auto-marcar pagado, admin | 3 |
-| API | `/sync/attendance-log`: titularidad, auxiliar sin claim, docente, manual solo admin, duplicados | 6 |
-| API | `/asistencia/log` con fecha local y solo admin; `/asistencia/riesgo` por procedimiento | 3 |
-| API | Conexión a MySQL: vuelve al pool si la llamada termina bien y se cierra si falla, para no dejar una transacción abierta | 2 |
-| API | Carga inicial desde Firestore: mismo esquema que `/api/sync`, valores por defecto, pago al contado, hora de Perú con el servidor en UTC, docente del QR diario y marcación sin hora rechazada | 7 |
-| Reglas | Matrícula pública: registro con cupo, duplicado, ciclo cerrado, sobrecupo, cupo sin matrícula, manipulación del contador | 6 |
-| Reglas | Privacidad: listar pagadas, leer existentes, verificar inexistencia, lectura del alumno con sesión | 4 |
-| Reglas | Roles: sin invitación, invitación vigente, ajena, vencida, reintento, docentes, alumno, cambio de rol | 8 |
-| Reglas | Pagos: solo admin, monto > 0, no se borran, anulación | 1 |
-| BD | Funciones de saldo, pago y asistencia (días lectivos, cero asistencias, docentes) | 7 |
-| BD | Triggers de copia de alumno y auditoría de anulación | 2 |
-| BD | Pago que llega antes que su matrícula y conciliación | 2 |
-| BD | Idempotencia de asistencia | 1 |
-| BD | Rechazos: borrar pago, cuota excedida, monto negativo, FK, borrar con pagos, 0 cuotas | 6 |
+| Unitarias | Esquemas de matrícula y de pago: turno, cuotas, descuento, cronograma, monto y método | 14 |
+| Unitarias | Ficha de matrícula: documento, menor de edad, apoderado, nombres y apellidos | 14 |
+| Unitarias | Acceso del alumno: usuario `nombre.apellido` y reglas de la contraseña | 11 |
+| Unitarias | Comprobantes, resumen de pagos y estado de cuenta (vencidas, próximas y cronograma) | 14 |
+| Unitarias | Usuarios del panel, docentes por grupo y horario del grupo | 11 |
+| Unitarias | Filtros de listas, mensajes, sincronización de matrículas y textos de la portada | 26 |
+| API | Rutas `/api/sync`: autenticación, pagos, matrículas, asistencia, marcas borradas, activación y cuentas desactivadas | 22 |
+| API | `/api/cuentas`: 401 y 403, contraseña inicial, usuario ocupado, unión con confirmación, reintento a medias, restablecer, desactivar y corregir el documento | 21 |
+| API | `/api/usuarios`: solo admin, listar, crear docente o auxiliar, rechazos, contraseña y desactivar, sin tocar administradores ni alumnos | 10 |
+| API | Conversión desde Firestore: esquema de `/api/sync`, valores por defecto, contado, hora de Perú y docente del QR | 11 |
+| API | Comparación de la réplica y su ventana de días | 10 |
+| API | Conciliación de marcas borradas: frenos, ventana y repetición | 9 |
+| API | Migración de accesos (plan e idempotencia) | 8 |
+| API | `/asistencia` y conexión a MySQL que se cierra si la llamada falla | 5 |
+| Reglas | Matrícula pública (con `createEnrollment` real) y privacidad de matrículas | 14 |
+| Reglas | Ficha de matrícula, documento y acceso directo de alumnos | 11 |
+| Reglas | Roles, personal sin claims, activación del alumno y personal desactivado | 26 |
+| Reglas | Solicitudes de WhatsApp y mensajes de Contacto | 16 |
+| Reglas | Recursos por grupo, comprobantes y pagos | 10 |
+| Reglas | Código de padres, QR fuera del perfil y resumen de la firma | 10 |
+| Reglas | QR del docente cada 2 minutos y primera marca del día | 5 |
+| Reglas | Editar matrícula, talleres con cupo y varios docentes por grupo | 9 |
+| BD | Descuento, cronograma, funciones de saldo, pago y asistencia | 8 |
+| BD | Triggers, registrador del pago, pago adelantado y conciliación | 5 |
+| BD | Idempotencia y reparación de asistencia; borrado auditado | 2 |
+| BD | Rechazos: borrar pago, cuota excedida, monto negativo, FK, borrar con pagos, 0 cuotas, descuento en cuotas, descuento mayor que el precio y cronograma incompleto | 9 |
 | BD | Sin filas a medias tras un rechazo | 1 |
-| | **Total** | **99** |
+| | **Total** | **372** |
 
-### 1.3 Reporte de ejecución (2026-10-24)
+### 1.3 Reporte de ejecución (2026-11-16)
 
-| Suite | Comando | Resultado | Duración |
+Commit `f9447d8`, con el script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQL 8.0.30).
+
+| Suite | Comando | Resultado 2026-11-16 | Resultado 2026-10-24 |
 |---|---|---|---|
-| Unitarias frontend | `npm run test:coverage` | **34/34 OK** | 1,9 s |
-| API REST | `cd server && npm test` | **27/27 OK** | 1,2 s |
-| Reglas de Firestore | `npm run test:rules` | **19/19 OK** | 5,8 s + arranque del emulador |
-| Base de datos | `mysql -t cermat_prueba < server/src/db/92_pruebas_bd.sql` | **19/19 OK** | < 1 s |
-| **Total** | | **99/99 OK** | |
+| Tipos del frontend | `npm run typecheck` | **34 errores** | 0 |
+| Tipos de la API | `cd server && npm run typecheck` | **0 errores** | 0 |
+| Unitarias frontend | `npm run test:coverage` | **150/150 OK** (2,2 s) | 34/34 |
+| API REST | `cd server && npm test` | **94/96** (1,4 s) | 27/27 |
+| Reglas de Firestore | `npm run test:rules` | **97/101** (23 s con el emulador) | 19/19 |
+| Base de datos | `mysql -t cermat_prueba < server/src/db/92_pruebas_bd.sql` | **25/25 OK** | 19/19 |
+| Build de producción | `npm run build` | **OK** | OK |
+| **Total de pruebas** | | **366/372** | 99/99 |
+
+!!! danger "Defectos abiertos: la entrega de matrícula masiva (`f9447d8`) se publicó sin pasar las comprobaciones del CI"
+    | Defecto | Dónde | Efecto |
+    |---|---|---|
+    | 34 errores de tipos | `AdminBulkQuickEnrollmentCard.tsx` (30), `bulkEnrollmentImport.ts` y su prueba (3), `AdminQuickEnrollmentCard.tsx` (1) | El tipo `BulkEnrollmentEntry` cambió y la tarjeta usa la forma anterior. El build pasa porque Vite no comprueba tipos, pero el CI falla |
+    | Prueba de API: conversión desde Firestore | `server/test/desdeFirestore.test.ts:39` | Usa un descuento en cuotas, que la regla nueva prohíbe: hay que corregir el dato de la prueba |
+    | Prueba de API: matrícula activada | `server/test/sync.test.ts:233` | La API responde 400 en vez de 200 |
+    | Regla: indicador de contraseña | `reglas.test.ts:538` | El alumno puede volver a poner `passwordInicial` en `true`. Solo reactiva su propio aviso; no puede apagarlo |
+    | Regla: comprobantes del alumno | Bloque «comprobantes de pago» | Se deniega que el alumno liste los comprobantes de su matrícula |
+    | Regla: QR fuera del perfil | Bloque «QR del alumno fuera del perfil» | Se deniega que el alumno borre el QR que quedó en su perfil |
+    | Regla: cuenta desactivada | Bloque «docentes y auxiliares desactivados» | Se deniega que una cuenta desactivada lea su propio perfil |
+
+    Las tres últimas son funciones que el sistema necesita y que hoy se deniegan. Si estas reglas ya se publicaron desde la consola, «Mis comprobantes» del alumno falla en producción. El CI no habría publicado estas reglas: solo lo hace con todo en verde. Acción: corregir y volver a 372/372 antes de la siguiente publicación (plan de mejora, acción 13).
 
 ### 1.4 Reporte de cobertura
 
-Cobertura de líneas y ramas (V8) de los módulos de lógica de negocio:
+Cobertura de líneas y ramas (V8) de los módulos de lógica de negocio que mide la configuración de cobertura, al 2026-11-16:
 
 | Módulo | Líneas | Ramas | Funciones |
 |---|---:|---:|---:|
 | `lib/parentAccess.ts` | 100 % | 100 % | 100 % |
-| `lib/date.ts` | 95,0 % | 96,0 % | 100 % |
+| `lib/date.ts` | 97,1 % | 97,5 % | 100 % |
 | `lib/money.ts` | 100 % | 100 % | 100 % |
 | `lib/qrPayload.ts` | 87,1 % | 82,6 % | 100 % |
-| `lib/excelImport.ts` | 63,3 % | 92,3 % | 66,7 % |
+| `lib/excelImport.ts` | 50,8 % | 92,3 % | 50,0 % |
 | `features/enrollments/invite.ts` | 100 % | 100 % | 100 % |
-| `features/enrollments/schemas.ts` | 100 % | 100 % | 100 % |
-| `features/payments/schemas.ts` | 100 % | 100 % | 100 % |
-| **Total** | **91,0 %** | **94,3 %** | **91,7 %** |
+| `features/enrollments/schemas.ts` | 94,3 % | 91,7 % | 100 % |
+| `features/payments/schemas.ts` | 100 % | 90,0 % | 100 % |
+| **Total** | **89,0 %** | **93,8 %** | **87,5 %** |
 
 !!! warning "Alcance real de la cobertura"
-    Los porcentajes corresponden a los módulos de lógica, no a las 41 748 líneas del frontend. Las pantallas React no tienen pruebas de componentes; la capa de acceso a Firebase se cubre con la suite de reglas, que ejecuta el código real de matrícula. Las pruebas de componentes están en el plan de mejora (sección 4.5).
+    Los porcentajes corresponden a los 8 módulos de lógica de la configuración, no a las 56 685 líneas del frontend. Los módulos nuevos con prueba propia (ficha, accesos, comprobantes, estado de cuenta, código rotativo) se ejecutan en las 150 pruebas, pero todavía no entran en el reporte: hay que agregarlos a la configuración de cobertura (plan de mejora, acción 14). Las pantallas React no tienen pruebas de componentes. La capa de acceso a Firebase se cubre con la suite de reglas, que ejecuta el código real de matrícula.
 
 ### 1.5 Evidencia de pruebas sobre flujos críticos
 
 | Flujo crítico | Riesgo | Pruebas que lo cubren |
 |---|---|---|
-| Matrícula pública | Sobreventa de cupos, duplicados, bloqueo del visitante | 6 de reglas (con `createEnrollment` real), 4 unitarias del formulario, 3 de API |
-| Pagos | Dinero mal registrado, borrado o anulado sin rastro | 1 de reglas, 4 unitarias, 5 de API, 10 de BD |
-| Asistencia por QR | Suplantación, duplicados, fecha incorrecta | 10 unitarias (QR y fechas), 9 de API, 5 de BD |
-| Roles y privacidad | Escalamiento de privilegios, exposición de datos de menores | 12 de reglas, 1 de API de autenticación y controles de titularidad en todas las rutas |
+| Matrícula pública | Sobreventa de cupos, duplicados, bloqueo del visitante, precio alterado | 10 de reglas (con `createEnrollment` real), 7 de la ficha, 5 unitarias del esquema, 4 de API |
+| Pagos y comprobantes | Dinero mal registrado, borrado o anulado sin rastro; comprobante falsificado o duplicado | 6 de reglas, 23 unitarias (pagos, comprobante y estado de cuenta), 5 de API, 12 de BD |
+| Asistencia por QR | Suplantación, marcas fabricadas, duplicados, fecha incorrecta | 9 unitarias (QR, resumen y código rotativo), 11 de reglas, 9 de API de sincronización, 9 de conciliación y 6 de BD |
+| Acceso de alumnos | Cuenta ajena, contraseña expuesta, unión indebida de cuentas | 21 de API, 11 unitarias, 11 de reglas (ficha, documento y acceso directo) |
+| Roles y privacidad | Escalamiento de privilegios, exposición de datos de menores, personal desactivado con acceso | 26 de reglas, 10 de API de usuarios y controles de titularidad en todas las rutas |
+| Réplica relacional | Datos faltantes o distintos de Firestore | 10 de comparación, 11 de conversión, 9 de conciliación y 5 de BD (pago adelantado, reparación y borrado) |
 
 ### 1.6 Las pruebas detectan defectos reales
 
@@ -133,10 +171,10 @@ La misma suite de reglas se ejecutó contra la versión **que estaba publicada e
 
 ```mermaid
 flowchart LR
-  P["push / pull request a main"] --> F["frontend: tipos, 34 pruebas + cobertura, build"]
-  P --> R["reglas-firestore: emulador + 19 pruebas"]
-  P --> A["api: tipos + 27 pruebas"]
-  P --> B["base-datos: MySQL 8, migraciones + 19 pruebas + EXPLAIN"]
+  P["push / pull request a main"] --> F["frontend: tipos, 150 pruebas + cobertura, build"]
+  P --> R["reglas-firestore: emulador + 101 pruebas"]
+  P --> A["api: tipos + 96 pruebas"]
+  P --> B["base-datos: MySQL 8, migraciones en base nueva y existente + 25 pruebas + EXPLAIN"]
   P --> Y["analítica: sintaxis Python"]
   F --> D{"¿todo OK y push a main?"}
   R --> D
@@ -152,17 +190,17 @@ flowchart LR
 |---|---|
 | Archivo | `.github/workflows/ci.yml` |
 | Disparadores | `push` y `pull_request` a `main`, y ejecución manual |
-| Puertas de calidad | El build y la publicación solo ocurren si pasan tipos y pruebas. El trabajo de base de datos falla si alguna prueba devuelve `FALLÓ`. |
+| Puertas de calidad | El build y la publicación solo ocurren si pasan tipos y pruebas. El trabajo de base de datos falla si alguna prueba devuelve `FALLÓ`. Desde noviembre, además, falla si una base existente no conserva los 9 permisos `EXECUTE` de la API después de re-ejecutar `03`, `04` y `05`, o si la migración `06` no deja sus 2 columnas. |
 | Artefactos | Reporte de cobertura, métricas de lint (JSON), resultado de las pruebas de BD y planes de ejecución |
 | Despliegue de reglas | Solo en `push` a `main`, después de los 5 trabajos de verificación. Usa el entorno `produccion` (permite exigir aprobación manual) y el secreto `FIREBASE_SERVICE_ACCOUNT`; sin el secreto, se omite con un aviso. |
-| Frontend | Vercel publica `main`. Para que solo se publique lo verificado, se recomienda activar en Vercel la espera de los checks de GitHub. |
+| Frontend | Vercel publica `main`. Para que solo se publique lo verificado, se recomienda activar en Vercel la espera de los checks de GitHub. El 2026-11-16 se publicó `f9447d8` con las comprobaciones en rojo ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)), lo que confirma que hace falta esa espera. |
 
 ### 2.3 Evidencias de integración y despliegue
 
-Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comandos y versiones (Node 22/24, MySQL 8.0.30, Java 21, Firebase CLI 14.15). La primera ejecución en GitHub ocurrirá al subir los cambios.
+Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comandos y versiones (Node 22/24, MySQL 8.0.30, Java 21, Firebase CLI 14.15). En GitHub, la ejecución #22 (commit `22dba3a`, réplica reparable) terminó en verde, y Vercel publicó ese frontend. El 2026-11-16 se repitió todo en local con el script que reproduce el CI ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)).
 
 !!! note "Capturas a adjuntar"
-    Pestaña *Actions* con los 6 trabajos en verde y el detalle del trabajo `base-datos` (tabla de 19 pruebas).
+    Pestaña *Actions* con la ejecución #22 en verde y el detalle del trabajo `base-datos` (tabla de 25 pruebas y los 9 permisos de la base existente).
 
 ### 2.4 Observabilidad en producción
 
@@ -173,10 +211,12 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 | Integridad de la réplica | `v_conciliacion_pagos` (0 filas = sin eventos perdidos) | Implementado |
 | Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO medido y collation verificada en cada prueba) | Implementado |
 | Respaldos diarios de MySQL | Temporizador `academia-respaldo` de systemd en el VPS; `journalctl` registra cada ejecución | Implementado (2026-10-24) |
+| Coincidencia Firestore ↔ MySQL | Temporizador `academia-replica` a las 03:30: repara, concilia y compara; el servicio queda en `failed` si quedan diferencias o un documento rechazado | Implementado (2026-11-14); primera corrida `SUCCESS` |
 | Sincronizaciones hacia MySQL | Registro de la API con la hora y el estado de cada `POST /api/sync`, y avisos `[sync]` en la consola del panel | Implementado, sin alertas |
-| Historial de despliegues del frontend | Panel de Vercel (en producción: commit `c06f5a2`, 2026-10-24) | Disponible |
-| Alertas automáticas de caída | — | **Brecha**: plan de mejora 4.5 |
-| Errores en el navegador | 105 llamadas `console.*` sin centralizar | **Brecha**: plan de mejora 4.5 |
+| Rutas de cuentas en el VPS | `/api/cuentas` y `/api/usuarios` responden 401 sin sesión (comprobado el 2026-11-16) | Implementado |
+| Historial de despliegues del frontend | Panel de Vercel (2026-11-16: bundle `index-B3ptOLs7.js`, con la entrega `f9447d8`) | Disponible |
+| Alertas automáticas de caída | — (un `failed` de la réplica se ve solo al revisarlo) | **Brecha**: plan de mejora 4.5 |
+| Errores en el navegador | 94 llamadas `console.*` sin centralizar (105 al 2026-10-24) | **Brecha**: plan de mejora 4.5 |
 
 ### 2.5 Estrategia de rollback y respaldos
 
@@ -184,7 +224,9 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 |---|---|---|
 | Frontend (Vercel) | Promover el despliegue anterior desde el panel (inmediato) o revertir el commit | Historial de despliegues de Vercel |
 | Reglas de Firestore | Revertir el commit; el pipeline publica la versión anterior ya probada. La consola de Firebase conserva el historial de rulesets. | Ruleset de producción identificado por id y fecha |
-| API y analítica (VPS) | Volver a la copia guardada antes de cada cambio (`dist.antes-AAAAMMDD` y `main.py.antes-AAAAMMDD`) y reiniciar con PM2 como `academia` | Manual de despliegue §9.6.2 |
+| API y analítica (VPS) | Volver a la copia guardada antes de cada cambio (`dist.antes-AAAAMMDD` y `main.py.antes-AAAAMMDD`) y reiniciar con PM2 como `academia`. Desde el 14-nov la API se reemplaza con la carpeta `dist` completa y la anterior queda en `dist.antes-replica-20261112` | Manual de despliegue §9.6.2 y §9.7.9 |
+| Conciliación nocturna | `systemctl disable --now academia-replica.timer`; cada cambio que hizo queda en `auditoria` y el respaldo de las 03:00 es anterior | Manual de despliegue §9.7.9 |
+| Paquetes del VPS | Cada paquete lleva `SHA256SUMS`, respaldo previo y un bloque que se detiene ante el primer error y vuelve a levantar los servicios | Manual §9.7.7 a §9.7.9 |
 | Migración de la base | Respaldo previo con `backup.js`, servicios detenidos y migraciones re-ejecutables | Manual de despliegue §9.6.1 |
 | Base MySQL | `scripts/backup.js` (con `--routines`, SHA-256) y `scripts/restore.js` (verificación, RTO y collation) | RTO medido: 0,23 s en la base real (REC-05), 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14), todos del 2026-10-24; 0,27–0,38 s en la base de prueba |
 | Datos de Firestore | — | **Brecha**: respaldo programado en el plan de mejora |
@@ -197,7 +239,7 @@ Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comando
 | Impacto | Auto-asignación de rol auxiliar o docente, listado público de matrículas pagadas, matrícula pública bloqueada y colecciones de julio (`attendanceDayState`, `studentQrSignatures`) sin reglas en producción. La app publicada en Vercel (15-oct) ya usa esas colecciones. |
 | Causa raíz | La línea 1 de `firestore.rules` (`# // firestore.rules`) no es sintaxis válida: el emulador responde `L1:1 token recognition error at: '#'`. Cualquier `firebase deploy` fallaba, y no había un proceso que lo hiciera visible. |
 | Corrección | Comentario válido en la línea 1. Regla de rol con invitación vigente, cupo público ligado a la creación de la pre-matrícula y lectura de matrículas pagadas restringida a lecturas individuales con sesión. |
-| Prevención | Ninguna regla se publica sin pasar las 19 pruebas (CI), y la publicación es automática tras el CI, no un paso manual que se olvida. |
+| Prevención | Ninguna regla se publica sin pasar la suite de reglas en el CI (19 pruebas entonces, 101 el 2026-11-16), y la publicación es automática tras el CI, no un paso manual que se olvida. |
 | Cierre | 2026-10-24: se publicó primero el frontend y después las reglas corregidas, desde la consola de Firebase. Verificado en producción ([sección 2.7](#27-cierre-en-produccion-2026-10-24)). |
 
 ### 2.7 Cierre en producción (2026-10-24)
@@ -247,6 +289,22 @@ Las capturas del día, con los datos personales tapados, están en [Evidencias d
 | Recuperación | A las 22:10 y 22:11, dos cambios de estado de la pre-matrícula de prueba llegaron a MySQL con respuesta 200 |
 | Prevención | Migraciones con los servicios detenidos y una espera máxima de 60 s. Reproducir cada falla en una réplica antes de tocar producción. `restore.js` verifica la collation, y la prueba de restauración ejecuta las funciones en la copia |
 
+### 2.9 Entregas de noviembre en producción
+
+Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el VPS se aplicó con un paquete con huellas, respaldo previo y verificación de salud y permisos.
+
+| Fecha | Entrega | Verificación en producción |
+|---|---|---|
+| 2026-10-30 | Push de `bb02659`: paneles, comprobantes con QR, lógica entre roles y seguridad de accesos | El 12-nov se comprobó que producción tiene el bundle y las reglas nuevas: un comprobante inexistente da 404 sin sesión |
+| 2026-11-12, 20:52 | VPS: marcas borradas en MySQL, activación del alumno, cuentas desactivadas y alertas sin duplicar | 5 huellas, respaldo previo, salud `ok`, 9 de 9 permisos y `sp_eliminar_asistencia` presente |
+| 2026-11-12, 21:07 | VPS: conciliación de las marcas borradas antes de esa entrega | 7 marcas en MySQL y 7 en Firestore: nada que borrar |
+| 2026-11-13/14 | Push de `22dba3a`: réplica reparable | CI #22 en verde; Vercel publicó el frontend |
+| 2026-11-14, 21:47 | VPS: réplica reparable y conciliación nocturna | 22 huellas; 3 diferencias de milisegundos reparadas; comparación final «coinciden»; temporizador habilitado y primera corrida `SUCCESS` |
+| 2026-11-15/16 | VPS: rutas `/api/cuentas` y `/api/usuarios` (manual §9.7.10, sin hora registrada) | El 2026-11-16 responden 401 sin sesión |
+| 2026-11-16 | Push de `f9447d8`: matrícula masiva por fila y configuración institucional | Vercel la publicó (el bundle contiene sus textos), aunque no pasa las comprobaciones del CI ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). El manual aún no registra la migración 06 en el VPS |
+
+**Lección aprendida.** Desde el 2026-10-28 cada entrega declara su orden de publicación (reglas o frontend primero) con una tabla de qué combinación falla. Así la ventana de riesgo queda del lado del administrador, que es quien despliega ([E3 §4.1](e3-sistema-funcional-ce023.md#41-instrucciones-de-instalacion)). La entrega del 16-nov muestra el hueco que queda: Vercel publica `main` aunque el CI esté en rojo.
+
 ## Sección 3: Gestión Ágil del Proyecto de Software
 
 ### 3.1 Project Charter
@@ -257,10 +315,10 @@ Las capturas del día, con los datos personales tapados, están en [Evidencias d
 | Sponsor | Dirección de Academia La Prepa Cermat |
 | Objetivo general | Centralizar oferta, matrícula, pagos, asistencia y comunicación con padres en una plataforma con portales por rol |
 | Objetivos medibles | Matrícula pública operativa sin intervención manual. Cero fallas críticas en reglas de seguridad (verificado por CI). 100 % de pruebas en verde antes de cada publicación. RTO de la base relacional < 1 h. |
-| Alcance | 22 requerimientos funcionales y 10 no funcionales del [E1](e1-definicion-sistema-ce021.md). Fuera de alcance: app móvil nativa, pasarela de pagos, facturación electrónica. |
+| Alcance | 30 requerimientos funcionales y 11 no funcionales del [E1](e1-definicion-sistema-ce021.md) (22 y 10 al inicio del Sprint 1). Fuera de alcance: app móvil nativa, pasarela de pagos, facturación electrónica. |
 | EDT | Sitio público · Gestión académica · Matrícula y pagos · Usuarios y roles · Asistencia QR · Contenidos · Infraestructura y sincronización (detalle en [Gestión TI E3](gestion-ti/e3-plan-gestion-proyecto-ce0121.md)) |
 | Equipo | Líder técnico y Scrum Master: David Robert Yucra Mamani. Equipo de desarrollo: Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores y Cárdenas Vilca Rennzo. Product Owner: responsable designado por la Dirección (a confirmar). |
-| Riesgos principales | Reglas publicadas distintas de las probadas (mitigado con CI) · Secretos en el historial del repositorio · Conocimiento concentrado en una persona · Falsos positivos del antivirus al ejecutar scripts SQL |
+| Riesgos principales | Reglas publicadas distintas de las probadas (mitigado con CI) · Secretos en el historial del repositorio · Conocimiento concentrado en una persona · Falsos positivos del antivirus al ejecutar scripts SQL · Publicación en Vercel aunque el CI esté en rojo · Contraseña inicial predecible de los alumnos (riesgo aceptado, ADR-11) |
 | Criterio de éxito | Pipeline en verde, reglas corregidas publicadas y aceptación de los flujos críticos por la Dirección |
 
 ### 3.2 Historias de usuario
@@ -275,6 +333,11 @@ Las capturas del día, con los datos personales tapados, están en [Evidencias d
 | HU-06 | Como **Dirección** quiero ver qué alumnos están en riesgo de abandonar. | Calcula sobre días lectivos. Incluye a quien nunca asistió. Excluye docentes. | BD 4–7, API › riesgo |
 | HU-07 | Como **administrador** quiero importar alumnos desde Excel. | Una fila con error no detiene el lote. El error indica la fila real del archivo. | Unitarias › excelImport (3) |
 | HU-08 | Como **equipo técnico** quiero que las reglas solo se publiquen si pasan sus pruebas. | El pipeline bloquea la publicación si una prueba falla. | CI › desplegar-reglas |
+| HU-09 | Como **administrador** quiero crear el acceso del alumno con usuario y contraseña. | Usuario sugerido si está ocupado; unir solo con confirmación; reintento sin duplicar; tarjeta sin el DNI. | API › cuentas (21); unitarias › usuario (6) |
+| HU-10 | Como **administrador** quiero entregar un comprobante con QR de cada pago. | Se crea con el pago, numeración sin repetir, página pública sin sesión, «ANULADO» al anular. | Reglas › comprobantes (3); unitarias › comprobante (3) |
+| HU-11 | Como **auxiliar** quiero que el QR del docente no sirva desde fuera del local. | El código cambia cada 2 minutos; uno de hace varios minutos se rechaza. | Reglas › QR del docente (3); unitarias › código rotativo (2) |
+| HU-12 | Como **Dirección** quiero que MySQL coincida con Firestore sin revisarlo a mano. | Comparación y reparación cada noche; servicio en `failed` si quedan diferencias. | API › comparación (10) y conciliación (9); BD 11 y 14–15 |
+| HU-13 | Como **administrador** quiero desactivar a un docente o auxiliar que se va. | Pierde el rol aunque tenga claims; no se reactiva solo. | Reglas › personal desactivado (5); API › usuarios (10) |
 
 ### 3.3 Product Backlog
 
@@ -288,17 +351,25 @@ Las capturas del día, con los datos personales tapados, están en [Evidencias d
 | PB-06 | Retirar secretos del historial y rotar la clave de servicio | Alta | Hecho en lo esencial (2026-10-24): clave rotada y contraseñas de docentes restablecidas; los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
 | PB-07 | 0 errores de TypeScript | Alta | Hecho (Sprint 1) |
 | PB-08 | Monitor externo con alertas sobre la URL y `/health` | Media | Pendiente |
-| PB-09 | Reducir `any` en módulos de dinero y asistencia | Media | Pendiente |
-| PB-10 | Carga diferida de páginas (bundle inicial de 2,8 MB) | Media | Pendiente |
+| PB-09 | Reducir `any` en módulos de dinero y asistencia | Media | Hecho en lo medido: 71 usos en todo el código (meta < 120); 0 en `features/payments` y 1 en `features/attendance` |
+| PB-10 | Carga diferida de páginas (bundle inicial de 2,8 MB; 3,1 MB al 2026-11-16) | Media | Pendiente |
 | PB-11 | Respaldo programado de Firestore con prueba de restauración | Media | Pendiente |
 | PB-12 | Pruebas de componentes de matrícula y pagos | Media | Pendiente |
-| PB-13 | Operación continua de la capa relacional (VM-APP01 o VPS puente) | Alta | En curso (2026-10-24): API, MySQL y analítica 24/7 en el VPS del colegio, con HTTPS y prueba de punta a punta; faltan los 30 días sin diferencias de conciliación y el monitor de `/health` ([Gestión TI E3](gestion-ti/e3-plan-gestion-proyecto-ce0121.md), CR-03) |
+| PB-13 | Operación continua de la capa relacional (VM-APP01 o VPS puente) | Alta | En curso: API, MySQL y analítica 24/7 en el VPS del colegio desde el 2026-10-24, con HTTPS y prueba de punta a punta. Desde el 2026-11-14, la comparación nocturna mide las diferencias cada día. Faltan los 30 días seguidos sin diferencias y el monitor de `/health` ([Gestión TI E3](gestion-ti/e3-plan-gestion-proyecto-ce0121.md), CR-03) |
 | PB-18 | Respaldo diario automático de MySQL y copia verificada fuera del VPS | Alta | Hecho (2026-10-24): temporizador de systemd y REC-14 |
-| PB-19 | Carga inicial en MySQL de los datos anteriores de Firestore y reintento de los envíos fallidos | Media | En parte (2026-10-24): carga inicial hecha (10 matrículas, 2 pagos y 7 asistencias; 0 provisionales); el reintento sigue pendiente (decisión del equipo) |
+| PB-19 | Carga inicial en MySQL de los datos anteriores de Firestore y reintento de los envíos fallidos | Media | Hecho. La carga inicial, el 2026-10-24 (10 matrículas, 2 pagos y 7 asistencias; 0 provisionales). En lugar del reintento inmediato, la reparación nocturna desde Firestore funciona desde el 2026-11-14 (ADR-12) |
+| PB-20 | Paneles unificados: marco común, filtros, tablas y formularios rehechos en todos los módulos | Media | Hecho (2026-10-26/28) |
+| PB-21 | Lógica entre roles y reglas: docente e auxiliar sin claims, recursos por grupo, precio de la pre-matrícula y lecturas del docente | Alta | Hecho (octubre y 12-nov) |
+| PB-22 | Comprobantes de pago con QR (A4 y ticket de 80 mm) | Alta | Hecho (2026-10-28) |
+| PB-23 | Seguridad de accesos: activación sin leer la matrícula, códigos de padres revocables, firma fuera del perfil y de las marcas, QR rotativo del docente y cuentas desactivadas | Alta | Hecho (28-oct y 12-nov), con su migración en el VPS |
+| PB-24 | Editar matrícula, Estado de cuenta, talleres con cupo y varios docentes por grupo | Alta | Hecho (2026-11-12) |
+| PB-25 | Ficha de matrícula y acceso directo de alumnos; módulo Usuarios | Alta | Hecho en el código; las rutas de la API están activas en el VPS al 2026-11-16. Falta confirmar la titularidad de `cermatacademia.edu.pe` y validar el aviso de privacidad |
+| PB-26 | Matrícula masiva por fila y configuración institucional de pago | Alta | En el código y publicado (2026-11-16); falta volver a 372/372 pruebas, corregir los 34 errores de tipos y registrar la migración 06 en el VPS |
+| PB-27 | Que Vercel publique solo los commits con el CI en verde | Alta | Pendiente (lección del 2026-11-16) |
 
 ### 3.4 Sprint Backlog — Sprint 1 "Calidad y seguridad"
 
-Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crítico llegue a producción sin ser detectado.
+Duración: 2 semanas, del 2026-10-24 al 2026-11-07. Objetivo: que ningún defecto crítico llegue a producción sin ser detectado.
 
 | Tarea | PB | Estado | Evidencia |
 |---|---|---|---|
@@ -311,7 +382,7 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Corregir dominio (Vercel) en CORS y SEO | — | Hecho | `analytics/main.py`, `index.html`, `sitemap.xml` |
 | 0 errores de TypeScript (66 al inicio) sin cambiar el JavaScript generado | PB-07 | Hecho | `npm run typecheck` |
 | Corrección de 7 defectos funcionales hallados al tipar | — | Hecho | 3 pruebas nuevas y verificación en el navegador |
-| Subir cambios y primera ejecución del CI | PB-01 | Pendiente | Pestaña *Actions* |
+| Subir cambios y primera ejecución del CI | PB-01 | Hecho | El CI corre en GitHub con cada push; ejecución #22 en verde |
 | Publicar reglas y verificarlas en producción | PB-04 | Hecho | Sección 2.7 |
 | Rotar la clave de servicio y las contraseñas expuestas | PB-06 | Hecho | Sección 2.7 |
 | Aplicar las migraciones MySQL en la base real | PB-05 | Hecho | Sección 2.7; REC-05 |
@@ -319,6 +390,32 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Corregir los 3 defectos de la base hallados en el VPS | — | Hecho | Sección 2.8; 2 pruebas nuevas de API |
 | Respaldo diario en el VPS y copia verificada en la PC | PB-18 | Hecho | REC-14 |
 | Carga inicial de Firestore a MySQL en el VPS | PB-19 | Hecho | 7 pruebas nuevas de API; sección 2.7 |
+
+**Trabajo agregado durante el Sprint 1 (25 al 30 de octubre).** Salió de una auditoría de solo lectura con 171 hallazgos, cada uno verificado en el código antes de corregirlo.
+
+| Tarea | PB | Estado | Evidencia |
+|---|---|---|---|
+| Menú del admin en 7 módulos, bandeja de Solicitudes y colores institucionales en los 4 paneles | PB-20 | Hecho | `docs/FASE_UIX_*.md` |
+| Marco único de paneles, filtros, tablas y formularios en todos los módulos | PB-20 | Hecho | `components/panel/*`, `components/admin/list/*` (15 pruebas) |
+| Correcciones de lógica entre roles y reglas | PB-21 | Hecho | Reglas: de 35 a 60 pruebas |
+| Comprobantes de pago con QR | PB-22 | Hecho | `features/receipts/*`, página `/comprobante/:id` |
+| Seguridad de accesos y su migración en el VPS | PB-23 | Hecho | `migrarAccesos.ts` (8 pruebas de API) |
+
+### 3.4.1 Sprint Backlog — Sprint 2 "Operación y acceso de alumnos"
+
+Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el alumno tenga acceso desde el primer día.
+
+| Tarea | PB | Estado | Evidencia |
+|---|---|---|---|
+| Marcas con resumen de la firma, precio de la pre-matrícula en las reglas y «Confirmada» | PB-23 | Hecho (12-nov) | Reglas: 64 pruebas |
+| Cuentas de personal desactivadas, sedes renombradas, editar matrícula, Estado de cuenta y talleres con cupo | PB-24 | Hecho (12-nov) | Reglas: 75; API: 40 |
+| Varios docentes por grupo, horario del grupo en el sitio y QR del docente cada 2 minutos | PB-23, PB-24 | Hecho (12-nov) | Reglas: 83 |
+| Borrado auditado de marcas en MySQL y conciliación de las anteriores | PB-19 | Hecho (12-nov, aplicado en el VPS) | `sp_eliminar_asistencia`; 9 pruebas de conciliación |
+| Réplica reparable y conciliación nocturna | PB-19 | Hecho (14-nov, aplicado en el VPS) | 10 pruebas de comparación; temporizador en `SUCCESS` |
+| Ficha de matrícula, acceso directo de alumnos y módulo Usuarios | PB-25 | Hecho (15-nov) | API: 21 de cuentas y 10 de usuarios; reglas: 101 |
+| Matrícula masiva por fila y configuración institucional | PB-26 | En corrección | 6 pruebas y 34 errores de tipos pendientes (sección 1.3) |
+| Actualizar la documentación del EPE | — | Hecho (16-nov) | Este documento |
+| Exigir el CI en verde antes de publicar en Vercel | PB-27 | Pendiente | — |
 
 ### 3.5 Ceremonias y métricas de avance
 
@@ -329,7 +426,9 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Revisión | Fin de sprint, con la Dirección | Acta con la aceptación de las historias |
 | Retrospectiva | Fin de sprint | Acciones de mejora (abajo) |
 
-**Métricas del Sprint 1 (al 2026-10-24):** 16 de 17 tareas hechas. Pruebas automáticas: de 0 a 99. Errores de TypeScript: de 66 a 0. Defectos corregidos en código: 18.
+**Métricas del Sprint 1:** al 2026-10-24 estaban hechas 16 de las 17 tareas planificadas; al cierre, las 17 y las 5 agregadas. Pruebas automáticas: de 0 a 99 el 2026-10-24. Errores de TypeScript: de 66 a 0. Defectos corregidos en código hasta el 2026-10-24: 18.
+
+**Métricas del Sprint 2 (al 2026-11-16):** 7 de 9 tareas hechas. Pruebas automáticas: de 99 a 372, con 366 en verde. Usos de `any`: de 233 a 71. Los defectos de lógica y seguridad corregidos en octubre y noviembre se listan en el [E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones).
 
 - **3 críticos de seguridad en producción**, cerrados en producción el 2026-10-24.
 - **4 de lógica de datos:** riesgo calculado sobre 30 días calendario, alumnos sin asistencias que no aparecían en el cálculo de riesgo, docentes contados como alumnos y fecha UTC en el registro manual de asistencia.
@@ -346,6 +445,14 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Las pruebas de BD en un MySQL aislado no tocaron datos reales | Ejecutar SQL con `cmd /c` desde PowerShell provocó una cuarentena del antivirus (falso positivo) | Ejecutar scripts desde Git Bash; excepción en el antivirus para `server/src/db` |
 | Los hallazgos quedaron documentados con su evidencia | El historial de git muestra un solo autor y commits genéricos ("mejoras") | Commits descriptivos y cambios revisados por un segundo integrante (sección 4.2) |
 | Reproducir cada falla en una réplica del VPS antes de tocar producción permitió corregir los tres defectos de una vez | La migración se aplicó con los servicios encendidos y quedó bloqueada más de 20 minutos por una transacción abierta | Migraciones con los servicios detenidos y una espera máxima de 60 s; la API cierra la conexión ante un error |
+
+**Observaciones del Sprint 2 hasta el 2026-11-16** (la retrospectiva formal se hace al cerrar el sprint):
+
+| Qué funcionó | Qué mejorar | Acción |
+|---|---|---|
+| Declarar en cada entrega qué combinación de reglas y frontend falla permitió publicar sin cortar el servicio | La entrega del 16-nov se publicó con 6 pruebas y los tipos en rojo | Correr el script del CI antes de cada push y exigir los checks en Vercel (PB-27) |
+| Los paquetes del VPS con huellas, respaldo previo y un bloque que se detiene solo se aplicaron sin incidentes | El 14-nov un `!!` dentro de comillas dobles se reemplazó por el comando anterior del historial, sin consecuencias | Mensajes sin `!` en los bloques del VPS |
+| La comparación campo por campo encontró diferencias que nadie veía (milisegundos) | La réplica dependía de que cada envío llegara | Reparación nocturna (ADR-12) |
 
 ### 3.6 Comparación con otros marcos de proceso
 
@@ -366,18 +473,21 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 
 | Característica | Atributo | Métrica | Valor actual | Meta | Riesgo |
 |---|---|---|---|---|---|
-| Adecuación funcional | Corrección | Flujos críticos con pruebas automáticas | 4 de 4 | 4 de 4 | Bajo |
-| Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 en producción desde el 2026-10-24 (3 con las reglas de junio) | 0 publicadas | Bajo |
-| Seguridad | Integridad | Restricciones de BD que rechazan datos inválidos | 6 de 6 | 100 % | Bajo |
+| Adecuación funcional | Corrección | Flujos críticos con pruebas automáticas | 6 de 6 | 6 de 6 | Bajo |
+| Adecuación funcional | Corrección | Pruebas automáticas en verde | 366 de 372 (2026-11-16) | 100 % antes de publicar | **Alto** hasta corregir la entrega del 16-nov |
+| Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 fallas de seguridad publicadas desde el 2026-10-24 (3 con las reglas de junio). Al 2026-11-16, 4 pruebas de reglas en rojo: 3 deniegan funciones legítimas y 1 deja al alumno reactivar su propio aviso de contraseña | 0 publicadas | Medio |
+| Seguridad | Confidencialidad | Datos que el personal no debe leer: documento del alumno, firma del QR, secreto del QR del docente | Ninguno legible por docentes ni auxiliares (pruebas de reglas) | 0 | Bajo |
+| Seguridad | Autenticidad | Contraseñas iniciales de alumnos sin cambiar | No medido; el panel muestra la métrica «Contraseña inicial» | 0 después de 7 días | Medio (riesgo aceptado, ADR-11) |
+| Seguridad | Integridad | Restricciones de BD que rechazan datos inválidos | 9 de 9 | 100 % | Bajo |
 | Seguridad | Responsabilidad | Cambios de pagos y matrículas auditados | 100 % (triggers) | 100 % | Bajo |
 | Fiabilidad | Recuperabilidad | RTO de MySQL medido | 0,23 s en la base real (REC-05); 0,33 s y 0,41 s en otro servidor (REC-13 y REC-14); 0,27–0,38 s en la base de prueba | < 1 h | Bajo (respaldo diario desde el 2026-10-24: RPO ≤ 24 h) |
 | Fiabilidad | Disponibilidad | Disponibilidad medida por monitor externo | No medida | 99 % mensual | **Alto** |
-| Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 0 (66 al inicio del sprint) | 0 | Bajo |
-| Mantenibilidad | Modificabilidad | Usos de `any` (ESLint: src, server, scripts) | 233 (240 al inicio del sprint) | < 120 | Medio |
-| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 99 | En aumento cada sprint | Bajo |
-| Mantenibilidad | Modularidad | Archivos de más de 800 líneas | 8 | ≤ 3 | Medio |
-| Eficiencia de desempeño | Comportamiento temporal | JS inicial | 2,84 MB (781 KB gzip) | < 1 MB | Medio |
-| Compatibilidad | Interoperabilidad | Diferencias Firestore ↔ MySQL | Vista de conciliación disponible; los datos anteriores se cargaron el 2026-10-24 (0 matrículas provisionales); falta el reintento de los envíos fallidos (PB-19) | 0 filas | Medio |
+| Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 34 en el frontend y 0 en la API (2026-11-16); 0 el 2026-10-24 y 66 al inicio del Sprint 1 | 0 | Medio |
+| Mantenibilidad | Modificabilidad | Usos de `any` (ESLint: src, server, scripts) | 71 (233 el 2026-10-24; 240 al inicio del Sprint 1) | < 120 | Bajo |
+| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 372 (99 el 2026-10-24) | En aumento cada sprint | Bajo |
+| Mantenibilidad | Modularidad | Archivos de más de 800 líneas | 11 (8 el 2026-10-24) | ≤ 3 | Medio |
+| Eficiencia de desempeño | Comportamiento temporal | JS inicial | 3,14 MB (890 KB gzip); 2,84 MB el 2026-10-24 | < 1 MB | Medio |
+| Compatibilidad | Interoperabilidad | Diferencias Firestore ↔ MySQL | 0 en la comparación del 2026-11-14, después de reparar 3 de milisegundos; desde entonces se miden cada noche | 0 diferencias 30 días seguidos | Bajo |
 
 ### 4.2 Instrumentos de aseguramiento
 
@@ -385,23 +495,31 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 |---|---|---|
 | Lista de revisión de cambios | Obligatoria en cada pull request: tipos, pruebas, reglas, secretos, migraciones y reversión | `.github/pull_request_template.md` |
 | Definición de terminado | Una tarea está terminada si tiene prueba, el CI está en verde y queda documentada su forma de reversión | Esta sección |
-| Inspección automatizada de reglas | Cada cambio de `firestore.rules` se valida con 19 casos en el emulador | `tests/firestore-rules/` |
-| Inspección de migraciones | Cada migración se ejecuta en un MySQL limpio en CI antes de llegar a la base real | Trabajo `base-datos` |
-| Auditorías por fase | 104 documentos de hallazgo, riesgo y decisión antes de cambiar código | `docs/AUDITORIA_*.md`, `docs/FASE_*.md` |
+| Inspección automatizada de reglas | Cada cambio de `firestore.rules` se valida con 101 casos en el emulador | `tests/firestore-rules/` |
+| Inspección de migraciones | Cada migración se ejecuta en un MySQL limpio y sobre una base existente en el CI antes de llegar a la base real | Trabajo `base-datos` |
+| Auditorías por fase | 108 documentos de hallazgo, riesgo y decisión antes de cambiar código (104 el 2026-10-24) | `docs/AUDITORIA_*.md`, `docs/FASE_*.md`, `docs/PLAN_*.md` |
+| Orden de publicación por entrega | Tabla de qué combinación de reglas y frontend falla, y el orden que la evita | `docs/FASE_*.md` y manual de despliegue §5.2 |
+| Paquetes del VPS verificables | `SHA256SUMS`, respaldo previo, bloque que se detiene ante el primer error y comprobación de salud y permisos | Manual de despliegue §9.7 |
+| Revisión por un segundo modelo | Scripts críticos revisados por otro agente de IA (Codex). Por ejemplo, la conciliación de marcas: sus 2 hallazgos se corrigieron. No reemplaza la revisión por un integrante | Manual de despliegue §9.7.8 |
 
 ### 4.3 Evaluación de la calidad del código
 
-**Atributos internos (medidos):** 41 748 líneas en `src/`, organizadas en 13 módulos de dominio; TypeScript sin modo estricto pero con 0 errores; 233 usos de `any`; 8 archivos de más de 800 líneas.
+**Atributos internos (medidos el 2026-11-16):**
 
-**Atributos externos:** 18 defectos corregidos en este sprint, encontrados por las pruebas, por la revisión de tipos, al poner en marcha la capa local y al llevarla al VPS (secciones 2.8 y 3.5).
+- 56 685 líneas en `src/` (41 748 el 2026-10-24), organizadas en 17 módulos de dominio.
+- TypeScript sin modo estricto: 34 errores en el frontend, de la última entrega.
+- 71 usos de `any`.
+- 11 archivos de más de 800 líneas.
 
-| Code smell | Evidencia | Impacto | Acción |
+**Atributos externos:** 18 defectos corregidos en el Sprint 1 hasta el 2026-10-24, encontrados por las pruebas, por la revisión de tipos, al poner en marcha la capa local y al llevarla al VPS (secciones 2.8 y 3.5). A eso se suman los de la auditoría de octubre y noviembre ([E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones)).
+
+| Code smell | Evidencia (2026-11-16) | Impacto | Acción |
 |---|---|---|---|
-| Componentes gigantes | `AdminEnrollmentsPage.tsx` (1 261 líneas), `AdminConfigPage.tsx` (1 193), `AuxiliarDashboard.tsx` (1 099) | Difíciles de probar y revisar | Extraer hooks y subcomponentes |
-| Código duplicado | `normalizePhone` definida 4 veces | Reglas de normalización divergentes entre módulos | Unificar en `src/lib/phone.ts` |
-| Tipado débil | 233 `any` (ESLint `no-explicit-any`) | Errores que el compilador no detecta (así se ocultaban 7 defectos) | Tipos de dominio en `types.ts` |
-| Carga anticipada | 51 páginas importadas sin `lazy()` en `App.tsx` | Bundle inicial de 2,8 MB | Carga diferida por ruta |
-| Registro de depuración | 105 llamadas `console.*` | Ruido y posible exposición de datos personales en la consola | Logger con niveles |
+| Componentes gigantes | `AdminConfigPage.tsx` (1 785 líneas), `AdminEnrollmentsPage.tsx` (1 351), `AdminCycloFormPage.tsx` (981) | Difíciles de probar y revisar; el más grande creció desde el 24-oct | Extraer hooks y subcomponentes |
+| Código duplicado | `normalizePhone` definida 2 veces (4 el 2026-10-24); `src/lib/phone.ts` ya existe para WhatsApp | Reglas de normalización divergentes entre módulos | Terminar de unificar en `src/lib/phone.ts` |
+| Tipado débil | 71 `any` (233 el 2026-10-24) | Errores que el compilador no detecta (así se ocultaban 7 defectos) | Tipos de dominio en `types.ts` |
+| Carga anticipada | Ninguna página con `lazy()` en `App.tsx` | Bundle inicial de 3,1 MB | Carga diferida por ruta |
+| Registro de depuración | 94 llamadas `console.*` (105 el 2026-10-24) | Ruido y posible exposición de datos personales en la consola | Logger con niveles |
 
 **Deuda técnica pagada mediante refactorización (Sprint 1):**
 
@@ -418,33 +536,38 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | Scripts SQL sin codificación declarada: una sesión en cp850 dañó la etiqueta `mañana` | `SET NAMES utf8mb4` en todos los scripts y migración 05 |
 | La API devolvía al pool conexiones con una transacción abierta tras errores de clase 01 | La API cierra la conexión cuando una llamada falla (`ejecutar`), con 2 pruebas |
 | `restore.js` creaba la base con una collation fija y solo contaba objetos | Crea la base con la collation del respaldo y verifica que coincida con la de las rutinas |
+| Cuatro paneles con marcos distintos y cada lista con su propio filtro y paginación (oct.) | Un marco único (`PanelShell`) y componentes de lista compartidos, con 15 pruebas |
+| La réplica dependía de que cada envío llegara; nadie medía las diferencias (nov.) | Comparación campo por campo y reparación nocturna con los mismos procedimientos |
+| Cada marca guardaba la firma del QR, legible por el personal (nov.) | La marca guarda un resumen que las reglas recalculan |
+| El horario y el cálculo de cuotas vencidas se repetían en varias pantallas (nov.) | Una sola función para cada uno (`groupScheduleText`, `accountStatement`), con pruebas |
 
 ### 4.4 Informe de auditoría técnica
 
-**Listas de verificación (2026-10-24):**
+**Listas de verificación (2026-10-24, revisadas el 2026-11-16):**
 
 | Área | Ítem | Resultado |
 |---|---|---|
 | Gestión de proyecto | Project Charter, backlog priorizado y sprint con objetivo | Cumple |
-| Gestión de proyecto | Registro de riesgos y decisiones | Cumple (Gestión TI y `docs/AUDITORIA_*`) |
+| Gestión de proyecto | Registro de riesgos y decisiones | Cumple (Gestión TI, `docs/AUDITORIA_*`, ADR-01 a ADR-12) |
 | Gestión de proyecto | Estimación de esfuerzo registrada | **No cumple** |
-| Ingeniería | Requisitos trazables a código y pruebas | Cumple (E1 §12 y sección 3.2) |
+| Ingeniería | Requisitos trazables a código y pruebas | Cumple (E1, Anexo B: 28 de 30 RF con prueba) |
 | Ingeniería | Arquitectura documentada | Cumple (E1 y E3) |
 | Ingeniería | Validación con usuarios mediante acta | **No cumple** |
-| Software | Build reproducible y pruebas automáticas | Cumple |
-| Software | Cero errores de compilación de tipos | Cumple (puerta del CI) |
+| Software | Build reproducible y pruebas automáticas | Cumple; al 2026-11-16, 6 de 372 pruebas en rojo |
+| Software | Cero errores de compilación de tipos | Cumplía el 2026-10-24; **no cumple** el 2026-11-16 (34 errores de la última entrega) |
+| Software | Solo se publica lo que pasa el CI | Cumple para las reglas (las publica el CI). **No cumple** para el frontend: Vercel publicó `f9447d8` sin esperar al CI |
 | Software | Repositorio sin secretos | Cumple parcialmente: la clave de los ZIP fue revocada y las contraseñas de docentes restablecidas (2026-10-24); los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
-| Software | Cambios revisados por un segundo integrante | **No cumple** (plantilla creada, sin revisiones registradas) |
+| Software | Cambios revisados por un segundo integrante | **No cumple** (plantilla creada, sin revisiones registradas; solo revisiones automatizadas de scripts críticos) |
 
 **Madurez del proceso (CMMI-DEV 2.0, valoración estilo SCAMPI C):**
 
 | Área de práctica | Evidencia principal | Valoración |
 |---|---|---|
-| Desarrollo y gestión de requisitos (RDM) | RF01–RF22, RNF01–RNF10 y trazabilidad | Ampliamente implementada |
-| Solución técnica (TS) | Arquitectura y decisiones documentadas | Ampliamente implementada |
-| Verificación y validación (VV) | 99 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
-| Aseguramiento de calidad del proceso (PQA) | 104 auditorías por fase | Ampliamente implementada |
-| Integración de producto (PI) | Pipeline que integra 4 componentes | Parcialmente implementada (falta la primera ejecución) |
+| Desarrollo y gestión de requisitos (RDM) | RF01–RF30, RNF01–RNF11 y trazabilidad | Ampliamente implementada |
+| Solución técnica (TS) | Arquitectura y 12 decisiones documentadas | Ampliamente implementada |
+| Verificación y validación (VV) | 372 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
+| Aseguramiento de calidad del proceso (PQA) | 108 auditorías por fase y orden de publicación por entrega | Ampliamente implementada |
+| Integración de producto (PI) | Pipeline que integra 4 componentes y corre en GitHub (ejecución #22 en verde); paquetes del VPS verificables | Ampliamente implementada; falta impedir publicar con el CI en rojo |
 | Planificación (PLAN) | Charter y backlog recientes | Parcialmente implementada |
 | Monitoreo y control (MC) | Estado del sprint y métricas | Parcialmente implementada |
 | Revisiones entre pares (PR) | Plantilla creada, sin registros | Parcialmente implementada |
@@ -459,26 +582,30 @@ Duración: 2 semanas, desde el 2026-10-24. Objetivo: que ningún defecto crític
 | # | Acción | Métrica | Meta | Plazo |
 |---|---|---|---|---|
 | 1 | Publicar las reglas corregidas y probar una matrícula sin sesión en producción | Fallas críticas publicadas | 0 | Hecho (2026-10-24) |
-| 2 | Subir los cambios y obtener el primer pipeline en verde | Trabajos en verde | 6 de 6 | Sprint 1 |
+| 2 | Subir los cambios y obtener el primer pipeline en verde | Trabajos en verde | 6 de 6 | Hecho (ejecución #22 en verde) |
 | 3 | Retirar secretos del historial y rotar la clave de servicio | Secretos vigentes en git | 0 | Hecho en lo esencial (2026-10-24) |
 | 4 | Revisión obligatoria de cada cambio por un segundo integrante | Cambios revisados | 100 % | Desde Sprint 2 |
 | 5 | Estimar cada ítem del backlog y medir la velocidad | Sprints con estimación | 100 % | Desde Sprint 2 |
 | 6 | Monitor externo con alertas sobre la URL y `/health` | Disponibilidad medida | 99 % mensual | Sprint 2 |
 | 7 | Carga diferida de páginas | JS inicial | < 1 MB | Sprint 2 |
-| 8 | Tipar los módulos de dinero y asistencia | Usos de `any` | < 120 | Sprints 2–3 |
+| 8 | Tipar los módulos de dinero y asistencia | Usos de `any` | < 120 | Hecho en lo medido: 71 (2026-11-16) |
 | 9 | Pruebas de componentes de matrícula y pagos | Casos de componentes | ≥ 20 | Sprint 3 |
 | 10 | Respaldo programado de Firestore con prueba de restauración | RPO | ≤ 24 h | Sprint 3 |
 | 11 | Programar el respaldo diario de MySQL y el arranque automático de los servicios | RPO de MySQL | ≤ 24 h | Hecho (2026-10-24): temporizador de systemd y servicio `pm2-academia` en el VPS |
-| 12 | Reintento de los envíos fallidos a MySQL (PB-19; la carga inicial se hizo el 2026-10-24) | Diferencias en `v_conciliacion_pagos` | 0 filas | Por decidir |
+| 12 | Reparar los envíos fallidos a MySQL (PB-19; la carga inicial se hizo el 2026-10-24) | Diferencias Firestore ↔ MySQL | 0 | Hecho (2026-11-14): conciliación nocturna; meta siguiente, 30 días seguidos en `SUCCESS` |
+| 13 | Corregir la entrega del 16-nov: 34 errores de tipos, 2 pruebas de API y 4 de reglas | Pruebas en verde y errores de tipos | 372 de 372 y 0 | Antes de la siguiente publicación |
+| 14 | Agregar a la cobertura los módulos nuevos con prueba (ficha, accesos, comprobantes, estado de cuenta, código rotativo) | Módulos medidos | ≥ 13 | Sprint 3 |
+| 15 | Hacer que Vercel espere los checks de GitHub (PB-27) | Publicaciones con el CI en rojo | 0 | Sprint 2 |
+| 16 | Medir las contraseñas iniciales sin cambiar después de 7 días | Cuentas con `passwordInicial` vencida | 0 | Sprint 3 |
 
-Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestionado).
+Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestionado). La acción 2 ya se cumplió; la 15 evita que se pierda.
 
 ## Anexos
 
 | Anexo | Ubicación |
 |---|---|
 | Reportes de pruebas | Salida de `npm run test:coverage`, `npm run test:rules`, `cd server && npm test` y `92_pruebas_bd.sql`; reporte HTML de cobertura en `coverage/index.html` |
-| Capturas del pipeline y de observabilidad | Pestaña *Actions* tras la primera ejecución; panel admin "Infraestructura" (`/health`) |
+| Capturas del pipeline y de observabilidad | Pestaña *Actions* (ejecución #22 en verde); panel admin "Infraestructura" (`/health`); salida de `journalctl -u academia-replica.service` con `SUCCESS` |
 | Artefactos ágiles | Secciones 3.1 a 3.5 (Charter, historias, Product Backlog, Sprint Backlog, retrospectiva) |
 | Matriz de calidad y checklists de auditoría | Secciones 4.1 y 4.4; `.github/pull_request_template.md` |
 | Evidencia de sustentación | Exposición breve ante el docente (pendiente) |

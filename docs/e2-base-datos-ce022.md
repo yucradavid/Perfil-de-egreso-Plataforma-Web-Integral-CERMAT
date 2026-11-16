@@ -10,14 +10,18 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-10-24 |
+| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
 | Scripts | `server/src/db/` del repositorio `academia-school-platform` |
 
 ## Resumen Ejecutivo
 
-Los datos sostienen tres decisiones de la academia: quién está matriculado y cuánto debe, quién asiste y quién está en riesgo de abandonar, y qué se cobró y por qué medio. La operación diaria escribe en **Firestore** (22 colecciones protegidas por reglas por rol). Cada matrícula, pago y marca de asistencia se replica en **MySQL 8.0** mediante una API que **solo escribe a través de procedimientos almacenados**.
+Los datos sostienen tres decisiones de la academia: quién está matriculado y cuánto debe, quién asiste y quién está en riesgo de abandonar, y qué se cobró y por qué medio. La operación diaria escribe en **Firestore** (27 colecciones protegidas por reglas por rol). Cada matrícula, pago y marca de asistencia se replica en **MySQL 8.0** mediante una API que **solo escribe a través de procedimientos almacenados**.
 
-En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 7 restricciones CHECK, 6 triggers (validación, auditoría y consistencia), 4 funciones, 5 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **19 pruebas automáticas** sobre la base valida funciones, triggers y restricciones. Desde el 2026-10-24 la base real `cermat_db` tiene estas migraciones y sus cuentas de servicio, con el mínimo privilegio verificado en ella (secciones 2.3 y 4.1). Ese mismo día la base pasó al VPS del colegio, donde tiene respaldo diario, y su restauración se probó también en otro servidor (sección 4.3). Esa noche recibió, con una carga inicial, los datos que Firestore ya tenía: quedó con 10 matrículas, 2 pagos y 7 asistencias (sección 2.3).
+En MySQL la integridad se asegura en el motor, no solo en la aplicación: 3 claves foráneas, 8 restricciones CHECK, 7 triggers (validación, auditoría y consistencia), 4 funciones, 6 procedimientos transaccionales y 3 vistas de reporte. La seguridad usa 4 roles de mínimo privilegio. La cuenta de la API no puede ejecutar `INSERT`, `UPDATE`, `DELETE` ni `DROP` directos. Los respaldos incluyen rutinas y triggers, se verifican con SHA-256 y se restauran con medición del RTO. Una batería de **25 pruebas automáticas** sobre la base valida funciones, triggers, restricciones y la reparación de la réplica.
+
+Desde el 2026-10-24 la base real `cermat_db` tiene estas migraciones y sus cuentas de servicio, con el mínimo privilegio verificado en ella (secciones 2.3 y 4.1). Ese mismo día la base pasó al VPS del colegio, donde tiene respaldo diario, y su restauración se probó también en otro servidor (sección 4.3). Esa noche recibió, con una carga inicial, los datos que Firestore ya tenía: quedó con 10 matrículas, 2 pagos y 7 asistencias (sección 2.3).
+
+Desde el 2026-11-14 la réplica se compara campo por campo con Firestore y se repara cada noche a las 03:30, después del respaldo. La primera comparación encontró 3 diferencias de milisegundos, que la carga reparó; la comparación final dio «coinciden» (sección 4.5). La migración 06 agrega a las matrículas el descuento al contado y el cronograma de cuotas.
 
 ## Sección 1: Modelo de Datos
 
@@ -61,6 +65,8 @@ erDiagram
     enum tipo_pago
     int cuotas_total "CHECK >= 1"
     decimal precio "CHECK >= 0"
+    decimal descuento_aplicado "CHECK >= 0, solo al contado"
+    json fechas_cuotas "una fecha por cuota"
     decimal monto_pagado "según Firestore"
     enum estado
     tinyint completa "0 = provisional"
@@ -129,6 +135,8 @@ erDiagram
 | matriculas | ciclo_id | VARCHAR(64) | FK → ciclos | Ciclo matriculado |
 | matriculas | cuotas_total | INT | CHECK ≥ 1 | Cuotas pactadas |
 | matriculas | precio | DECIMAL(10,2) | CHECK ≥ 0 | Precio congelado al matricular |
+| matriculas | descuento_aplicado | DECIMAL(10,2) | CHECK ≥ 0; ≤ precio y solo al contado (`sp_sync_matricula`) | Descuento al contado (migración 06) |
+| matriculas | fechas_cuotas | JSON | NULL al contado; una fecha válida por cuota (`sp_sync_matricula`) | Cronograma de vencimientos congelado al matricular (migración 06) |
 | matriculas | monto_pagado | DECIMAL(10,2) | CHECK ≥ 0 | Valor reportado por Firestore (se concilia) |
 | matriculas | completa | TINYINT(1) | — | 0 = creada por un pago adelantado |
 | pagos | matricula_id | VARCHAR(128) | FK → matriculas | Matrícula pagada |
@@ -146,13 +154,17 @@ erDiagram
 |---|---|---|
 | `users` | Perfiles y rol (admin, teacher, student, auxiliar) | asistencia, grupos, invitaciones, código de padres |
 | `cycles`, `cycleCategories`, `campuses` | Oferta académica, niveles y sedes | grupos, matrículas, recursos |
-| `groups` | Grupo por ciclo, sede, turno, horario, docente y cupo | `enrolledCount` controlado por transacción |
-| `enrollments` | Matrículas y su máquina de estados | pagos, `studentGroupLinks` |
+| `groups` | Grupo por ciclo, sede, turno, horario, docente responsable, cursos por materia (`courses`) y cupo | `enrolledCount` controlado por transacción; `teacherUids` calculado al guardar |
+| `enrollments` | Matrículas, su máquina de estados, descuento y cronograma | pagos, `studentGroupLinks` |
+| `fichasMatricula` | Ficha completa del alumno, apoderado y consentimiento | matrícula; solo la lee el administrador |
+| `documentosAlumnos` | Registro `TIPO-NÚMERO` del documento y su cuenta | solo la lee el administrador y solo la escribe la API |
 | `payments` | Pagos; eliminación bloqueada por reglas | `enrollmentId` |
-| `attendanceTokens`, `attendanceLogs`, `attendanceDayState` | QR diario, marcas y estado transaccional del día | usuario, fecha |
-| `studentQrSignatures` | Firma opaca del QR permanente | validada por reglas con `get()` |
-| `parentAttendance` | Vista resumida por código para padres | estudiante |
-| `resources`, `posts`, `workshops`, `messages`, `config` | Contenido y configuración | — |
+| `receipts`, `counters` | Comprobante de cada pago (id = id del pago) y su correlativo | pago; el alumno lista solo los suyos |
+| `attendanceTokens`, `attendanceLogs`, `attendanceDayState` | Secreto del día del QR rotativo, marcas con resumen de la firma y estado transaccional del día | usuario, fecha |
+| `studentQrSignatures` | Firma opaca del QR permanente | validada por reglas con `get()`; solo la leen el alumno y el admin |
+| `parentAttendance` | Registro del código de padres (vigente o revocado) y sus marcas | estudiante |
+| `workshops`, `workshopRegistrations` | Talleres con `registeredCount` e inscripciones `{taller}__{alumno}` | contador movido solo junto con la inscripción |
+| `resources`, `posts`, `messages`, `config` | Contenido, solicitudes y configuración (servicios, modo de acceso de alumnos y datos institucionales de pago) | — |
 | `invites`, `teacherInvites`, `auxiliarInvites`, `studentGroupLinks`, `students` | Activación por rol y vínculos | — |
 
 ## Sección 2: Implementación de Base de Datos
@@ -163,9 +175,10 @@ erDiagram
 |---|---|
 | `schema.sql` | 6 tablas base con PK, 15 índices y ENUM |
 | `02_integridad.sql` | 3 FK, 7 CHECK, columnas `completa`, `firestore_log_id` y `sujeto_tipo`, índices compuestos `idx_ciclo_estado`, `idx_estado_fecha`, `idx_sujeto_fecha` y `idx_alumno_tipo_resuelta`. Convierte `''` en `NULL` y crea las filas padre faltantes de datos ya replicados, para que las FK se puedan aplicar sobre una base en uso. |
-| `03_programacion.sql` | Tabla `auditoria`, funciones, procedimientos, triggers y vistas |
-| `04_seguridad.sql` | Roles y privilegios |
+| `03_programacion.sql` | Tabla `auditoria`, 4 funciones, 6 procedimientos, 7 triggers y 3 vistas; los reenvíos reparan pagos y asistencias. Re-ejecutable; después siempre va `04`, porque MySQL quita los permisos por rutina al recrearlas |
+| `04_seguridad.sql` | Roles y privilegios (9 permisos `EXECUTE` para la API) |
 | `05_corregir_turno.sql` | Corrige la etiqueta `mañana` del ENUM `matriculas.turno`, dañada al crear la tabla desde una sesión en cp850. Sus sentencias van solo en ASCII (la «ñ» en hexadecimal) y es re-ejecutable |
+| `06_matriculas_descuento_cronograma.sql` | Agrega `descuento_aplicado` (con `chk_matriculas_descuento`) y `fechas_cuotas` (JSON) a `matriculas` en bases existentes. Va antes de `03`, porque las rutinas nuevas usan esas columnas. Se aplica una sola vez |
 
 Todos los scripts empiezan con `SET NAMES utf8mb4`. Sin eso, una consola de Windows en cp850 guarda mal la «ñ» y las tildes: así se dañó la etiqueta `mañana` en junio.
 
@@ -218,6 +231,16 @@ Migración aplicada sobre una base que ya tenía datos replicados con la versió
 
 En el VPS, después de un respaldo previo, el modo de prueba encontró válidas las 10 matrículas, los 2 pagos y las 7 asistencias de Firestore, sin rechazos. La carga con `--escribir` llevó la base de 2 matrículas (1 provisional), 1 pago y 0 asistencias a **10 matrículas (0 provisionales), 2 pagos y 7 asistencias**, sin errores. La matrícula provisional del punto 4 recibió así sus datos reales.
 
+**Actualizaciones de noviembre en el VPS.** Todas siguieron el mismo protocolo: huellas SHA-256 del paquete, respaldo previo, servicios detenidos durante el SQL y una espera máxima de 60 s por bloqueo.
+
+| Fecha | Qué se aplicó | Resultado |
+|---|---|---|
+| 2026-11-12, 20:52 | `03` y `04` con `sp_eliminar_asistencia`, y la API que borra en MySQL las marcas eliminadas en el panel | 5 huellas correctas; respaldo `cermat_db_2026-11-13T01-52-08.sql`; `/health` en `ok`; 9 de 9 permisos `EXECUTE`; `sp_eliminar_asistencia: 1` |
+| 2026-11-12, 21:07 | Conciliación de las marcas borradas antes de esa entrega (`conciliarAsistencias.ts`) | 2 huellas; respaldo `cermat_db_2026-11-13T02-07-33.sql`; 7 marcas en MySQL y 7 en Firestore: nada que borrar |
+| 2026-11-14, 21:47 | Réplica reparable: `03` y `04` nuevos, la API completa y el temporizador `academia-replica` (sección 4.5) | 22 huellas; respaldo `cermat_db_2026-11-15T02-47-37.sql`; 9 de 9 permisos; comparación final «coinciden» |
+
+La migración `06_matriculas_descuento_cronograma.sql` (16-nov) está en el repositorio y el CI la prueba sobre una base existente, pero el manual de despliegue todavía no registra su aplicación en el VPS.
+
 !!! note "Capturas a adjuntar"
     `SHOW CREATE TABLE pagos;` · `SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='cermat_db';` · `SELECT * FROM schema_migraciones;` (comandos en `server/src/db/README.md`).
 
@@ -246,9 +269,10 @@ SELECT matricula_id, alumno_nombre, ciclo_titulo, precio, total_pagado, saldo, c
 
 | Procedimiento | Tipo | Qué garantiza |
 |---|---|---|
-| `sp_sync_matricula` | Escritura transaccional | Crea o actualiza ciclo, alumno y matrícula en una transacción con `ROLLBACK` + `RESIGNAL`. Completa una matrícula provisional cuando llega la real. |
-| `sp_sync_pago` | Escritura transaccional | No pierde pagos que llegan antes que su matrícula. En una anulación conserva al registrador original y deja en auditoría quién anuló. |
-| `sp_registrar_asistencia` | Escritura idempotente | Reenviar el mismo log no duplica filas y responde si la marca era nueva. No depende de `ROW_COUNT()`, que con `CLIENT_FOUND_ROWS` de mysql2 cuenta los duplicados. |
+| `sp_sync_matricula` | Escritura transaccional | Crea o actualiza ciclo, alumno y matrícula en una transacción con `ROLLBACK` + `RESIGNAL`. Completa una matrícula provisional cuando llega la real. Rechaza el descuento en cuotas o mayor que el precio, y un cronograma con menos fechas que cuotas (`SIGNAL 45000`). |
+| `sp_sync_pago` | Escritura transaccional | No pierde pagos que llegan antes que su matrícula. En una anulación en vivo conserva al registrador y la fecha originales y deja en auditoría quién anuló. La conciliación repara al registrador de un pago que llegó primero por su anulación, y `carga-inicial` nunca reemplaza al que ya tenía la fila. |
+| `sp_registrar_asistencia` | Escritura idempotente y reparadora | Reenviar el mismo log no duplica filas: repara la existente y responde si la marca era nueva. No depende de `ROW_COUNT()`, que con `CLIENT_FOUND_ROWS` de mysql2 cuenta los duplicados. |
+| `sp_eliminar_asistencia` | Borrado auditado | Borra una marca eliminada en Firestore una sola vez y deja en `auditoria` su alumno, tipo, fecha, hora y fuente. Lo llaman solo `DELETE /api/sync/attendance-log/:logId` (admin) y la conciliación (12-nov). |
 | `sp_estado_cuenta` | Consulta | Estado de cuenta por ciclo o general |
 | `sp_riesgo_inasistencia` | Consulta | Parte de los alumnos con matrícula vigente, así que **incluye a quienes nunca asistieron**. Excluye docentes y usa días lectivos reales. |
 
@@ -293,6 +317,7 @@ Fragmento de `sp_sync_pago`:
 | `trg_pagos_bd` | BEFORE DELETE | Impide borrar pagos, igual que la regla de Firestore |
 | `trg_matriculas_ai` | AFTER INSERT | Audita la matrícula |
 | `trg_matriculas_au` | AFTER UPDATE | Audita cambios de estado o de completitud; propaga `alumno_id` a los pagos cuando la cuenta se activa |
+| `trg_asistencia_au` | AFTER UPDATE | Audita la reparación de una marca (valores antes y después) cuando un reenvío o la conciliación la corrigen |
 
 ### 3.5 Planes de ejecución
 
@@ -336,11 +361,14 @@ La capa de aplicación aplica además estas reglas en la API:
 |---|---|
 | `POST /api/sync/payment` | Solo administradores, igual que `firestore.rules` |
 | `POST /api/sync/enrollment` | Un no-administrador solo sincroniza su propia matrícula recién creada |
-| `POST /api/sync/attendance-log` | El registrador es siempre el dueño del token (nunca el cuerpo de la petición) y el rol se valida por fuente |
+| `POST /api/sync/attendance-log` | El registrador es siempre el dueño del token (nunca el cuerpo de la petición) y el rol se valida por fuente. Fecha y hora salen del instante del servidor en hora de Perú, sin milisegundos |
+| `DELETE /api/sync/attendance-log/:logId` | Solo administradores; borra mediante `sp_eliminar_asistencia` y a su nombre |
+| `POST /api/sync/enrollment` (alumno activado) | El alumno puede reenviar su matrícula ya activada, pero la API la lee de Firestore y no usa lo que manda el navegador |
+| Cualquier ruta | Un docente o auxiliar con `users.isActive == false` pierde su rol (`resolveRole`), igual que en las reglas |
 
 ### 4.2 Auditoría implementada
 
-La tabla `auditoria` registra cada alta, cambio de estado o monto y anulación de pagos y matrículas. Guarda el detalle en JSON (antes/después), el UID de Firebase que originó el cambio (`@app_uid`, fijado por el procedimiento) y la cuenta MySQL (`CURRENT_USER()`).
+La tabla `auditoria` registra cada alta, cambio de estado o monto y anulación de pagos y matrículas, y cada reparación o borrado de una marca de asistencia. Guarda el detalle en JSON (antes/después), el UID de Firebase que originó el cambio (`@app_uid`, fijado por el procedimiento; `carga-inicial` o `conciliacion` cuando lo hace un script) y la cuenta MySQL (`CURRENT_USER()`).
 
 ### 4.3 Estrategias de respaldo y recuperación
 
@@ -367,46 +395,84 @@ REC-13 mostró que contar objetos no basta. La base del VPS se había creado con
 | Indicador | Fuente |
 |---|---|
 | Disponibilidad de MySQL | `GET /health` de la API y de la analítica (ping a MySQL), mostrado en el panel admin "Infraestructura" |
-| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas. Antes de la carga inicial devolvía 1: el pago que esperaba su matrícula real. La carga trajo esa matrícula (0 provisionales); falta repetir la consulta |
+| Integridad de la réplica | `SELECT * FROM v_conciliacion_pagos;`, que debe devolver 0 filas. Antes de la carga inicial devolvía 1: el pago que esperaba su matrícula real. La carga trajo esa matrícula (0 provisionales) |
+| Coincidencia con Firestore | `compararReplica.js` cada noche: termina en `0` si coinciden y en `2` si hay diferencias. El estado de `academia-replica.service` (`SUCCESS` o `failed`) lo refleja (sección 4.5) |
 | Trazabilidad | `SELECT … FROM auditoria ORDER BY id DESC` |
 | Recuperabilidad | `backups/registro-restauraciones.jsonl` (RTO, objetos completos y collation por prueba) |
 | Respaldos diarios | `journalctl -u academia-respaldo.service` en el VPS |
+| Conciliación nocturna | `systemctl list-timers academia-replica.timer` y `journalctl -u academia-replica.service` en el VPS |
+
+### 4.5 Comparación y reparación nocturna de la réplica
+
+La sincronización inmediata pierde un envío si la API está caída en ese momento (R-28). Para cerrar ese hueco, la API tiene tres scripts que usan las mismas validaciones (`server/src/sync/esquemas.ts`) y los mismos procedimientos que `/api/sync`. Ninguno muestra datos personales: solo conteos e inicios de ID.
+
+| Script | Qué hace | Escribe |
+|---|---|---|
+| `compararReplica.js` | Lee Firestore y MySQL y compara IDs y campos de matrículas, pagos y marcas | No |
+| `cargaInicial.js --escribir` | Inserta lo que falta y repara las filas que difieren, sin duplicar; los cambios quedan en `auditoria` | Sí, con procedimientos |
+| `conciliarAsistencias.js --escribir` | Borra de MySQL las marcas que ya no existen en Firestore. Antes de borrar, busca por id cada marca que no apareció, y se frena si debe borrar más del 25 % | Sí, con `sp_eliminar_asistencia` |
+
+**Límites declarados.** La comparación no incluye `asistencia.registrado_por`, que es el usuario autenticado que recibió la API y no tiene equivalente exacto en Firestore. Tampoco `alumnos.nombre`, `alumnos.telefono` ni `ciclos.titulo`, que comparten varias matrículas con resúmenes históricos distintos. Cada ejecución informa estos límites.
+
+**Automatización.** El temporizador `academia-replica.timer` (en `deploy/systemd/`) corre a las 03:30 de Perú, después del respaldo de las 03:00, con `--dias 14` para limitar las lecturas de Firestore. Primero repara, luego elimina las marcas huérfanas y al final compara; la comparación decide el estado del servicio. La ventana usa el `timestamp` del servidor, no la fecha del dispositivo, con 2 días de margen.
+
+**Evidencia (VPS, 2026-11-14, 21:47).**
+
+- La primera comparación, sobre todo el historial, encontró 3 diferencias, todas de milisegundos: `pagadoEn` de 2 pagos y `timestampUtc` de 1 marca.
+- La carga escribió 10 matrículas, 3 pagos y 7 marcas, sin rechazos ni errores.
+- La conciliación no encontró nada que borrar.
+- La comparación final dio «coinciden».
+- El temporizador quedó habilitado y su primera corrida terminó en `status=0/SUCCESS`.
+
+Desde entonces las fechas se guardan sin milisegundos, porque MySQL las redondeaba.
 
 ## Pruebas de la capa de datos
 
-`92_pruebas_bd.sql` ejecuta 19 pruebas y muestra una tabla OK/FALLÓ.
+`92_pruebas_bd.sql` ejecuta 25 pruebas y muestra una tabla OK/FALLÓ. Eran 19 el 2026-10-24.
 
-**Resultado: 19/19 OK** en MySQL 8.0.30, con modo estricto y binlog activo.
+**Resultado: 25/25 OK** en MySQL 8.0.30 (2026-11-16), con modo estricto, sobre una base nueva creada con `schema`, `02`, `03` y `90`. En una base nueva, `schema.sql` ya trae las columnas de la migración 06.
 
 | # | Prueba | Resultado |
 |---|---|---|
-| 1–3 | `fn_total_pagado` y `fn_saldo_matricula`; los pagos anulados no cuentan | OK |
-| 4–7 | Asistencia sobre días lectivos; alumno con 0 asistencias visible; docentes excluidos | OK |
-| 8–9 | El trigger copia `alumno_id`; la anulación conserva al registrador y audita a quien anuló | OK |
-| 10–11 | El pago adelantado crea una matrícula provisional y la conciliación queda limpia al llegar la real | OK |
-| 12 | Reenviar un log no duplica filas | OK |
-| 13–18 | Rechazos: borrar pago, cuota excedida, monto negativo, FK alumno, borrar matrícula con pagos, 0 cuotas | OK |
-| 19 | Las operaciones rechazadas no dejan filas a medias (`ROLLBACK`) | OK |
+| 1 | La matrícula conserva el descuento y el cronograma de cuotas | OK |
+| 2–4 | `fn_total_pagado` y `fn_saldo_matricula`; los pagos anulados no cuentan | OK |
+| 5–8 | Asistencia sobre días lectivos; alumno con 0 asistencias visible; docentes excluidos | OK |
+| 9–10 | El trigger copia `alumno_id`; la anulación conserva al registrador y audita a quien anuló | OK |
+| 11 | Un pago que llegó primero anulado recupera a su registrador y la carga no lo borra | OK |
+| 12–13 | El pago adelantado crea una matrícula provisional y la conciliación queda limpia al llegar la real | OK |
+| 14 | Reenviar un log no duplica filas y repara la existente | OK |
+| 15 | Borrar una marca la quita una sola vez y deja constancia en `auditoria` | OK |
+| 16–21 | Rechazos: borrar pago, cuota excedida, monto negativo, FK alumno, borrar matrícula con pagos, 0 cuotas | OK |
+| 22–24 | Rechazos: descuento en cuotas, descuento mayor que el precio, cronograma con menos fechas que cuotas | OK |
+| 25 | Las operaciones rechazadas no dejan filas a medias (`ROLLBACK`) | OK |
+
+El CI prueba además la actualización de una base existente: aplica `03`, `04` y `05` otra vez, como en el VPS, y exige los 9 permisos `EXECUTE` de la API. También aplica la migración `06` sobre una tabla `matriculas` previa y comprueba las 2 columnas nuevas y su registro en `schema_migraciones`.
 
 ## Consistencia con el sistema
 
 | Requerimiento (E1) | Soporte de datos |
 |---|---|
 | RF03–RF06 Matrícula y estados | `enrollments` + reglas; `matriculas` + `sp_sync_matricula` |
-| RF07 Pagos | `payments`; `pagos` + `sp_sync_pago` + triggers + `v_estado_cuenta` |
-| RF12–RF14 Asistencia QR | `attendanceLogs`, `attendanceDayState`; `asistencia` idempotente |
-| RF16 Padres | `parentAttendance`, `alumnos.parent_code` |
-| RF21 Sincronización | `syncService` → API → procedimientos; carga inicial con los mismos procedimientos; conciliación con `v_conciliacion_pagos` |
+| RF07 Pagos, descuento y cronograma | `payments`; `pagos` + `sp_sync_pago` + triggers + `v_estado_cuenta`; `matriculas.descuento_aplicado` y `fechas_cuotas` |
+| RF12–RF14 Asistencia QR | `attendanceLogs` (con resumen de la firma), `attendanceDayState`; `asistencia` idempotente y reparable |
+| RF16 Padres | `parentAttendance` (registro del código y marcas), `alumnos.parent_code` |
+| RF21 Sincronización | `syncService` → API → procedimientos; borrado con `sp_eliminar_asistencia`; carga inicial con los mismos procedimientos; conciliación con `v_conciliacion_pagos` |
+| RF23 Ficha de matrícula | `fichasMatricula` y `documentosAlumnos`, fuera de `users`, `enrollments` y MySQL (RNF11) |
+| RF25 Comprobantes | `receipts` y `counters/receipts`, escritos en la transacción del pago |
+| RF26 Estado de cuenta | Cálculo en el navegador sobre `enrollments` y `payments` (`accountStatement`); en MySQL, `v_estado_cuenta` y `sp_estado_cuenta` |
+| RF27 Talleres con cupo | `workshops.registeredCount` y `workshopRegistrations` |
+| RF30 Réplica reparable | `compararReplica`, `cargaInicial`, `conciliarAsistencias`, `trg_asistencia_au` y `auditoria` |
 | RNF06 Integridad y RNF10 Auditoría | FK, CHECK, triggers, `auditoria` |
 
 ## Anexos
 
 | Anexo | Ubicación |
 |---|---|
-| Scripts completos | `server/src/db/schema.sql`, `02_integridad.sql`, `03_programacion.sql`, `04_seguridad.sql`, `05_corregir_turno.sql`, `90_datos_prueba.sql`, `91_consultas.sql`, `92_pruebas_bd.sql` |
-| Capturas de ejecución | Resultado de `92_pruebas_bd.sql` (19/19), de `91_consultas.sql` (consultas + `EXPLAIN`) y de `restore.js` |
+| Scripts completos | `server/src/db/schema.sql`, `02_integridad.sql`, `03_programacion.sql`, `04_seguridad.sql`, `05_corregir_turno.sql`, `06_matriculas_descuento_cronograma.sql`, `90_datos_prueba.sql`, `91_consultas.sql`, `92_pruebas_bd.sql` |
+| Scripts de la réplica | `server/src/scripts/compararReplica.ts`, `cargaInicial.ts`, `conciliarAsistencias.ts`; `deploy/systemd/academia-replica.service` y `.timer` |
+| Capturas de ejecución | Resultado de `92_pruebas_bd.sql` (25/25), de `91_consultas.sql` (consultas + `EXPLAIN`), de `restore.js` y de `compararReplica.js` («coinciden») |
 | Resultados de consultas | Salida de `91_consultas.sql` sobre la base de prueba |
-| Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo, recuperación y carga inicial) |
+| Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo, recuperación, carga inicial, comparación y conciliación) |
 | Evidencia de sustentación | Exposición breve ante el docente (pendiente) |
 
 ## Rúbrica de Evaluación

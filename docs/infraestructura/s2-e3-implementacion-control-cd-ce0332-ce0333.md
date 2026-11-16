@@ -35,7 +35,7 @@
 | Componente del diseño | Estado | Evidencia |
 |---|---|---|
 | Nube IaaS: VPS (equivalente a EC2) con UFW (equivalente a Security Group), Nginx, TLS y PostgreSQL local | **Implementado** | Manual del propietario (2026-10-17); verificaciones PR-01 a PR-09 |
-| Nube PaaS: Vercel y Firebase | **Implementado** | PR-13; 22 colecciones con reglas; frontend y reglas publicados y verificados el 2026-10-24 |
+| Nube PaaS: Vercel y Firebase | **Implementado** | PR-13; 27 colecciones con reglas (22 al 2026-10-24); frontend y reglas publicados y verificados el 2026-10-24; frontend del 2026-11-16 en producción |
 | Capa relacional de la academia en el VPS: API, MySQL y analítica con PM2 y systemd, publicadas por Nginx con HTTPS | **Implementado y verificado** | Manual de despliegue §9; PR-38 y PR-39; prueba de punta a punta del 2026-10-24 con respuesta 200 |
 | Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04 en una base de prueba (RTO de 0,27–0,38 s), REC-05 en la base real (0,23 s) y REC-13 y REC-14 en otro servidor (0,33 s y 0,41 s); respaldo diario en el VPS desde el 2026-10-24 |
 | Identidades de mínimo privilegio en las bases | **Implementado** | 4 roles MySQL (error 1142 ante DML directo); usuario PostgreSQL sin superusuario |
@@ -209,8 +209,8 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 | Servicio | Estado | Evidencia |
 |---|---|---|
 | Vercel (SPA) | En producción; último despliegue el 2026-10-15; redirección 308 a HTTPS y HSTS con preload | PR-13; panel de Vercel |
-| Firebase Authentication | En producción; administradores por claim; invitaciones de un solo uso | `firestore.rules`; 8 perfiles |
-| Cloud Firestore | 22 colecciones con reglas por rol; versión corregida probada 19/19 y publicada el 2026-10-24 | `tests/firestore-rules/reglas.test.ts`; verificación sin sesión en producción ([E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
+| Firebase Authentication | En producción; administradores por claim; invitaciones de un solo uso para el personal; cuentas de alumnos creadas por la API del VPS (desde el 2026-11-15) | `firestore.rules`; `server/src/routes/cuentas.ts`; 8 perfiles al 2026-10-24 |
+| Cloud Firestore | 27 colecciones con reglas por rol; versión corregida probada 19/19 y publicada el 2026-10-24; 101 pruebas de reglas al 2026-11-16 | `tests/firestore-rules/reglas.test.ts`; verificación sin sesión en producción ([E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
 | Firebase Storage | En producción | Consola de Firebase |
 
 ### 4.4 Pendiente en la nube
@@ -295,25 +295,25 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 
 ## 6. Inventario final de activos
 
-| ID | Activo | Propietario | Ubicación | Criticidad | Estado al 2026-10-24 | Evidencia |
+| ID | Activo | Propietario | Ubicación | Criticidad | Estado al 2026-11-16 | Evidencia |
 |---|---|---|---|---|---|---|
-| ACT-01 | Datos personales de alumnos y apoderados (users, enrollments, students; réplica alumnos) | Dirección de la academia | Firestore (Google) y réplica MySQL | Alta | Operativo | Reglas por rol en firestore.rules; 8 perfiles y 8 matrículas (conteo agregado al 2026-10-24) |
+| ACT-01 | Datos personales de alumnos y apoderados (users, enrollments, students, fichasMatricula, documentosAlumnos; réplica alumnos) | Dirección de la academia | Firestore (Google) y réplica MySQL | Alta | Operativo | Reglas por rol en firestore.rules; documento del alumno solo para el administrador; 8 perfiles y 8 matrículas al 2026-10-24 y 10 matrículas al 2026-11-14 (conteos agregados) |
 | ACT-02 | Datos de pagos (payments; tabla pagos) | Dirección de la academia | Firestore y MySQL | Alta | Operativo | 2 pagos confirmados (conteo agregado); triggers de auditoría en MySQL |
 | ACT-03 | Registros de asistencia (attendanceLogs, attendanceDayState, parentAttendance; tabla asistencia) | Dirección de la academia | Firestore y MySQL | Alta | Operativo | 7 registros (conteo agregado); sp_registrar_asistencia idempotente |
 | ACT-04 | Contenido público (ciclos, sedes, posts, recursos y talleres) | Dirección de la academia | Firestore y Storage | Media | Operativo | Sitio público en Vercel (200 OK, 2026-10-24) |
 | ACT-05 | Configuración de servicios (config/services) | Líder técnico | Firestore | Alta | Operativo | src/lib/syncService.ts lee config/services |
-| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (publicada 2026-10-24) | firestore.rules y 19 pruebas; versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026) |
-| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos); 99 pruebas |
+| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (publicada 2026-10-24) | firestore.rules y 101 pruebas (19 al 2026-10-24); versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026) |
+| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos, ejecución #22 en verde); 372 pruebas (99 al 2026-10-24) |
 | ACT-08 | Secretos y credenciales (cuenta de servicio, contraseñas de BD, llaves SSH, credenciales de VPN) | Líder técnico | Gestor de contraseñas y servidores | Alta | Operativo (clave rotada 2026-10-24) | db-crear-usuarios.js lee contraseñas del entorno; clave de servicio rotada (H-03 corregido) |
 | ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | VPS (respaldo diario de MySQL), PC (copia semanal), PBS y disco externo | Crítica | Parcial (solo MySQL) | Temporizador `academia-respaldo` (diario, 03:00); REC-01, REC-02, REC-05, REC-13 y REC-14 |
 | ACT-10 | Datos del sistema del colegio (PostgreSQL cermat_produccion) | Dirección del colegio | VPS (New York) | Crítica | Operativo | Manual del VPS (2026-10-17): 116 migraciones, base solo en loopback |
 | ACT-11 | Registros de eventos (API, Nginx, autenticación, firewall, IDS y SIEM) | Responsable de seguridad | VPS y VM-SIEM01 | Alta | Parcial (sin centralizar) | morgan en server/src/index.ts, con sus registros en PM2 del VPS; registros de Nginx en el VPS |
 | ACT-12 | Documentación técnica y del SGSI | Líder técnico | Repositorio público de documentación | Baja | Operativo | Este sitio de documentación |
 | ACT-13 | Plataforma web de la academia (SPA en Vercel) | Dirección de la academia | Vercel | Alta | Operativo | PR-13: HTTPS y HSTS con preload (2026-10-24) |
-| ACT-14 | Firebase Authentication (cuentas y claims) | Dirección de la academia | Google Cloud | Crítica | Operativo | Claim de administrador; invitaciones de un solo uso |
-| ACT-15 | Cloud Firestore y Storage | Dirección de la academia | Google Cloud | Crítica | Operativo | 22 colecciones con reglas por rol |
+| ACT-14 | Firebase Authentication (cuentas y claims) | Dirección de la academia | Google Cloud | Crítica | Operativo | Claim de administrador; invitaciones de un solo uso para el personal; cuentas de alumnos creadas por la API con contraseña inicial (R-30) |
+| ACT-15 | Cloud Firestore y Storage | Dirección de la academia | Google Cloud | Crítica | Operativo | 27 colecciones con reglas por rol (22 al 2026-10-24) |
 | ACT-16 | API de sincronización y servicio de analítica | Líder técnico | VPS del colegio, usuario `academia` (destino de diseño: VM-APP01) | Alta | Operativo (VPS desde 2026-10-24) | helmet, CORS y morgan en server/src/index.ts; 27 pruebas; HTTPS en `api-academia` y `analitica-academia`; prueba de punta a punta del 2026-10-24 |
-| ACT-17 | Base MySQL 8 (réplica relacional) | Líder técnico | VPS del colegio (destino de diseño: VM-APP01) | Alta | Operativo (VPS desde 2026-10-24) | Roles de 04_seguridad.sql; 19 pruebas SQL; migración 05; respaldo diario |
+| ACT-17 | Base MySQL 8 (réplica relacional) | Líder técnico | VPS del colegio (destino de diseño: VM-APP01) | Alta | Operativo (VPS desde 2026-10-24) | Roles de 04_seguridad.sql; 25 pruebas SQL; migraciones 05 y 06; respaldo diario; comparación y reparación nocturna desde el 2026-11-14 |
 | ACT-18 | Sistema de gestión del colegio (Angular y Laravel) | Dirección del colegio | VPS | Alta | Operativo | PR-05: 200 en web y /up (2026-10-24) |
 | ACT-19 | VPS RackNerd (Ubuntu 24.04, UFW, Nginx y Certbot) | Dirección del colegio | New York (proveedor) | Crítica | Operativo | Manual del VPS; PR-01 a PR-09; desde el 2026-10-24 aloja también la capa de la academia (usuario `academia`) |
 | ACT-20 | PC local con PM2 (servicios anteriores de la capa) | Dirección de la academia | PC local (ubicación por confirmar) | Alta | Retirado (2026-10-24) | `pm2 stop` y `pm2 save` el 2026-10-24; Laragon queda para pruebas de restauración (REC-14) |
@@ -472,6 +472,25 @@ La sincronización solo envía las altas y los cambios nuevos, así que la répl
 
 La matrícula provisional que dejó la migración recibió sus datos reales. Entre las 10 matrículas está la pre-matrícula de prueba del 24-oct. El volumen sigue siendo bajo, así que el RTO de [§7.2](#72-restauracion-probada-ejercicios-reales) debe volver a medirse cuando la réplica crezca. Sigue pendiente el reintento de los envíos que fallan (PB-19 del [E4](../e4-calidad-operacion-ce024.md)).
 
+### 7.9 Comparación y reparación nocturna de la réplica (2026-11-14)
+
+La carga inicial cerró el hueco de los datos anteriores, pero un envío que fallara después seguía sin repetirse (R-28). Desde el 2026-11-14 el temporizador `academia-replica` (`deploy/systemd/`) corre cada noche a las 03:30 de Perú, después del respaldo de las 03:00:
+
+1. `cargaInicial.js --escribir --dias 14` repara desde Firestore las matrículas, pagos y marcas que difieren, sin duplicar.
+2. `conciliarAsistencias.js --escribir --dias 14` borra en MySQL, con `sp_eliminar_asistencia` y auditoría, las marcas que ya no existen en Firestore. Antes de borrar busca cada marca por id, y se frena si debe borrar más del 25 %.
+3. `compararReplica.js` compara IDs y campos. Su resultado decide el estado del servicio: `SUCCESS` si coinciden y `failed` si quedan diferencias.
+
+| Paso (VPS, 2026-11-14, 21:47) | Resultado |
+|---|---|
+| Paquete | 22 huellas SHA-256 correctas; respaldo previo `cermat_db_2026-11-15T02-47-37.sql` |
+| Base y servicios | `03` y `04` con espera máxima de 60 s; 9 de 9 permisos `EXECUTE`; los dos `/health` con MySQL conectado |
+| Primera comparación, sin límite de días | 3 diferencias, todas de milisegundos (`pagadoEn` de 2 pagos y `timestampUtc` de 1 marca) |
+| Reparación y conciliación | 10 matrículas, 3 pagos y 7 marcas escritos, sin rechazos; ninguna marca que borrar |
+| Comparación final | «Firestore y MySQL coinciden» |
+| Temporizador | Habilitado; primera corrida `status=0/SUCCESS` |
+
+Para volver atrás: `systemctl disable --now academia-replica.timer` y la API anterior, guardada en `dist.antes-replica-20261112`. Cada cambio queda en `auditoria`, y el respaldo de las 03:00 es anterior a la corrida.
+
 ## 8. RTO y RPO: objetivos frente a resultados
 
 | Servicio | RTO objetivo | RTO obtenido | RPO objetivo | RPO evidenciado | Conclusión |
@@ -490,6 +509,7 @@ La matrícula provisional que dejó la migración recibió sus datos reales. Ent
 ### 9.1 Implementado
 
 - `GET /health` de la API y de la analítica (estado de MySQL y tiempo en línea), visible en el panel admin "Infraestructura".
+- Temporizadores de systemd en el VPS: `academia-respaldo` (03:00) y `academia-replica` (03:30, desde el 2026-11-14). `systemctl list-timers` y `journalctl -u academia-replica.service` muestran si la réplica coincide con Firestore; un `failed` indica diferencias. Todavía no envía alertas.
 - Rutinas del manual del VPS:
     - **Diaria:** acceso, respaldos, disco y errores.
     - **Semanal:** actualizaciones, registros y certificados.
@@ -574,6 +594,12 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 | 2026-10-24 | Corrección de tres defectos de la base (migración 05, collation del VPS y transacciones abiertas tras un error) y de `restore.js`; servicios de la PC detenidos | MySQL del VPS y de la PC; API y analítica | Commit `d1e2383`; [E4 §2.8](../e4-calidad-operacion-ce024.md#28-analisis-del-incidente-sincronizacion-con-el-vps-inc-06) |
 | 2026-10-24 | Respaldo diario con un temporizador de systemd en el VPS y copia semanal verificada en la PC | VPS y PC | REC-14 |
 | 2026-10-24 | Carga inicial de Firestore a MySQL (10 matrículas, 2 pagos y 7 asistencias), con respaldo previo | MySQL del VPS | Commit `8d03fe1`; §7.8 |
+| 2026-10-28/30 | Paneles, comprobantes con QR y seguridad de accesos; reglas publicadas después del frontend y migración de accesos en el VPS | Vercel, Firebase y VPS | Commit `bb02659`; manual §9.7.6 |
+| 2026-11-12 20:52 | Paquete del VPS: `sp_eliminar_asistencia`, activación del alumno, cuentas desactivadas y alertas sin duplicar | MySQL, API y analítica del VPS | Manual §9.7.7; respaldo `cermat_db_2026-11-13T01-52-08.sql` |
+| 2026-11-12 21:07 | Conciliación de las marcas borradas antes de esa entrega (nada que borrar) | MySQL del VPS | Commit `c410575`; manual §9.7.8 |
+| 2026-11-14 21:47 | Réplica reparable y temporizador `academia-replica` | MySQL, API y systemd del VPS | Commit `22dba3a`; §7.9 |
+| 2026-11-15/16 | Rutas `/api/cuentas` y `/api/usuarios` (Firebase Admin) para el acceso directo de alumnos | API del VPS | Commit `c7d6302`; manual §9.7.10; 401 sin sesión el 2026-11-16 |
+| 2026-11-16 | Matrícula masiva por fila y migración `06` (descuento y cronograma); aplicación de la migración en el VPS no registrada aún | Repositorio y Vercel | Commit `f9447d8` |
 
 ### 10.3 PRO-02 · Procedimiento de gestión de cambios
 
@@ -590,7 +616,7 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 
 - Un solo autor en el historial y mensajes de commit genéricos ("mejoras").
 - Sin revisiones registradas en la plantilla de PR.
-- El CI aún no se ejecutó en GitHub.
+- El CI corre en GitHub (ejecución #22 en verde), pero Vercel publica `main` aunque falle: el 2026-11-16 se publicó `f9447d8` sin pasar las comprobaciones (E4 de Software §1.3).
 - Secretos en el historial: revocados el 2026-10-24; los `.env`, sin contraseñas, siguen versionados por decisión del equipo.
 - Dos despliegues bloqueados en Vercel que el push no mostraba; se resolvió el 2026-10-24 y desde entonces se verifica la versión en producción tras cada cambio.
 
@@ -608,6 +634,7 @@ Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SG
 | RTO medido de MySQL | 0,23 s en la base real (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14); 0,27–0,38 s en la base de prueba (objetivo < 1 h) |
 | Servicios con RPO actualmente no acotado | 2 (PostgreSQL del colegio y Firestore) |
 | Réplica relacional después de la carga inicial | 10 matrículas (0 provisionales), 2 pagos y 7 asistencias |
+| Réplica relacional al 2026-11-14 | 10 matrículas, 3 pagos y 7 asistencias; comparación con Firestore sin diferencias; reparación nocturna activa |
 
 ### 11.2 Conclusiones
 

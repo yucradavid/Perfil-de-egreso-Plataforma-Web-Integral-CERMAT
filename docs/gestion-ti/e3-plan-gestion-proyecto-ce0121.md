@@ -38,7 +38,7 @@ El proyecto empezó el **2026-01-02** (primer commit de desarrollo, "Implement A
 | Product Owner | Responsable designado por la Dirección (a confirmar en la revisión del Sprint 1; mientras tanto, el sponsor actúa como Product Owner interino) |
 | Equipo | Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores y Cárdenas Vilca Rennzo (desarrollo, pruebas y documentación) |
 | Justificación estratégica | Responde a los objetivos estratégicos OE1 a OE5 y cierra las brechas BR-01 a BR-10 del [E1](e1-diagnostico-organizacional-ce0111.md#alineamiento-estrategico-ce0112). El business case muestra un VAN de S/ 1 247 para CERMAT en el escenario base ([E2](e2-business-case-ce0113.md)). |
-| Objetivos SMART | OBJ-1 ≥ 60 % de las matrículas de 2027 en la plataforma · OBJ-2 ≤ 12 min de personal por matrícula al 31-03-2027 · OBJ-3 p90 ≤ 24 h de respuesta a la pre-matrícula en la campaña 2027 · OBJ-4 19 de 19 pruebas de reglas contra lo publicado y 0 incidentes de cupo desde el 06-11-2026 · OBJ-5 VAN de la vista A ≥ 0 recalculado el 31-03-2027 (detalle en el [E2](e2-business-case-ce0113.md#21-justificacion-del-proyecto)) |
+| Objetivos SMART | OBJ-1 ≥ 60 % de las matrículas de 2027 en la plataforma · OBJ-2 ≤ 12 min de personal por matrícula al 31-03-2027 · OBJ-3 p90 ≤ 24 h de respuesta a la pre-matrícula en la campaña 2027 · OBJ-4 100 % de las pruebas de reglas en verde contra lo publicado (19 el 2026-10-24; 101 el 2026-11-16) y 0 incidentes de cupo desde el 06-11-2026 · OBJ-5 VAN de la vista A ≥ 0 recalculado el 31-03-2027 (detalle en el [E2](e2-business-case-ce0113.md#21-justificacion-del-proyecto)) |
 | Alcance preliminar: incluye | Cierre técnico (publicación de reglas, migraciones en la base real, retiro de secretos, operación continua de la capa relacional, monitor con alertas, respaldo de Firestore, carga diferida, tipado y pruebas de componentes); adopción (línea base AS-IS, privacidad y consentimiento, oferta 2027, manuales, capacitación y acompañamiento); gestión (seguimiento, hito de continuidad y cierre) |
 | Alcance preliminar: excluye | Aplicación móvil nativa, pasarela de pagos, facturación electrónica, integración con el sistema del colegio (fase posterior, RM-08 a RM-11), hardware del host on-premise de CE03, endurecimiento del servidor y DNS del colegio (tarea operativa RM-04) |
 | Entregables principales | 1 Gestión del proyecto · 2 Diagnóstico y diseño de gestión TI · 3 Producto desarrollado · 4 Calidad y seguridad · 5 Puesta en operación · 6 Adopción y cambio (sección 3.2) |
@@ -115,7 +115,7 @@ Horas: reales estimadas por analogía (no hubo registro de horas) y planificadas
 | 3.3 | Asistencia QR y consulta de padres | QR firmado, registro diario y consulta por código | Equipo | 90 | S/ 2 250 | Real |
 | 3.4 | Portales por rol | Admin, docente, alumno y auxiliar con rutas protegidas | Equipo | 110 | S/ 2 750 | Real |
 | 3.5 | Capa local | API, MySQL y analítica con PM2 | Equipo | 60 | S/ 1 500 | Real |
-| 4.1 | Pruebas automáticas y CI (PB-01) | 99 pruebas y 6 trabajos de CI | Equipo | 40 | S/ 1 000 | Real |
+| 4.1 | Pruebas automáticas y CI (PB-01) | 99 pruebas y 6 trabajos de CI (372 pruebas al 2026-11-16) | Equipo | 40 | S/ 1 000 | Real |
 | 4.2 | Corrección de reglas (PB-02) | 19 de 19 pruebas en el emulador | Equipo | 12 | S/ 300 | Real |
 | 4.3 | Capa de datos MySQL (PB-03) | Integridad, roles, respaldo y restauración probada | Equipo | 24 | S/ 600 | Real |
 | 4.4 | 0 errores de TypeScript (PB-07) | `npm run typecheck` sin errores y 7 defectos corregidos | Equipo | 12 | S/ 300 | Real |

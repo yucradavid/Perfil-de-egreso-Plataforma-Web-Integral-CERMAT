@@ -3,6 +3,16 @@
 !!! abstract "Evidencias CE011 — Gestión e Innovación de TI"
     CE0111 Diagnóstico organizacional · CE0112 Alineamiento estratégico · CE0113 Caso de negocio (detallado en el [E2](e2-business-case-ce0113.md)) · CE0114 Roadmap de tecnología · CE0115 Matriz de riesgos estratégicos. Los conteos de uso son agregados de Firestore al 2026-10-24, sin datos personales. Toda cifra estimada se marca como supuesto.
 
+!!! info "Actualización del 2026-11-16"
+    El diagnóstico describe la situación al 2026-10-24 y se mantiene como línea base. Desde entonces:
+
+    - **F1, F2 y F4 se fortalecieron:** 27 colecciones con reglas, 372 pruebas automáticas (366 en verde al 2026-11-16) y una réplica que se compara y repara cada noche.
+    - **La raíz R4 quedó tratada:** la reparación nocturna reemplaza al reintento que faltaba.
+    - **El efecto «morosidad poco visible» tiene respuesta:** la vista Estado de cuenta muestra la deuda vencida y lo que vence en 7 días.
+    - **El acceso del alumno ya no depende de un enlace que vence:** el administrador crea su usuario y contraseña. Esto introduce un riesgo aceptado (la contraseña inicial predecible), registrado en el SGSI.
+
+    El uso sigue bajo: al 2026-11-14, 10 matrículas, 3 pagos y 7 marcas. La adopción (BR-01) sigue siendo la brecha crítica.
+
 ## Portada
 
 | Campo | Detalle |
@@ -140,10 +150,10 @@ CERMAT no tiene un plan estratégico escrito que el equipo haya podido revisar. 
 
 | Factor | Descripción | Evidencia |
 |---|---|---|
-| **F1** | Plataforma propia desplegada con portales por rol | 6 portales (público, admin, docente, alumno, auxiliar y consulta para padres); 22 colecciones con reglas por rol; [E3 de Software](../e3-sistema-funcional-ce023.md) |
-| **F2** | Calidad técnica verificable | 99 pruebas automáticas (34 unitarias, 27 de API, 19 de reglas, 19 de base de datos) y CI con 6 trabajos ([E4 de Software](../e4-calidad-operacion-ce024.md)) |
+| **F1** | Plataforma propia desplegada con portales por rol | 6 portales (público, admin, docente, alumno, auxiliar y consulta para padres); 22 colecciones con reglas por rol (27 al 2026-11-16); [E3 de Software](../e3-sistema-funcional-ce023.md) |
+| **F2** | Calidad técnica verificable | 99 pruebas automáticas (34 unitarias, 27 de API, 19 de reglas, 19 de base de datos) y CI con 6 trabajos; 372 pruebas al 2026-11-16 ([E4 de Software](../e4-calidad-operacion-ce024.md)) |
 | **F3** | Control de cupos y duplicados por diseño | Matrícula en una transacción con id determinístico `grupo__teléfono` (`src/features/enrollments/api.ts`) |
-| **F4** | Datos con integridad y recuperación probada | MySQL con 3 FK, 7 CHECK, 6 triggers y 4 roles, aplicados en la base real el 2026-10-24; restauración de la base real con RTO de 0,23 s, también probada en otro servidor (0,33 s y 0,41 s), y respaldo diario desde el 2026-10-24 ([E2 de Software](../e2-base-datos-ce022.md)) |
+| **F4** | Datos con integridad y recuperación probada | MySQL con 3 FK, 7 CHECK, 6 triggers y 4 roles, aplicados en la base real el 2026-10-24; restauración de la base real con RTO de 0,23 s, también probada en otro servidor (0,33 s y 0,41 s), y respaldo diario desde el 2026-10-24; comparación y reparación nocturna desde Firestore desde el 2026-11-14 ([E2 de Software](../e2-base-datos-ce022.md)) |
 | **F5** | Infraestructura del colegio ya profesionalizada | VPS con UFW, TLS con renovación automática y PostgreSQL solo local; dominio `.edu.pe` |
 | **D1** | Adopción muy baja | 8 matrículas, 2 pagos, 7 marcas de asistencia y 0 consultas de padres en diez meses |
 | **D2** | Producción desactualizada sin detección | Las reglas del 22-jun-2026 fallaban 10 de 19 pruebas (auto-asignación de rol, listado público de matrículas pagadas y matrícula pública bloqueada) y nadie lo detectó en 4 meses. Se corrigió en producción el 2026-10-24; la publicación automática por CI sigue pendiente |
@@ -306,7 +316,7 @@ flowchart LR
   P --> E4["Efecto: ingresos no captados y morosidad poco visible"]
 ```
 
-La raíz R4 se atenuó el 2026-10-24: la capa relacional pasó al VPS del colegio y ya tiene servicio continuo. Los datos anteriores se cargaron esa misma noche. Faltan el monitoreo con alertas y el reintento de los envíos fallidos.
+La raíz R4 se atenuó el 2026-10-24: la capa relacional pasó al VPS del colegio y ya tiene servicio continuo. Los datos anteriores se cargaron esa misma noche. Desde el 2026-11-14, la reparación nocturna desde Firestore cubre los envíos fallidos. Falta el monitoreo con alertas.
 
 | Causa raíz | Evidencia | Cómo se verifica que se eliminó |
 |---|---|---|

@@ -16,7 +16,7 @@
     <bpmn:association id="Assoc_Note_Conciliacion" associationDirection="None" sourceRef="Task_T6_Replicar" targetRef="Note_Conciliacion" />
   </bpmn:collaboration>
   <bpmn:process id="Process_MatriculaToBe" name="Matrícula TO-BE" isExecutable="false">
-    <bpmn:documentation>Proceso de matrícula rediseñado sobre la Plataforma CERMAT (implementado en src/features/enrollments/api.ts). Total de personal: 10,5 min por matrícula (supuesto a validar). Automatizaciones: validación transaccional de cupo, deduplicación por id determinístico, activación por invitación y sincronización conciliable. Equipo EPE CERMAT, 2026-10-24.</bpmn:documentation>
+    <bpmn:documentation>Proceso de matrícula rediseñado sobre la Plataforma CERMAT (implementado en src/features/enrollments/api.ts). Total de personal: 10,5 min por matrícula (supuesto a validar). Automatizaciones: validación transaccional de cupo y precio, deduplicación por id determinístico, comprobante con QR, acceso del alumno creado por la API (o invitación, si la academia usa ese modo) y sincronización conciliable con reparación nocturna. Equipo EPE CERMAT, 2026-10-24 (actualizado el 2026-11-16).</bpmn:documentation>
     <bpmn:laneSet id="LaneSet_MatriculaToBe">
       <bpmn:lane id="Lane_Postulante" name="Postulante o padre">
         <bpmn:flowNodeRef>Start_InteresLinea</bpmn:flowNodeRef>
@@ -111,8 +111,8 @@
       <bpmn:incoming>Flow_14_SiPago</bpmn:incoming>
       <bpmn:outgoing>Flow_15</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Task_T4B_Invitacion" name="Generar invitación de 7 días y código de padres; registrar quién aprobó">
-      <bpmn:documentation>markPaidAndCreateStudentInvite: token aleatorio de 24 caracteres, id = SHA-256 del token, vence en 7 días; approvedBy y approvedAt.</bpmn:documentation>
+    <bpmn:serviceTask id="Task_T4B_Invitacion" name="Emitir el comprobante, reservar el código de padres y registrar quién aprobó">
+      <bpmn:documentation>El comprobante con QR se crea en la transacción del pago (counters/receipts). Con el modo directo (config/accesos), confirmar no crea invitación: reserva el código de padres y deja pendiente Crear acceso. En modo invitación, markPaidAndCreateStudentInvite crea un token de 24 caracteres (id = SHA-256) que vence en 7 días. approvedBy y approvedAt.</bpmn:documentation>
       <bpmn:incoming>Flow_15</bpmn:incoming>
       <bpmn:outgoing>Flow_16</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -121,11 +121,12 @@
       <bpmn:outgoing>Flow_17</bpmn:outgoing>
       <bpmn:outgoing>Flow_18</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:sendTask id="Task_T5_EnviarEnlace" name="T5 Enviar el enlace de activación (1 min)">
+    <bpmn:sendTask id="Task_T5_EnviarEnlace" name="T5 Crear el acceso del alumno y entregar la tarjeta (1 min)">
+      <bpmn:documentation>POST /api/cuentas/alumnos: usuario nombre.apellido y contraseña inicial cermat + documento, calculada en el servidor. Tarjeta para imprimir, WhatsApp o copiar. En modo invitación, enviar el enlace.</bpmn:documentation>
       <bpmn:incoming>Flow_17</bpmn:incoming>
       <bpmn:outgoing>Flow_19</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:userTask id="Task_T8_Activar" name="Activar la cuenta con el enlace">
+    <bpmn:userTask id="Task_T8_Activar" name="Entrar con el usuario y cambiar la contraseña inicial">
       <bpmn:incoming>Flow_19</bpmn:incoming>
       <bpmn:outgoing>Flow_20</bpmn:outgoing>
     </bpmn:userTask>

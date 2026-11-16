@@ -316,7 +316,7 @@ El VPS aloja el sistema del colegio: Nginx sirve Angular y hace de proxy hacia P
 |---|---|---|---|
 | Vercel | SPA de la academia | HTTPS con HSTS (verificado), reversión de despliegues, variables de entorno fuera del repositorio | Plan contratado (SUP-13) |
 | Firebase Authentication | Identidad y claims de rol | Invitaciones de un solo uso; MFA para administradores (recomendado) | — |
-| Cloud Firestore | 22 colecciones con reglas por rol | Reglas probadas con 19 casos; publicación por CI | Ubicación de la base y plan (SUP-11, SUP-12) |
+| Cloud Firestore | 27 colecciones con reglas por rol (22 al 2026-10-24) | Reglas probadas con 101 casos (19 al 2026-10-24); publicación por CI | Ubicación de la base y plan (SUP-11, SUP-12) |
 | Firebase Storage | Imágenes y archivos | Reglas de acceso | — |
 
 ### 7.6 Alternativa en AWS Academy (no usada)
@@ -425,7 +425,7 @@ La aplicación ya permite cambiar la URL de la API y de la analítica desde el p
 | CD-28 | strongSwan e interfaz dum0 10.20.0.1 (equivale a VPN Gateway y subred privada) | Nube IaaS | Red | Extremo del túnel IPsec | Alta | Diseñado |
 | CD-29 | Vercel: SPA de la academia | Nube PaaS | Hosting | Entrega web con HTTPS y reversión de despliegues | Crítica | Implementado |
 | CD-30 | Firebase Authentication con claims por rol | Nube PaaS | Identidad | Autenticación y roles | Crítica | Implementado |
-| CD-31 | Cloud Firestore (22 colecciones con reglas por rol) | Nube PaaS | Base de datos | Fuente de verdad operativa | Crítica | Implementado (reglas corregidas publicadas el 2026-10-24) |
+| CD-31 | Cloud Firestore (27 colecciones con reglas por rol) | Nube PaaS | Base de datos | Fuente de verdad operativa | Crítica | Implementado (reglas corregidas publicadas el 2026-10-24) |
 | CD-32 | Firebase Storage | Nube PaaS | Archivos | Imágenes y archivos | Media | Implementado |
 | CD-33 | GitHub: repositorios y Actions (CI de 6 trabajos) | Nube SaaS | Código y CI | Control de versiones y verificación | Media | Implementado (primera ejecución en GitHub pendiente) |
 | CD-34 | DNS autoritativo Punto.pe/RCP (equivale a Route 53) | Proveedor | DNS | Resolución del dominio | Alta | Implementado |
