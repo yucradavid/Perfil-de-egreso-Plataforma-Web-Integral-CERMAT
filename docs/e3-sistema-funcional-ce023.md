@@ -143,8 +143,20 @@ flowchart TD
 
 Más capturas (inicio, ciclos, ingreso y vista móvil) en la [Sección 2 del E1](e1-definicion-sistema-ce021.md#22-pantallas-principales).
 
-!!! note "Capturas a adjuntar por el equipo"
-    Portales con sesión: panel admin (matrículas y pagos), escaneo de QR por el auxiliar y portal del alumno. Requieren cuentas reales y no se capturaron de forma automatizada.
+**Portales con sesión (2026-11-18).** Se capturaron sobre el sistema corriendo en local contra los emuladores de Firebase (proyecto `demo-cermat`), con las reglas de Firestore del repositorio, cuentas `@demo.test` y datos ficticios marcados «(demo)». Así se muestran los flujos sin exponer datos de alumnos reales. Ninguna de las 4 páginas registró errores de consola.
+
+| Matrículas (administrador) | Pagos (administrador) |
+|---|---|
+| ![Panel de matrículas con estados pendiente, confirmada y cancelada](assets/capturas/07-admin-matriculas.png) | ![Panel de pagos con cuotas, métodos y totales cobrados](assets/capturas/08-admin-pagos.png) |
+
+| Supervisión de asistencia (auxiliar) | Matrícula y pagos (alumno) |
+|---|---|
+| ![Escaneo de QR del alumno y asistencia del día](assets/capturas/09-auxiliar-asistencia.png) | ![Portal del alumno con su matrícula, pagos y saldo](assets/capturas/10-alumno-matricula.png) |
+
+- **Matrículas:** los estados pendiente, confirmada y cancelada, el seguimiento y el tipo de pago (al contado o en cuotas).
+- **Pagos:** el total cobrado, lo pendiente por cobrar y cada pago con su método y número de cuota.
+- **Auxiliar:** el lector de QR (en un navegador sin cámara ofrece el lector USB o el código pegado) y quién sigue dentro.
+- **Alumno:** ve su propia matrícula, con lo pagado y el saldo (RF15).
 
 ## Sección 3: Código y Diseño Técnico
 
@@ -310,7 +322,7 @@ Las contraseñas de MySQL van en `server/.env.local` y `analytics/.env.local`. N
 | Repositorio fuente | `github.com/yucradavid/academia-school-platform` |
 | Manual técnico breve | Sección 4 de este documento, `server/src/db/README.md` y `deploy/MANUAL-DESPLIEGUE-CERMAT.md` |
 | Diseño de cada entrega | `docs/FASE_LOGICA_ROLES_REGLAS.md`, `docs/FASE_COMPROBANTES_DE_PAGO.md`, `docs/PLAN_ACCESO_DIRECTO_ALUMNOS.md` y `docs/FASE_UIX_*.md` |
-| Capturas de funcionamiento | `docs/assets/capturas/` (6 capturas del sitio desplegado) y [18 capturas del despliegue del 2026-10-24](infraestructura/evidencias-despliegue-2026-10-24.md) |
+| Capturas de funcionamiento | `docs/assets/capturas/` (6 capturas del sitio desplegado y 4 de los portales con sesión, con datos de prueba; sección 2.3) y [18 capturas del despliegue del 2026-10-24](infraestructura/evidencias-despliegue-2026-10-24.md) |
 | Evidencia de despliegue | URL de Vercel, `vercel.json`, `firebase.json`, `.github/workflows/ci.yml` |
 | Evidencia de sustentación | Pendiente (ver [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md)) |
 

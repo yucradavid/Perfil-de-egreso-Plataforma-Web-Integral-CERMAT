@@ -7,12 +7,14 @@
 
 Cada integrante debe dominar el sistema completo y defender en profundidad al menos un área. El historial de git muestra un solo autor, así que el jurado puede preguntar a cualquiera.
 
-**Exposición del jueves 2026-11-19: Infraestructura (CE03) e Ingeniería de Software (CE02).** Propuesta del 2026-11-17, a confirmar por el equipo:
+**Exposición del jueves 2026-11-19: Infraestructura (CE03) e Ingeniería de Software (CE02).** Reparto actualizado el 2026-11-18. En Software, cada integrante expone una parte, en el orden E1 → E4, y David responde las preguntas técnicas de fondo de cualquier entregable:
 
 | Área / entregable | Responsable principal | Suplente |
 |---|---|---|
-| Software E1–E2: requerimientos y plataforma de datos | Gladys Rosaura Yana Pari | David Robert Yucra Mamani |
-| Software E3–E4: sistema, pruebas y CI | David Robert Yucra Mamani | Gladys Rosaura Yana Pari |
+| Software E1–E2: requerimientos, diseño y plataforma de datos | Gladys Rosaura Yana Pari | David Robert Yucra Mamani |
+| Software E3: sistema funcional y demostración | David Robert Yucra Mamani | Gladys Rosaura Yana Pari |
+| Software E4, parte 1: pruebas automáticas e integración continua (§1 y §2) | Denilson Leeke Mamani Flores | David Robert Yucra Mamani |
+| Software E4, parte 2: gestión ágil y aseguramiento de la calidad, con CMMI (§3 y §4) | Cárdenas Vilca Rennzo | Gladys Rosaura Yana Pari |
 | Infraestructura S1-E1 y S2-E2: diseño de la red y su prueba (red, VPN y detección en Docker) | Denilson Leeke Mamani Flores | David Robert Yucra Mamani |
 | Infraestructura S2-E1: SGSI y ética | Cárdenas Vilca Rennzo | Denilson Leeke Mamani Flores |
 | Infraestructura S1-E2 y S2-E3: centro de datos (Hyper-V, nube y recuperación) | David Robert Yucra Mamani | Cárdenas Vilca Rennzo |

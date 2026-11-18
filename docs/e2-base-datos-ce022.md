@@ -241,8 +241,86 @@ En el VPS, después de un respaldo previo, el modo de prueba encontró válidas 
 
 La migración `06_matriculas_descuento_cronograma.sql` (16-nov) está en el repositorio y el CI la prueba sobre una base existente, pero el manual de despliegue todavía no registra su aplicación en el VPS.
 
-!!! note "Capturas a adjuntar"
-    `SHOW CREATE TABLE pagos;` · `SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='cermat_db';` · `SELECT * FROM schema_migraciones;` (comandos en `server/src/db/README.md`).
+**Estructura verificada (2026-11-18).** Las salidas siguientes vienen de una base `cermat_db` creada desde cero con los scripts del repositorio (`schema`, `02` a `05`), en un MySQL 8.0.30 temporal y aislado, sin datos reales. En una base nueva, las columnas y la restricción de `06` ya vienen en `schema.sql` y `02_integridad.sql`: `06` solo se aplica a bases existentes, y por eso `schema_migraciones` llega hasta `005`. En esa misma instancia, las 25 pruebas de `92_pruebas_bd.sql` pasaron (25 OK, 0 fallidas).
+
+???+ example "SHOW CREATE TABLE pagos: claves, índices, clave foránea y CHECK"
+    ```text
+    mysql> SHOW CREATE TABLE pagos\G
+    *************************** 1. row ***************************
+           Table: pagos
+    Create Table: CREATE TABLE `pagos` (
+      `id` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `matricula_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `alumno_id` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `alumno_nombre` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT '',
+      `ciclo_titulo` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT '',
+      `monto` decimal(10,2) NOT NULL,
+      `metodo` enum('efectivo','yape','plin','transferencia','deposito') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `numero_cuota` int DEFAULT NULL,
+      `comprobante` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
+      `notas` text COLLATE utf8mb4_unicode_ci,
+      `estado` enum('confirmed','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'confirmed',
+      `registrado_por` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '',
+      `pagado_en` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+      `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`),
+      KEY `idx_matricula` (`matricula_id`),
+      KEY `idx_alumno` (`alumno_id`),
+      KEY `idx_estado` (`estado`),
+      KEY `idx_pagado_en` (`pagado_en`),
+      KEY `idx_estado_fecha` (`estado`,`pagado_en`),
+      CONSTRAINT `fk_pagos_matricula` FOREIGN KEY (`matricula_id`) REFERENCES `matriculas` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+      CONSTRAINT `chk_pagos_cuota` CHECK (((`numero_cuota` is null) or (`numero_cuota` >= 1))),
+      CONSTRAINT `chk_pagos_monto` CHECK ((`monto` > 0))
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ```
+
+???+ example "Restricciones de la base: 3 claves foráneas y 8 CHECK"
+    ```text
+    mysql> SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE
+        ->   FROM information_schema.TABLE_CONSTRAINTS
+        ->  WHERE TABLE_SCHEMA = 'cermat_db'
+        ->  ORDER BY TABLE_NAME, CONSTRAINT_TYPE, CONSTRAINT_NAME;
+    +--------------------+--------------------------+-----------------+
+    | TABLE_NAME         | CONSTRAINT_NAME          | CONSTRAINT_TYPE |
+    +--------------------+--------------------------+-----------------+
+    | alertas            | PRIMARY                  | PRIMARY KEY     |
+    | alumnos            | PRIMARY                  | PRIMARY KEY     |
+    | alumnos            | firebase_uid             | UNIQUE          |
+    | asistencia         | PRIMARY                  | PRIMARY KEY     |
+    | asistencia         | uq_asistencia_log        | UNIQUE          |
+    | auditoria          | PRIMARY                  | PRIMARY KEY     |
+    | ciclos             | chk_ciclos_fechas        | CHECK           |
+    | ciclos             | chk_ciclos_precio        | CHECK           |
+    | ciclos             | PRIMARY                  | PRIMARY KEY     |
+    | matriculas         | chk_matriculas_cuotas    | CHECK           |
+    | matriculas         | chk_matriculas_descuento | CHECK           |
+    | matriculas         | chk_matriculas_monto     | CHECK           |
+    | matriculas         | chk_matriculas_precio    | CHECK           |
+    | matriculas         | fk_matriculas_alumno     | FOREIGN KEY     |
+    | matriculas         | fk_matriculas_ciclo      | FOREIGN KEY     |
+    | matriculas         | PRIMARY                  | PRIMARY KEY     |
+    | pagos              | chk_pagos_cuota          | CHECK           |
+    | pagos              | chk_pagos_monto          | CHECK           |
+    | pagos              | fk_pagos_matricula       | FOREIGN KEY     |
+    | pagos              | PRIMARY                  | PRIMARY KEY     |
+    | schema_migraciones | PRIMARY                  | PRIMARY KEY     |
+    +--------------------+--------------------------+-----------------+
+    ```
+
+???+ example "Migraciones registradas"
+    ```text
+    mysql> SELECT * FROM schema_migraciones;
+    +---------+-------------------------------------------------------------------+---------------------+
+    | version | descripcion                                                       | aplicada_en         |
+    +---------+-------------------------------------------------------------------+---------------------+
+    | 002     | Integridad referencial, CHECK, idempotencia de asistencia         | 2026-11-18 00:05:52 |
+    | 003     | Auditoría, funciones, procedimientos, triggers y vistas           | 2026-11-18 00:05:53 |
+    | 004     | Roles de mínimo privilegio                                        | 2026-11-18 00:05:53 |
+    | 005     | Corrige la codificacion de la etiqueta manana en matriculas.turno | 2026-11-18 00:05:53 |
+    +---------+-------------------------------------------------------------------+---------------------+
+    ```
 
 ## Sección 3: Consultas y Programación en Base de Datos
 
@@ -387,8 +465,24 @@ En el ambiente de prueba (MySQL 8.0.30, 2026-10-24) el respaldo pasó la verific
 
 REC-13 mostró que contar objetos no basta. La base del VPS se había creado con `utf8mb4_unicode_ci` y las rutinas tomaron esa collation, distinta de la de las tablas (`utf8mb4_0900_ai_ci`). Por eso la asistencia, las funciones de saldo y `sp_estado_cuenta` fallaban con `Illegal mix of collations`. Desde entonces `restore.js` crea la base con la collation del respaldo y la verifica, y la prueba ejecuta las funciones en la copia restaurada. El detalle está en [S2-E3 §7.2](infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md).
 
-!!! note "Captura a adjuntar"
-    Salida de `node scripts/restore.js` de la prueba REC-05 (base real, 2026-10-24), junto con su línea de `backups/registro-restauraciones.jsonl`.
+???+ example "Registro de REC-05 en `backups/registro-restauraciones.jsonl` (base real, 2026-10-24)"
+    `restore.js` deja una línea como esta en cada prueba. Solo tiene conteos y nombres de archivo, sin datos personales. La salida de consola de ese día no se conservó.
+
+    ```json
+    {
+      "fecha": "2026-10-24T21:35:08.790Z",
+      "respaldo": "cermat_db_2026-10-24T21-35-08.sql",
+      "integridad": "sha256 verificado",
+      "destino": "cermat_db_verificacion",
+      "rto_segundos": 0.23,
+      "filas": {"alertas": 0, "alumnos": 0, "asistencia": 0, "auditoria": 0, "ciclos": 0,
+                "matriculas": 1, "pagos": 1, "schema_migraciones": 3},
+      "rutinas": 9,
+      "triggers": 6,
+      "vistas": 3,
+      "objetos_completos": true
+    }
+    ```
 
 ### 4.4 Evidencias de monitoreo
 
