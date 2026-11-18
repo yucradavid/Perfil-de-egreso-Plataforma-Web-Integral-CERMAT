@@ -27,7 +27,7 @@
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) |
 |---|---|---|---|
 | Informe de análisis y diseño de red | Página versionada en Git; PDF desde la vista de impresión del sitio | Este documento | Completo, versionado y coherente con la organización descrita |
-| Diagramas de red | draw.io editable y Mermaid; PNG/PDF se exportan desde draw.io | [Topología general](../assets/infraestructura/diagramas/topologia-general-hibrida.drawio) · [Topología lógica](../assets/infraestructura/diagramas/topologia-logica-vlan.drawio) · [Zonas de seguridad y VPN](../assets/infraestructura/diagramas/zonas-seguridad-vpn.drawio) | Topología general, lógica, seguridad por zonas y VPN híbrida |
+| Diagramas de red | draw.io editable, PNG exportado (2026-11-17) y Mermaid | [Topología general](../assets/infraestructura/diagramas/topologia-general-hibrida.drawio) ([PNG](../assets/infraestructura/diagramas/topologia-general-hibrida.png)) · [Topología lógica](../assets/infraestructura/diagramas/topologia-logica-vlan.drawio) ([PNG](../assets/infraestructura/diagramas/topologia-logica-vlan.png)) · [Zonas de seguridad y VPN](../assets/infraestructura/diagramas/zonas-seguridad-vpn.drawio) ([PNG](../assets/infraestructura/diagramas/zonas-seguridad-vpn.png)) | Topología general, lógica, seguridad por zonas y VPN híbrida |
 | Matriz de componentes de red | XLSX y sección 12 | [s1-e1-matriz-componentes-red.xlsx](../assets/infraestructura/s1-e1-matriz-componentes-red.xlsx) | Cubre el 100 % de los componentes dibujados (31 componentes) |
 | Matriz de pruebas de conectividad planeadas | XLSX y Anexo A | [s1-e1-matriz-pruebas-conectividad.xlsx](../assets/infraestructura/s1-e1-matriz-pruebas-conectividad.xlsx) | Coherente con el diseño de VPN y segmentación (22 pruebas) |
 
@@ -693,7 +693,7 @@ Wazuh (VM-SIEM01) recibe los eventos del firewall, Suricata, Cowrie, el VPS, el 
 |---|---|---|
 | 0. Correcciones en la nube | Hasta 2026-10-31 | Reglas de Firestore corregidas publicadas (hecho el 2026-10-24); MFA en cuentas de proveedores |
 | 1. Endurecimiento de lo existente | Hasta 2026-11-21 | Cabeceras de seguridad y DNS (CAA, SPF, DMARC); verificación de SSH y fail2ban en el VPS |
-| 1b. Validación en un entorno simulado y virtual | Hasta 2026-11-27 | Reproducir la sede en Packet Tracer, Docker y Hyper-V para ejecutar PR-14 a PR-35 sin comprar hardware; las evidencias se rotulan como de simulación (S2-E2 §8 y S2-E3 §3.3) |
+| 1b. Validación en un entorno simulado y virtual | Hasta 2026-11-27 | Reproducir la sede en Docker (Packet Tracer como alternativa) y Hyper-V para ejecutar PR-14 a PR-35 sin comprar hardware; la red se probó el 2026-11-17; las evidencias se rotulan como de simulación (S2-E2 §8 y S2-E3 §3.3) |
 | 2. Implementación en la sede | Sujeta a la adquisición del hardware (2027-I) | Switch, AP, host, OPNsense, VLAN, VPN, Suricata, honeypot y Wazuh |
 | 3. Operación | Continuo | Revisión trimestral de reglas; pruebas de detección mensuales |
 

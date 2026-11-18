@@ -362,6 +362,26 @@ El backlog del producto (PB-01 a PB-12, con prioridad y estado) está en el [E4 
 
 Las ceremonias (planificación, seguimiento diario asíncrono, revisión con la Dirección y retrospectiva) y la retrospectiva del Sprint 1 están en el [E4 de Software, 3.5](../e4-calidad-operacion-ce024.md#35-ceremonias-y-metricas-de-avance).
 
+## 3.7 Plan de comunicaciones
+
+| Interesado | Qué necesita saber | Frecuencia | Canal | Responsable |
+|---|---|---|---|---|
+| Dirección de la academia (patrocinador) | Avance, riesgos, decisiones y aprobaciones | Cada revisión de sprint (2 semanas) y en cada hito | Reunión con acta | Líder del proyecto |
+| Dirección del colegio | Uso del VPS, ventanas de cambio y pruebas que lo afecten | Antes de cada cambio en el VPS | Mensaje escrito y autorización | Líder técnico |
+| Secretaría y caja | Cambios en la matrícula y los pagos | Antes de cada entrega que les cambie el trabajo | Capacitación breve y guía de una página | Product Owner |
+| Docentes y auxiliares | Asistencia por QR, horarios y recursos | Al inicio de cada ciclo y ante cambios | Reunión de inicio de ciclo y guía corta | Product Owner |
+| Alumnos y padres | Acceso, uso del portal y privacidad | Al matricularse y al inicio del ciclo | Ficha de matrícula, comunicado y portal | Dirección de la academia |
+| Equipo del proyecto | Tareas, bloqueos y decisiones técnicas | Diaria y por sprint | Reunión breve, tablero y repositorio | Scrum Master |
+| Docente del curso y jurado | Avance del EPE y evidencias | Según el calendario del curso | Sitio de documentación y repositorio | Líder del proyecto |
+
+**Reglas:**
+
+- Toda decisión queda por escrito, en un acta o en un mensaje con fecha.
+- Los incidentes se comunican según PRO-01 (Infraestructura S2-E1 §9.3).
+- Ningún dato personal de alumnos o apoderados viaja por grupos de mensajería.
+
+**Escalamiento:** un problema técnico va al líder técnico, que responde en 24 horas. Si afecta la matrícula o los pagos, se avisa a la Dirección el mismo día.
+
 ## Referencias
 
 [1] Project Management Institute, *A Guide to the Project Management Body of Knowledge (PMBOK Guide)*, 7th ed. Newtown Square, PA, USA: PMI, 2021.

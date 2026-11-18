@@ -1,7 +1,7 @@
 # S2-E3 · Implementación, Gestión y Control de Centro de Datos (CE0332–CE0333)
 
 !!! abstract "CE0332 y CE0333 — Implementación, control y operación del centro de datos"
-    Despliegue y operación del [centro de datos híbrido diseñado en el Semestre 1](s1-e2-diseno-centro-datos-hibrido-ce0331.md): entorno on-premise (Proxmox VE, equivalente a ESXi), nube (VPS equivalente a EC2 y servicios PaaS), identidades, inventario final, respaldo y recuperación, RTO/RPO, monitoreo y control de cambios. Lo **implementado** (VPS, PaaS y respaldo y restauración de MySQL) se distingue de lo **pendiente de ejecución** (host, VM, VPN y respaldos del VPS y de Firestore).
+    Despliegue y operación del [centro de datos híbrido diseñado en el Semestre 1](s1-e2-diseno-centro-datos-hibrido-ce0331.md): entorno on-premise (Proxmox VE, equivalente a ESXi), nube (VPS equivalente a EC2 y servicios PaaS), identidades, inventario final, respaldo y recuperación, RTO/RPO, monitoreo y control de cambios. Lo **implementado** (VPS, PaaS y respaldo y restauración de MySQL) se distingue de lo **validado en un entorno virtual** el 2026-11-17, rotulado como SIMULACIÓN (reconstrucción del VPS, túnel y firewall: REC-08, REC-09 y REC-12), y de lo **pendiente de ejecución** (host, VM, VPN en la sede y respaldos del sistema del colegio y de Firestore).
 
 ## Portada
 
@@ -26,9 +26,9 @@
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) | Estado |
 |---|---|---|---|---|
 | Informe de implementación, gestión y control de centro de datos | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
-| Evidencias técnicas de configuración | Configuraciones sanitizadas y salidas de comandos | Secciones 3, 4, 5 y 7 | Incluye nube (VPC/EC2/SG/NACL/IAM equivalentes) e hipervisor (vSwitch/VLAN/VM equivalentes) | Parcial: nube con evidencia; hipervisor con procedimiento pendiente |
-| Registro de prueba de recuperación | XLSX y sección 7.7 | [s2-e3-registro-prueba-recuperacion.xlsx](../assets/infraestructura/s2-e3-registro-prueba-recuperacion.xlsx) | Al menos un ejercicio de recuperación completo, documentado | **Cumplido**: 4 ejercicios ejecutados (REC-01 a REC-04); 8 pendientes |
-| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: `infra/` creada el 2026-11-16 (README, nginx y cabeceras del VPS, Uptime Kuma, scripts de prueba y evidencias), más el respaldo de Firestore verificado en el emulador; falta lo del entorno simulado y virtual. Secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
+| Evidencias técnicas de configuración | Configuraciones sanitizadas y salidas de comandos | Secciones 3, 4, 5 y 7 | Incluye nube (VPC/EC2/SG/NACL/IAM equivalentes) e hipervisor (vSwitch/VLAN/VM equivalentes) | Parcial: nube con evidencia; hipervisor con procedimiento para la sede y script de validación en Hyper-V (`infra/cd/hyperv/`), todavía sin ejecutar |
+| Registro de prueba de recuperación | XLSX y sección 7.7 | [s2-e3-registro-prueba-recuperacion.xlsx](../assets/infraestructura/s2-e3-registro-prueba-recuperacion.xlsx) | Al menos un ejercicio de recuperación completo, documentado | **Cumplido**: 10 ejercicios ejecutados (REC-01 a REC-05, REC-08, REC-09 y REC-12 a REC-14; REC-08, REC-09 y REC-12 en SIMULACIÓN); 4 pendientes (REC-06, REC-07, REC-10 y REC-11) |
+| Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: `infra/` (desde el 2026-11-16) con README, Nginx y cabeceras del VPS, Uptime Kuma, la red simulada, la detección, REC-08, el script de Hyper-V, scripts de prueba y evidencias fechadas, más el respaldo de Firestore verificado en el emulador; faltan las configuraciones reales de la sede (Proxmox, OPNsense y switch). Secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
 
 ## 1. Resumen ejecutivo de la implementación del centro de datos
 
@@ -40,7 +40,7 @@
 | Respaldo y restauración de MySQL con SHA-256 y RTO medido | **Implementado y probado** | REC-01 a REC-04 en una base de prueba (RTO de 0,27–0,38 s), REC-05 en la base real (0,23 s) y REC-13 y REC-14 en otro servidor (0,33 s y 0,41 s); respaldo diario en el VPS desde el 2026-10-24 |
 | Identidades de mínimo privilegio en las bases | **Implementado** | 4 roles MySQL (error 1142 ante DML directo); usuario PostgreSQL sin superusuario |
 | Host Proxmox, bridges con VLAN, bond y VM | Pendiente de ejecución | Procedimiento en la sección 3 |
-| Red interna del VPS, strongSwan y NACL | Pendiente de ejecución | Sección 4.4 y S2-E2 §3 |
+| Red interna del VPS, strongSwan y NACL | Pendiente en el VPS real; la red interna y strongSwan, validados en el entorno virtual (2026-11-17) | Sección 4.4; S2-E2 §3 y §8 (PR-24 a PR-28 y REC-09) |
 | Respaldo del sistema del colegio en el VPS y de Firestore | Pendiente de ejecución | Sección 7 (no conformidades NC-04 y NC-06) |
 | Monitoreo de capacidad y alertas | Parcial | `/health` y rutinas del manual; Netdata y Uptime Kuma pendientes |
 
@@ -50,13 +50,13 @@ Desde el 2026-10-24 la capa relacional de la academia corre en el VPS: usuario `
 
 | Elementos de S1-E2 | Implementación | Cambio o justificación |
 |---|---|---|
-| CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; el conmutador, las VLAN, las VM y su recuperación se validan en Hyper-V (fase 1b, sección 3.3) |
+| CD-01 a CD-22 (rack, UPS, host, Proxmox, bridges, VM, almacenamiento y enlaces) | Pendiente | Sujeto a la adquisición del hardware; el conmutador, las VLAN, las VM y su recuperación se validarán en Hyper-V (fase 1b, sección 3.3: script listo, todavía sin ejecutar) |
 | CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Desde el 2026-10-24 el VPS aloja también la capa relacional de la academia (desvío del diseño, sección 3.1) |
-| CD-28 (strongSwan y `dum0`) | Pendiente | Requiere OPNsense en la sede |
+| CD-28 (strongSwan y `dum0`) | Pendiente en el VPS real | Requiere OPNsense en la sede; validado en el entorno virtual el 2026-11-17 (S2-E2 §3) |
 | CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas publicadas y frontend con cabeceras de seguridad, verificados el 2026-10-24 (NC-01 cerrada) |
-| CD-33 (GitHub y CI) | Implementado en código | La primera ejecución en GitHub está pendiente |
+| CD-33 (GitHub y CI) | Implementado | El CI corre en GitHub con cada push (ejecución #22 en verde, E4 de Software §2.3); Vercel todavía publica sin esperar al CI (sección 10.4) |
 | CD-34 (DNS) | Implementado | Se agregan CAA, SPF y DMARC (PR-12) |
-| CD-35 (túnel) | Pendiente | Requiere OPNsense |
+| CD-35 (túnel) | Pendiente en la sede | Requiere OPNsense; validado en el entorno virtual el 2026-11-17 (PR-24 a PR-28 y REC-09) |
 | CD-36 (PC local) | Retirada (2026-10-24) | La capa pasó al VPS; la PC queda para pruebas de restauración |
 | VMware ESXi | Proxmox VE | Equivalencia técnica; sin costo de licencia |
 | AWS (VPC, EC2, SG, NACL, IAM) | VPS, PaaS y controles equivalentes | Infraestructura ya contratada; sin cuenta de AWS |
@@ -176,19 +176,21 @@ Luego se ajusta `CORS_ORIGINS` al dominio de Vercel y, desde el panel de adminis
 
 Mientras no exista el host de la sede, el hipervisor se valida en Hyper-V, que viene con Windows 10 Pro, en la PC del equipo. Como ESXi, Hyper-V es un hipervisor de tipo 1, y la guía de la línea de Infraestructura admite un entorno virtual ([S2-E2, sección 8](s2-e2-implementacion-red-ce0312-ce0313.md)). La evidencia lleva la palabra **SIMULACIÓN**. El procedimiento de Proxmox de la sección 3.2 sigue siendo el de la sede.
 
+**Estado: script listo, todavía sin ejecutar.** `infra/cd/hyperv/entorno-hyperv.ps1` crea el conmutador, las VLAN y las VM, y deja la evidencia en `infra/logs/`; antes hay que activar Hyper-V en la PC. Hasta entonces no hay evidencia del hipervisor y REC-07 sigue pendiente.
+
 | ESXi (guía) | Proxmox (diseño de la sede) | Hyper-V (validación) | Evidencia |
 |---|---|---|---|
 | vSwitch | Bridge `vmbr0` con VLAN | Conmutador virtual interno | `Get-VMSwitch` |
 | Port group con VLAN | Etiqueta de VLAN en la NIC de la VM | VLAN de acceso en la NIC de cada VM | `Get-VMNetworkAdapterVlan`; ping dentro de la misma VLAN sí, entre VLAN distintas no |
-| Máquina virtual | VM | 2 VM mínimas (Alpine Linux) y una Ubuntu Server para REC-08 | `Get-VM` |
+| Máquina virtual | VM | 3 VM mínimas (Alpine Linux): SIM-SRV y SIM-SRV2 en la VLAN 40 y SIM-ADMIN en la VLAN 10 | `Get-VM` |
 | Snapshot y respaldo de la VM | Snapshot y Proxmox Backup Server | Punto de control, exportación e importación | REC-07 |
 | Métricas del host | Métricas de Proxmox | Medición de recursos por VM y contadores del host | `Measure-VM` y `Get-Counter` |
 
 Pruebas de recuperación en el entorno de validación:
 
 - **REC-07:** exportar la VM, borrarla, importarla como copia nueva y comprobar su servicio.
-- **REC-08:** reconstruir la capa de la academia en una VM Ubuntu Server de 2 GB con el manual de despliegue (§9) y el último respaldo, y validar `/health`. La VM se borra al terminar.
-- **REC-09 y REC-12:** en Packet Tracer ([S2-E2, sección 8](s2-e2-implementacion-red-ce0312-ce0313.md)): cortar el túnel y medir cuánto tarda en volver; restaurar la configuración del router en un equipo nuevo y repetir PR-16 y PR-17.
+- **REC-08:** se hizo en contenedores, que equivalen a un servidor nuevo (sección 7.4): conforme el 2026-11-17, con un RTO de 1 min 30 s.
+- **REC-09 y REC-12:** en la red virtual de Docker ([S2-E2, sección 8](s2-e2-implementacion-red-ce0312-ce0313.md)), conformes el 2026-11-17: el túnel se rearmó solo en 2 s y la configuración del firewall se restauró en 1 s.
 
 ## 4. Implementación del entorno de nube
 
@@ -217,7 +219,7 @@ Pruebas de recuperación en el entorno de validación:
 | Security Group | UFW | PR-01 | Implementado |
 | NACL | nftables sin estado o filtro del proveedor | Sección 4.4 | Pendiente |
 | VPC: subred pública e Internet Gateway | Interfaz pública y enrutamiento del proveedor | Sitios accesibles (PR-05) | Implementado (provisto) |
-| VPC: subred privada | `dum0` 10.20.0.0/24 | S2-E2 §3, paso 1 | Pendiente |
+| VPC: subred privada | `dum0` 10.20.0.0/24 | S2-E2 §3, paso 1 | Pendiente en el VPS real; validada en el entorno virtual (SIM-NUBE, S2-E2 §8) |
 | Route tables | Tabla `main` y tabla 220 de strongSwan | `ip route show table 220` | Pendiente |
 | NAT Gateway | No requerido | — | No aplica |
 | IAM | Usuarios Linux, roles de bases, claims de Firebase y cuentas de servicio | Sección 5 | Parcial |
@@ -251,13 +253,13 @@ Pruebas de recuperación en el entorno de validación:
     ```
 
 3. **Memoria:** medir la línea base (sección 9.3) y crear un archivo de intercambio de 2 GB si `swapon --show` no muestra ninguno.
-4. **Proxy de la API de la academia.** Ejemplo para el subdominio propuesto; la analítica sigue el mismo patrón hacia el puerto 8000:
+4. **Proxy de la API hacia VM-APP01 por el túnel** (cuando la capa de la academia pase a la sede). Hoy `api-academia` ya se publica con HTTPS y apunta a 127.0.0.1:3001 del propio VPS (`infra/cd/nube/nginx/academia-api.conf`, PR-38); el bloque siguiente es el cambio para la fase 2, y la analítica sigue el mismo patrón hacia el puerto 8000:
 
     ```nginx
     limit_req_zone $binary_remote_addr zone=api_academia:10m rate=10r/s;
     server {
         listen 443 ssl;
-        server_name api-academia.cermatschool.edu.pe;   # propuesto; certificado con Certbot
+        server_name api-academia.cermatschool.edu.pe;   # ya publicado con Certbot (PR-38)
         server_tokens off;
         location = /health { proxy_pass http://10.10.40.10:3001/health; proxy_bind 10.20.0.1; }
         location /api/ {
@@ -275,7 +277,7 @@ Pruebas de recuperación en el entorno de validación:
     }
     ```
 
-    En el código de la API debe configurarse `trust proxy` para registrar la IP real del cliente; es un cambio pendiente en el repositorio de la aplicación.
+    La API ya acepta `trust proxy` con la variable `TRUST_PROXY` (`server/src/index.ts`), que en el VPS vale `loopback` (manual de despliegue §9); con el proxy por el túnel se cambia a 10.20.0.1 para registrar la IP real del cliente.
 5. **Agentes:** Wazuh y Netdata hijo (S2-E2 §6.3 y §7.2).
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
@@ -409,7 +411,9 @@ Criterio de aceptación: ≤ 2 h. Evidencia a adjuntar: registro de la tarea de 
 
 ### 7.4 Recuperación de un recurso de nube (REC-06 y REC-08)
 
-**Pendiente de ejecución.** Primero se implantan los respaldos del VPS (NC-04):
+**REC-08: ejecutada el 2026-11-17 en el entorno de validación.** La capa de la academia (MySQL 8.0, API y analítica) se reconstruyó desde cero en contenedores de la PC del equipo, que hacen de servidor nuevo, con `infra/cd/rec08/rec08.sh`: huella del respaldo verificada, restauración en 708 ms, roles y cuentas con contraseñas de un solo uso, compilación desde el código y `/health` con MySQL conectado. **RTO de 1 min 30 s** frente a un objetivo de 8 h. **Hallazgo:** el respaldo más nuevo fuera del VPS tenía 567 horas (23 días) y no traía `sp_eliminar_asistencia`, agregado después; la copia semanal fuera del VPS no se hacía (NC-10 del SGSI). Evidencia: `infra/logs/2026-11-17/rec-08-simulacion.txt`.
+
+**REC-06: pendiente de ejecución.** Primero se implantan los respaldos del PostgreSQL del colegio (NC-04):
 
 ```bash
 #!/usr/bin/env bash
@@ -443,7 +447,7 @@ sudo -u postgres dropdb cermat_verificacion
 
 ### 7.5 Recuperación de la VPN ante una interrupción simulada (REC-09)
 
-**Pendiente de ejecución.** En el VPS, `sudo swanctl --terminate --ike sede-azangaro`, o bien desconectar WAN1 en la sede. OPNsense, con acción de inicio *start* y DPD *restart*, debe restablecer el túnel solo. Se mide el tiempo con `journalctl -u strongswan -f` y con la alerta y recuperación de Uptime Kuma. Criterio: ≤ 2 min. Evidencia: extracto del registro con las horas.
+**Ejecutada el 2026-11-17 en el entorno virtual.** En SIM-R1 se cortó el túnel con `swanctl --terminate --ike sede-nube` y el primer tráfico del bastión lo rearmó solo (acción *trap*) en **2 s**, frente al criterio de 2 min. Evidencia: `infra/logs/2026-11-17/rec-09-simulacion.txt`. En la sede (fase 2) se repite con OPNsense: en el VPS, `sudo swanctl --terminate --ike sede-azangaro`, o desconectar WAN1, midiendo con `journalctl -u strongswan -f` y con Uptime Kuma.
 
 ### 7.6 Firestore y frontend (REC-10 y REC-11)
 
@@ -463,11 +467,11 @@ sudo -u postgres dropdb cermat_verificacion
 | REC-05 | 2026-10-24 16:35 (UTC−5) | Restauración con la base real del equipo | MySQL 8.0.30 (PC local, `cermat_db`) | node scripts/backup.js (cuenta `cermat_respaldo`) y node scripts/restore.js hacia cermat_db_verificacion | < 1 h | ≤ 24 h | 0,23 s | SHA-256 verificado. Filas: matrículas 1, pagos 1, schema_migraciones 3, resto 0. 9 rutinas, 6 triggers y 3 vistas; objetos completos | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-24T21-35-08.sql); captura de consola por adjuntar |
 | REC-06 | Pendiente | Pérdida de la base del colegio | PostgreSQL 16 (VPS) | pg_dump -Fc y sha256sum; pg_restore --list; restaurar en base de verificación; comparar conteos (116 migraciones) | 2 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: salida de pg_restore y conteos |
 | REC-07 | Pendiente | Pérdida de una VM | VM-APP01 en Proxmox | Restaurar desde PBS con un ID nuevo y red aislada; verificar /health | 2 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: registro de la tarea de PBS |
-| REC-08 | Pendiente | Pérdida total del VPS (recurso de nube) | VPS | Reconstruir en una VM de prueba con el manual y el último respaldo; validar web y API | 8 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | A adjuntar: bitácora con tiempos por paso |
-| REC-09 | Pendiente | Interrupción simulada del túnel | IPsec OPNsense ↔ VPS | swanctl --terminate --ike sede-azangaro en el VPS, o desconectar WAN1 | ≤ 2 min automático; 1 h manual | No aplica | — | — | Pendiente de ejecución | Pendiente | A adjuntar: registro de IPsec y alerta de Uptime Kuma |
+| REC-08 | 2026-11-17 13:48 (UTC−5) | Pérdida total del VPS (recurso de nube) | Capa de la academia reconstruida en contenedores de prueba (MySQL 8.0, Node 22 y Python 3.12): SIMULACIÓN de un servidor nuevo | infra/cd/rec08/rec08.sh: respaldo con huella verificada, restauración, 04_seguridad.sql, cuentas de un solo uso, compilación y arranque (manual §9.3 y §9.4) | 8 h | ≤ 24 h | 1 min 30 s | API y analítica con /health y MySQL conectado; 8 tablas, 9 rutinas, 6 triggers y 3 vistas; rutinas en utf8mb4_0900_ai_ci | Recuperación completa. Hallazgo: el respaldo más nuevo fuera del VPS tenía 567 h (RPO real muy por encima de 24 h) y no traía sp_eliminar_asistencia | Ejecutado | infra/logs/2026-11-17/rec-08-simulacion.txt |
+| REC-09 | 2026-11-17 23:05 (UTC−5) | Interrupción simulada del túnel | IPsec SIM-R1 ↔ SIM-NUBE (strongSwan; equivale a OPNsense ↔ VPS) | swanctl --terminate --ike sede-nube; el primer tráfico del bastión rearma el túnel (start_action = trap) | ≤ 2 min automático; 1 h manual | No aplica | 2 s | IKE_SA nuevo ESTABLISHED y acceso del bastión al VPS por el túnel | Reconexión automática. SIMULACIÓN | Ejecutado | infra/logs/2026-11-17/rec-09-simulacion.txt |
 | REC-10 | Pendiente | Despliegue defectuoso del frontend | Vercel | Promover el despliegue anterior | 15 min | 0 | — | — | Pendiente de ejecución | Pendiente | A adjuntar: historial de despliegues |
 | REC-11 | Pendiente | Pérdida de datos operativos | Firestore | server/src/scripts/respaldoFirestore.ts exporta; restaurarFirestore.ts restaura en el emulador y compara conteos y huella del contenido | 4 h | ≤ 24 h | — | — | Pendiente de ejecución | Pendiente | Procedimiento verificado en el emulador con datos ficticios (2026-11-16: 237 documentos, huella idéntica, 0,63 s); falta correrlo con el respaldo real |
-| REC-12 | Pendiente | Pérdida del firewall virtual | VM-FW01 | VM nueva y restaurar config.xml; repetir PR-16 y PR-17 | 2 h | Último config.xml | — | — | Pendiente de ejecución | Pendiente | A adjuntar: captura y resultado de las pruebas |
+| REC-12 | 2026-11-17 23:05 (UTC−5) | Pérdida del firewall virtual | SIM-R1 con nftables (equivale a VM-FW01) | Respaldo con nft list ruleset; borrado total con nft flush ruleset; restauración con nft -f; repetir PR-16 y PR-17 | 2 h | Último respaldo | 1 s | Con el firewall vacío la DMZ llegaba a la base de datos; tras restaurar, PR-16 y PR-17 vuelven a bloquear | Recuperación completa. SIMULACIÓN | Ejecutado | infra/logs/2026-11-17/rec-12-simulacion.txt y rec-12-firewall-respaldo.nft |
 | REC-13 | 2026-10-24 | Recuperación en otro servidor: respaldo de la PC restaurado en el VPS | MySQL 8.0.46 (VPS, `cermat_db`) | sha256sum -c del respaldo cermat_db_2026-10-24T21-35-08.sql y restauración con mysql (manual de despliegue §9.3) | < 1 h | ≤ 24 h | 0,33 s | Huella SHA-256 correcta. 8 tablas, 9 funciones y procedimientos, 6 triggers, 3 vistas y 1 pago. Hallazgo posterior: la base se creó con utf8mb4_unicode_ci y las rutinas quedaron con otra collation que las tablas (corregido el 2026-10-24 a las 22:06) | Recuperación completa; defecto de collation detectado después | Ejecutado | Manual de despliegue §9.3 y §9.6 |
 | REC-14 | 2026-10-24 22:22 (UTC−5) | Recuperación en otro servidor: respaldo diario del VPS restaurado en la PC | MySQL 8.0.30 (PC, `cermat_db_verificacion`) | Copia con scp de los 4 respaldos y sha256sum -c; node scripts/restore.js --archivo con el más reciente | < 1 h | ≤ 24 h | 0,41 s | SHA-256 verificado. Filas: matrículas 2, pagos 1, ciclos 1, auditoría 2, schema_migraciones 4, resto 0. 9 rutinas, 6 triggers y 3 vistas; collation coherente (utf8mb4_0900_ai_ci); funciones y sp_estado_cuenta sin errores | Recuperación completa | Ejecutado | registro-restauraciones.jsonl (respaldo cermat_db_2026-10-25T03-18-26.sql) |
 
@@ -514,11 +518,11 @@ Para volver atrás: `systemctl disable --now academia-replica.timer` y la API an
 | Servicio | RTO objetivo | RTO obtenido | RPO objetivo | RPO evidenciado | Conclusión |
 |---|---|---|---|---|---|
 | MySQL (base de prueba) | < 1 h | 0,38 s (REC-01) y 0,27 s (REC-02) | ≤ 24 h | Respaldo bajo demanda | Cumple en la base de prueba |
-| MySQL (base real) | < 1 h | 0,23 s (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14) | ≤ 24 h | Respaldo diario a las 03:00 en el VPS desde el 2026-10-24, con copia semanal fuera del VPS: RPO ≤ 24 h | Cumple |
+| MySQL (base real) | < 1 h | 0,23 s (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14) | ≤ 24 h | Respaldo diario a las 03:00 en el VPS desde el 2026-10-24: RPO ≤ 24 h dentro del VPS. Fuera del VPS, la copia semanal no se hacía: el 2026-11-17 la más nueva tenía 23 días (NC-10) | Cumple en el VPS; **no cumple** fuera de él |
 | PostgreSQL del colegio | 2 h | Pendiente (REC-06) | ≤ 24 h | Sin respaldos implantados: hoy el RPO no está acotado | **No cumple** (NC-04) |
 | VM en PBS | 2 h | Pendiente (REC-07) | ≤ 24 h | Pendiente | — |
-| VPS completo | 8 h | Pendiente (REC-08) | ≤ 24 h | Pendiente | — |
-| VPN | ≤ 2 min automático | Pendiente (REC-09) | No aplica | — | — |
+| VPS completo | 8 h | 1 min 30 s en la simulación (REC-08, 2026-11-17) | ≤ 24 h | 567 h: el respaldo más nuevo fuera del VPS tenía 23 días | Cumple el RTO; **no cumple** el RPO (NC-10) |
+| VPN | ≤ 2 min automático | 2 s en la simulación (REC-09) | No aplica | — | Cumple en la simulación |
 | SPA (Vercel) | 15 min | Pendiente (REC-10) | 0 | Código en Git | — |
 | Firestore | 4 h | Pendiente (REC-11) | ≤ 24 h | Sin exportación programada | **No cumple** (NC-06) |
 
@@ -567,34 +571,54 @@ ps -eo rss,comm --sort=-rss | head -n 12
 |---|---|---|
 | Valores registrados en dos horarios; MemAvailable ≥ 25 % antes de agregar agentes | Dos mediciones del 2026-10-24. Antes de la capa de la academia: 1,9 GiB de RAM con 1,5 GiB disponibles, swap de 1 GiB sin uso y 28 GB libres en disco. Con la capa en marcha (20:01): 685 MiB usados y 1,3 GiB disponibles (≈ 68 %). Falta medir en hora pico | Manual de despliegue §9.0 y §9.4 |
 
+### 9.4 Eficiencia energética y disponibilidad
+
+CE0333 pide evaluar la eficiencia energética y la disponibilidad de la operación.
+
+**Hoy, en la nube.** La academia no tiene servidores propios encendidos. La plataforma corre en Vercel y Firebase, y la capa relacional usa unos 400 a 500 MB de RAM de un VPS que comparte con el sistema del colegio (manual §9.0). Le corresponde una fracción de un servidor de un centro de datos profesional, donde la eficiencia (PUE) es mejor que la de una sala pequeña: el promedio mundial informado por el Uptime Institute en 2023 fue 1,58, y los grandes proveedores de nube publican valores cercanos a 1,1.
+
+**Con la sede (fase 2).** Los equipos del diseño suman de 130 a 230 W (S1-E2 §5.6). Con un consumo medio de 180 W encendidos todo el año son unos **1 577 kWh al año**; el costo sale de multiplicarlo por la tarifa del recibo de la sede (supuesto SUP-06 por validar). Medidas de eficiencia del diseño:
+
+- un solo host con virtualización en lugar de un equipo por servicio;
+- apagado ordenado por el UPS (NUT), primero los servicios no críticos;
+- servicios públicos y bases de alta disponibilidad en la nube, no en la sede;
+- el entorno de validación demostró que toda la red y la detección caben en unos 3 GB de RAM.
+
+**Disponibilidad.** Los objetivos por servicio están en la sección 8. Hasta ahora solo hay verificaciones puntuales (`infra/scripts/salud-servicios.mjs`) y un incidente de disponibilidad de la réplica (INC-06). La disponibilidad mensual medida llega con Uptime Kuma (PR-33).
+
 ## 10. Control de cambios y gestión de configuración
 
 ### 10.1 Repositorio y estructura
 
 **Ya versionado en Git:**
 
-- `firestore.rules` con 19 pruebas.
+- `firestore.rules` con 101 pruebas (19 al 2026-10-24).
+- `infra/`: configuración de infraestructura, scripts de prueba y evidencias (estructura abajo).
 - `.github/workflows/ci.yml` (6 trabajos).
 - `server/src/db/` (migraciones numeradas, pruebas y su README).
 - `server/scripts/backup.js`, `restore.js` y `db-crear-usuarios.js`.
 - `.github/pull_request_template.md`.
 - En el repositorio de documentación: diagramas, matrices y `scripts/generar-matrices-infra.mjs`.
 
-**Estructura de la configuración de infraestructura** (creada el 2026-11-16 en `infra/`; lo del entorno simulado y virtual se completa al ejecutarlo), con carpetas separadas para diagramas, hipervisor (ESXi en la guía), nube (AWS en la guía), scripts y registros:
+**Estructura de la configuración de infraestructura** (`infra/`, creada el 2026-11-16 y ampliada el 2026-11-17 con el entorno de validación), con carpetas separadas para diagramas, hipervisor (ESXi en la guía), nube (AWS en la guía), scripts y registros:
 
 ```text
 infra/
 ├── README.md            # orden de despliegue, reconstrucción, qué no se versiona
-├── diagramas/           # .drawio
+├── diagramas/           # enlaces a los .drawio
 ├── cd/
-│   ├── proxmox/         # interfaces sanitizado, comandos qm, trabajos de PBS (≡ ESXi)
-│   └── nube/            # inventario del VPS, UFW, nftables, Nginx, respaldo-pg.sh (≡ AWS)
+│   ├── proxmox/         # host y VM de la sede (≡ ESXi); se completa en la fase 2
+│   ├── hyperv/          # hipervisor del entorno de validación (≡ ESXi) y REC-07
+│   ├── nube/            # Nginx y cabeceras del VPS, respaldo-pg.sh (≡ AWS)
+│   ├── rec08/           # reconstrucción de la capa de la academia (REC-08)
+│   ├── deteccion/       # Suricata, Cowrie, Loki y Grafana (≡ IDS y SIEM)
+│   └── monitoreo/       # Uptime Kuma (≡ CloudWatch)
 ├── red/                 # ver S2-E2
 ├── scripts/             # verificación y respaldo
 └── logs/                # salidas de pruebas y de restauración, con fecha
 ```
 
-El README debe indicar el propósito de cada carpeta, el orden de despliegue (host → OPNsense → bastión → SIEM → aplicaciones → túnel), cómo reconstruir cada componente, qué secretos existen y dónde se guardan (nunca en Git), y cómo ejecutar las pruebas PR y REC.
+El README (`infra/README.md`) indica el propósito y el estado de cada carpeta, el orden de despliegue del entorno de validación y de la sede (host → OPNsense → bastión → SIEM → aplicaciones → respaldo → honeypot → túnel), qué secretos existen y dónde se guardan (nunca en Git) y cómo ejecutar las pruebas PR y REC.
 
 ### 10.2 Historial de cambios relevantes
 
@@ -618,6 +642,8 @@ El README debe indicar el propósito de cada carpeta, el orden de despliegue (ho
 | 2026-11-14 21:47 | Réplica reparable y temporizador `academia-replica` | MySQL, API y systemd del VPS | Commit `22dba3a`; §7.9 |
 | 2026-11-15/16 | Rutas `/api/cuentas` y `/api/usuarios` (Firebase Admin) para el acceso directo de alumnos | API del VPS | Commit `c7d6302`; manual §9.7.10; 401 sin sesión el 2026-11-16 |
 | 2026-11-16 | Matrícula masiva por fila y migración `06` (descuento y cronograma); aplicación de la migración en el VPS no registrada aún | Repositorio y Vercel | Commit `f9447d8` |
+| 2026-11-16 | Repositorio técnico `infra/`: README, Nginx y cabeceras del VPS, reglas planeadas (CSV) y scripts de PR-12, PR-36, PR-40, PR-41 y REC-10 | Repositorio de la aplicación | `infra/README.md`; `infra/logs/2026-11-16/` |
+| 2026-11-17 | Entorno de validación: red de la sede en Docker (firewall, DMZ, 2 WAN y VPN), detección (Suricata, Cowrie, Loki y Grafana) y reconstrucción del VPS en contenedores (REC-08) | PC del equipo (SIMULACIÓN) | `infra/logs/2026-11-17/` |
 
 ### 10.3 PRO-02 · Procedimiento de gestión de cambios
 
@@ -648,7 +674,7 @@ Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SG
 |---|---|
 | Componentes del CD en el diseño | 36 (los de nube, operativos; los de la sede, pendientes) |
 | Activos en el inventario final con evidencia | 33 |
-| Ejercicios de recuperación ejecutados / pendientes | 7 / 7 |
+| Ejercicios de recuperación ejecutados / pendientes | 10 / 4 (REC-08, REC-09 y REC-12 en SIMULACIÓN) |
 | RTO medido de MySQL | 0,23 s en la base real (REC-05); 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14); 0,27–0,38 s en la base de prueba (objetivo < 1 h) |
 | Servicios con RPO actualmente no acotado | 2 (PostgreSQL del colegio y Firestore) |
 | Réplica relacional después de la carga inicial | 10 matrículas (0 provisionales), 2 pagos y 7 asistencias |
@@ -661,10 +687,11 @@ Se trataron como NC-02 y NC-03 (cerradas el 2026-10-24) y NC-08 (abierta) del SG
 3. Las dos mayores brechas de continuidad son reales y prioritarias: el colegio y Firestore no tienen respaldo implantado, así que su RPO no está acotado.
 4. El entorno on-premise tiene un procedimiento reproducible (red, VM, PBS y migración), listo para ejecutarse en cuanto exista el hardware.
 5. Contar objetos no basta para dar por buena una restauración: REC-13 pasó con los objetos completos y aun así las rutinas fallaban por la collation. Desde el 2026-10-24 `restore.js` verifica la collation y la prueba ejecuta las funciones en la copia restaurada.
+6. En el entorno virtual del 2026-11-17 se recuperaron el VPS completo (REC-08, 1 min 30 s), el túnel (REC-09, 2 s) y el firewall (REC-12, 1 s). REC-08 dejó un hallazgo real: el respaldo más nuevo fuera del VPS tenía 23 días (NC-10). El hipervisor y la recuperación de una VM (REC-07) siguen sin validar.
 
 ### 11.3 Limitaciones
 
-- Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN en la sede; la fase 1b la obtiene en Hyper-V y Packet Tracer (sección 3.3 y S2-E2 §8), rotulada como simulación.
+- Sin el hardware de la sede no hay evidencia de hipervisor, VM ni VPN en la sede; la fase 1b la obtiene en la red virtual de Docker (ejecutada el 2026-11-17) y en Hyper-V (script listo, sin ejecutar), rotulada como simulación (sección 3.3 y S2-E2 §8).
 - La base real tiene muy pocas filas aun después de la carga inicial (10 matrículas, 2 pagos y 7 asistencias), así que su RTO (0,23–0,41 s) debe volver a medirse cuando tenga volumen.
 - La copia fuera del VPS es manual y semanal; falta automatizarla hacia PBS.
 - Parte de la evidencia del VPS proviene del manual del propietario y faltan las capturas.

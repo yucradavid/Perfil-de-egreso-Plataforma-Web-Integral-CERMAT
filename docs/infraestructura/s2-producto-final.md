@@ -38,7 +38,9 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 - Las **pruebas automáticas** de reglas, API y base de datos.
 - El **SGSI completo**: 33 activos, 31 riesgos, una SoA de 93 controles, 6 políticas y procedimientos y una auditoría interna real con 11 hallazgos.
 
-**Qué está pendiente.** Todo lo que requiere el hardware de la sede: hipervisor, VM, OPNsense, VLAN, VPN, Suricata, honeypot y Wazuh. Cada componente tiene procedimiento, configuración sin secretos, criterio de aceptación y evidencia por adjuntar.
+**Qué se validó en un entorno virtual (2026-11-17).** La red de la sede (firewall con FW-01 a FW-73, DMZ, NAT y dos WAN), la VPN IKEv2 con los algoritmos del diseño, la detección (Suricata, Cowrie y un SIEM liviano con Loki y Grafana) y la reconstrucción del VPS, del túnel y del firewall (REC-08, REC-09 y REC-12). Todo va rotulado como SIMULACIÓN: valida el diseño, no la operación de la sede.
+
+**Qué está pendiente.** En la sede, todo lo que requiere el hardware: hipervisor, VM, OPNsense, VLAN, VPN, Suricata, honeypot y Wazuh. El hipervisor todavía no tiene evidencia ni siquiera en simulación (Hyper-V, REC-07), y el monitoreo con alertas (Uptime Kuma, PR-33) sigue sin ejecutar. Cada componente tiene procedimiento, configuración sin secretos, criterio de aceptación y evidencia por adjuntar.
 
 **Qué se cerró el 2026-10-24.** La auditoría encontró fallas reales y activas, y las dos más graves se cerraron el mismo día:
 
@@ -55,7 +57,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 | Pregunta | Respuesta |
 |---|---|
 | ¿Qué problema resuelve? | Servicios críticos en la nube sin perímetro en la sede, sin canal privado entre la sede y el VPS, sin detección ni respaldo externo |
-| ¿Qué entrega hoy? | Perímetro y cifrado verificados en la nube; capa de datos con mínimo privilegio y restauración probada; SGSI con trazabilidad completa; diseño on-premise listo para ejecutar |
+| ¿Qué entrega hoy? | Perímetro y cifrado verificados en la nube; capa de datos con mínimo privilegio y restauración probada; SGSI con trazabilidad completa; diseño on-premise listo para ejecutar, con la red, la VPN y la detección validadas en un entorno virtual |
 | ¿Cuánto cuesta? | VPS de US$ 35,99 al año (ya contratado); software on-premise US$ 0; hardware por cotizar, sin presupuesto aprobado |
 | ¿Qué riesgos quedan? | 4 críticos sin tratar todavía (R-04, R-07, R-11 y R-12); R-01 a R-03 se trataron el 2026-10-24. Con el plan, 11 residuales medios para aceptar |
 | ¿Qué se pide a la Dirección? | Aprobar las políticas; designar roles; autorizar las pruebas; aceptar los riesgos residuales medios (incluidos los `.env` versionados sin contraseñas); decidir la compra del hardware |
@@ -67,12 +69,14 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 | Red (nube) | UFW con entrada denegada; PostgreSQL en loopback | Real (manual del 2026-10-17) | S2-E2 §4.1; PR-01 y PR-02 |
 | Red (nube) | Redirección 301/308, TLS 1.0/1.1 rechazados, TLS 1.2/1.3 con AEAD, certificados vigentes, `/.env` con 403 | Real (verificación del 2026-10-24) | S2-E2, Anexo B; PR-03 a PR-09 y PR-13 |
 | Red (nube) | Brecha de cabeceras cerrada el 2026-10-24 en la academia y en el colegio; dominio sin CAA, SPF, DMARC ni DNSSEC; subdominios de la academia con HTTPS y servicios solo en loopback | Real (verificación del 2026-10-24) | PR-10, PR-12, PR-38 y PR-39 |
-| Red (sede) | Procedimientos de VPN, OPNsense, Suricata, Cowrie y Wazuh | Pendiente de ejecución | S2-E2 §3 a §7 |
+| Red (sede) | Firewall con las reglas FW-01 a FW-73, DMZ, NAT, rutas con respaldo y VPN IKEv2: 18 pruebas conformes, REC-09 y REC-12 | SIMULACIÓN en Docker (2026-11-17); la sede real, en la fase 2 | S2-E2 §3, §4 y §8 |
+| Red (detección) | Suricata, Cowrie y SIEM liviano (Loki y Grafana) con 3 alertas; PR-30, PR-31, PR-32 y PR-37 conformes | SIMULACIÓN (2026-11-17) | S2-E2 §6.4 y §8; `infra/logs/2026-11-17/` |
+| Continuidad | REC-08: la capa de la academia reconstruida desde cero en 1 min 30 s; la copia fuera del VPS tenía 23 días (NC-10) | SIMULACIÓN (2026-11-17) | S2-E3 §7.4 |
 | Centro de datos (nube) | VPS equivalente a EC2 y su configuración | Real (manual) | S2-E3 §4.1 |
-| Centro de datos (sede) | Configuración de red de Proxmox, comandos `qm`, PBS y migración | Pendiente de ejecución | S2-E3 §3 |
+| Centro de datos (sede) | Configuración de red de Proxmox, comandos `qm`, PBS y migración | Pendiente de ejecución (también la validación en Hyper-V: script listo, sin ejecutar) | S2-E3 §3 |
 | Continuidad | REC-01 a REC-05, REC-13 y REC-14: restauración con SHA-256 y RTO medido, también en otro servidor | Real (base de prueba, base real y recuperación entre la PC y el VPS) | S2-E3 §7.2; registro XLSX |
 | Continuidad | Carga inicial de Firestore a MySQL: 10 matrículas (0 provisionales), 2 pagos y 7 asistencias, sin rechazos ni errores y repetible sin duplicar | Real (2026-10-24, 22:56) | S2-E3 §7.8 |
-| Seguridad de aplicación | 19 pruebas de reglas (10 fallaban con las reglas de junio; 0 fallas observadas en producción desde el 2026-10-24), 27 de API y 19 de base de datos | Real | [E4 de Ingeniería de Software](../e4-calidad-operacion-ce024.md) |
+| Seguridad de aplicación | 101 pruebas de reglas (de las 19 del 2026-10-24, 10 fallaban con las reglas de junio; 0 fallas observadas en producción desde ese día), 100 de API y 25 de base de datos, al 2026-11-16 | Real | [E4 de Ingeniería de Software](../e4-calidad-operacion-ce024.md) |
 | SGSI | Inventario, riesgos, SoA, políticas, auditoría y no conformidades | Real (documental) y auditoría del 2026-10-24 | S2-E1 |
 | Ética | Declaración de ética y autorización de pruebas | Pendiente de firma | S2-E1 §12 |
 | Despliegue | 18 capturas del 2026-10-24 (Vercel, pre-matrícula, clave rotada, VPS y panel), con los datos personales tapados | Real | [Evidencias del despliegue](evidencias-despliegue-2026-10-24.md) |
@@ -119,11 +123,11 @@ La declaración de ética de seguridad ([S2-E1 §12.7](s2-e1-sgsi-ce0321-ce0324.
 
 | Tipo | Total | Con resultado real | Pendientes |
 |---|---:|---:|---:|
-| Pruebas de red y perímetro (PR) | 42 | 14 conformes y 1 no conforme | 27 |
-| Pruebas de recuperación (REC) | 14 | 7 | 7 |
-| Pruebas automáticas de software (E4) | 99 | 99 en verde con las reglas corregidas | Primera ejecución del CI en GitHub |
+| Pruebas de red y perímetro (PR) | 42 | 37 conformes y 1 no conforme | 4 |
+| Pruebas de recuperación (REC) | 14 | 10 | 4 |
+| Pruebas automáticas de software (E4) | 376 | 376 en verde al 2026-11-16 (150 de frontend, 101 de reglas, 100 de API y 25 de base de datos); el CI corre en GitHub (ejecución #22 en verde) | 0 |
 
-Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respaldo alterado, negativa a restaurar sobre producción) y de detección (pendientes).
+Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respaldo alterado, negativa a restaurar sobre producción) y de detección (PR-30 a PR-32 y PR-37, conformes en SIMULACIÓN).
 
 ## 7. Monitoreo
 
@@ -156,7 +160,7 @@ Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respa
 | 5 | Agregar cabeceras de seguridad y `server_tokens off`; verificar SSH e instalar fail2ban; publicar CAA | R-12 a R-14 | Cabeceras y `server_tokens off`: hechos el 2026-10-24 en la academia y en el colegio. SSH, fail2ban y CAA: 2026-11-07 a 2026-11-14 |
 | 6 | Desplegar Uptime Kuma (de forma transitoria) con latido externo y medir la disponibilidad | R-09 y NC-05 | 2026-11-14 |
 | 7 | Programar la exportación de Firestore y ejecutar REC-11 | R-10 y NC-06 | 2026-11-21 |
-| 8 | Validar la sede en un entorno simulado y virtual (Packet Tracer, Docker y Hyper-V): PR-14 a PR-35, PR-42, REC-07, REC-09 y REC-12, con la evidencia rotulada como simulación (S2-E2 §8) | R-15, R-16 y R-20 | 2026-11-27 |
+| 8 | Validar la sede en un entorno simulado y virtual (Docker y Hyper-V; la red, hecha el 2026-11-17): PR-14 a PR-35, PR-42, REC-07, REC-09 y REC-12, con la evidencia rotulada como simulación (S2-E2 §8) | R-15, R-16 y R-20 | 2026-11-27 |
 | 9 | Realizar la revisión por la dirección: aprobar las políticas, designar roles, aceptar los riesgos residuales y decidir el presupuesto | Cláusula 9.3 | Semana del 2026-11-23 |
 | 10 | Adquirir el hardware y ejecutar la fase 2 en la sede | R-15 a R-19, R-26 y R-28 | 2027-I |
 
@@ -172,7 +176,7 @@ Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respa
 | Host y VM (S1-E2 §5 y §6) | Procedimiento de Proxmox (S2-E3 §3) | Pendiente |
 | Nube equivalente a AWS (S1-E2 §7) | VPS, UFW y PaaS (S2-E3 §4) | Implementado (NACL y `dum0` pendientes) |
 | Integración híbrida (S1-E2 §8) | Proxy de la API y túnel (S2-E3 §4.4) | Pendiente |
-| Continuidad 3-2-1 y RTO/RPO (S1-E2 §11) | REC-01 a REC-05, REC-13 y REC-14 ejecutados; respaldo diario de MySQL con copia fuera del VPS; REC-06 a REC-12 pendientes (S2-E3 §7 y §8) | Parcial |
+| Continuidad 3-2-1 y RTO/RPO (S1-E2 §11) | REC-01 a REC-05, REC-08, REC-09, REC-12, REC-13 y REC-14 ejecutados; respaldo diario de MySQL en el VPS, con la copia fuera de él atrasada (NC-10); REC-06, REC-07, REC-10 y REC-11 pendientes (S2-E3 §7 y §8) | Parcial |
 | Requisitos RQ-01 a RQ-15 (Producto final S1 §6) | Verificaciones asignadas por requisito | Parcial |
 | Riesgos y controles | SoA y matriz maestra (S2-E1 §8 y §14.2) | Establecido |
 
@@ -197,8 +201,8 @@ La guía exige demostrar coherencia entre requerimientos, diseño, implementaci�
 |---|---|---|
 | Requerimientos | 15 requisitos trazados a diseño y prueba (Producto final S1 §6) | Validar los supuestos con mediciones: latencia y ancho de banda (PR-40 y PR-41), energía y carga |
 | Diseño | Red, centro de datos, equivalencias, matrices y diagramas editables (S1) | — |
-| Implementación | Nube y capa de datos operativas | Sede on-premise, VPN y detección |
-| Seguridad | SGSI con riesgos, SoA, políticas y auditoría real; mínimo privilegio en las bases | Cerrar NC-04 a NC-08 (NC-01 a NC-03 se cerraron el 2026-10-24) |
+| Implementación | Nube y capa de datos operativas; sede, VPN y detección validadas en el entorno virtual (2026-11-17) | La sede real (fase 2) y el hipervisor en Hyper-V |
+| Seguridad | SGSI con riesgos, SoA, políticas y auditoría real; mínimo privilegio en las bases | Cerrar NC-04 a NC-10 (NC-01 a NC-03 se cerraron el 2026-10-24) |
 | Operación | Procedimientos del VPS; respaldo y restauración de MySQL | Respaldos del VPS y de Firestore; recuperación de VM en el entorno virtual |
 | Monitoreo | `/health` y registros locales | Uptime Kuma, Netdata y Wazuh |
 | Documentación | 8 documentos versionados con evidencia y pendientes declarados; PDF consolidado | Adjuntar capturas del entorno simulado |

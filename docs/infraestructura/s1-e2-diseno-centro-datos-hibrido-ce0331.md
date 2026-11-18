@@ -27,7 +27,7 @@
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) |
 |---|---|---|---|
 | Informe de análisis y diseño de centro de datos híbrido | Página versionada en Git; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con la organización |
-| Diagramas de arquitectura | draw.io editable de 3 páginas y Mermaid | [arquitectura-centro-datos-hibrido.drawio](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.drawio) | Topología física on-premise, hipervisor y nube (VPC/AWS equivalente) |
+| Diagramas de arquitectura | draw.io editable de 3 páginas, PDF y PNG exportados (2026-11-17) y Mermaid | [arquitectura-centro-datos-hibrido.drawio](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.drawio) · [PDF de las 3 páginas](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.pdf) · PNG: [página 1](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p1.png), [2](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p2.png) y [3](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p3.png) | Topología física on-premise, hipervisor y nube (VPC/AWS equivalente) |
 | Matriz de componentes y dimensionamiento | XLSX y secciones 9 y 10 | [s1-e2-matriz-componentes-dimensionamiento.xlsx](../assets/infraestructura/s1-e2-matriz-componentes-dimensionamiento.xlsx) | 100 % de los elementos dibujados (36) y sustento del dimensionamiento |
 
 ## 1. Resumen ejecutivo del diseño del centro de datos híbrido

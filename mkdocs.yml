@@ -122,12 +122,7 @@ nav:
 
 # Versión de junio de 2026 (estructura anterior de la guía): se conserva en el repositorio, fuera del sitio.
 exclude_docs: |
-  infraestructura/e1-diseno-red-ce0311.md
-  infraestructura/e2-planificacion-seguridad-ce0321.md
-  infraestructura/e3-diseno-centro-datos-ce0331.md
-  infraestructura/e4-implementacion-testing-red-ce0312-ce0313.md
-  infraestructura/e5-implementacion-monitoreo-etica-ce0322-ce0324.md
-  infraestructura/e6-implementacion-control-cd-ce0332-ce0333.md
+  infraestructura/historico/
   assets/arquitectura-hibrida - copia.svg
 
 extra:

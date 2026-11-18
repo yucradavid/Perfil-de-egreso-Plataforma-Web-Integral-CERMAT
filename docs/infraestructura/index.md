@@ -16,7 +16,7 @@ La línea de infraestructura diseña, implementa, valida y opera una **arquitect
 La guía oficial toma como referencia VMware ESXi y AWS y permite ajustar la tecnología "siempre que se mantenga la equivalencia técnica". La tabla de equivalencias de esta página explica cada sustitución.
 
 !!! warning "Implementado frente a diseñado"
-    Cada documento separa lo **implementado con evidencia** (VPS, PaaS, base MySQL, pruebas y CI) de lo **pendiente de ejecución** (hipervisor, OPNsense, VPN, IDS/IPS, honeypot, SIEM y monitor externo). Lo pendiente incluye el procedimiento, el criterio de aceptación y la evidencia que se adjuntará. No se presentan resultados que no se hayan obtenido.
+    Cada documento separa lo **implementado con evidencia** (VPS, PaaS, base MySQL, pruebas y CI), lo **validado en un entorno virtual** el 2026-11-17 y rotulado como SIMULACIÓN (red de la sede con el equivalente de OPNsense, VPN, IDS/IPS, honeypot y un SIEM liviano) y lo **pendiente de ejecución** (hipervisor, equipos de la sede, Wazuh y monitor externo). Lo pendiente incluye el procedimiento, el criterio de aceptación y la evidencia que se adjuntará. No se presentan resultados que no se hayan obtenido.
 
 ## Codificación de entregables
 
@@ -84,20 +84,20 @@ Todos los entregables se califican sobre **100 puntos** y se convierten a **nota
 | Port group con VLAN | Etiqueta `tag` en la NIC virtual de la VM | Asigna la VM a una VLAN sin configurar el sistema invitado | Diseñado |
 | NIC teaming | Bond Linux 802.3ad (LACP) `bond0` | Agregación y redundancia de enlaces | Diseñado |
 | Snapshots y respaldo de vSphere | vzdump + Proxmox Backup Server | Respaldo deduplicado, verificado y restaurable por VM | Diseñado |
-| AWS VPC y CIDR | Espacio 10.20.0.0/16; red interna del VPS 10.20.0.0/24 en la interfaz `dum0` | Red privada de nube alcanzable solo por el túnel | Diseñado |
+| AWS VPC y CIDR | Espacio 10.20.0.0/16; red interna del VPS 10.20.0.0/24 en la interfaz `dum0` | Red privada de nube alcanzable solo por el túnel | Diseñado; validado en el entorno virtual |
 | Subred pública + Internet Gateway | Interfaz pública del VPS y enrutamiento del proveedor | El VPS recibe una IP pública propia | Implementado (provisto) |
 | Route tables | Tabla `main` y tabla 220 de strongSwan | strongSwan instala las rutas de los selectores de tráfico | Diseñado |
 | NAT Gateway | NAT saliente de OPNsense en la sede; no se requiere en el VPS | El VPS ya tiene IP pública | Diseñado |
 | EC2 | VPS KVM de RackNerd (2 vCPU, 2 GB, 35 GB SSD, Ubuntu 24.04) | Ya contratado (US$ 35,99 al año) y en producción | **Implementado** |
 | Security Group | UFW (nftables con estado) en el VPS | Entrada denegada por defecto; 22, 80 y 443/tcp permitidos | **Implementado** |
 | NACL | Reglas nftables sin estado o filtro de red del proveedor | Segunda capa a nivel de red; disponibilidad del filtro del proveedor por confirmar | Pendiente |
-| VPN Gateway (Site-to-Site IPsec) | strongSwan IKEv2 en el VPS ↔ OPNsense en la sede | Túnel IPsec equivalente con AES-256-GCM y PFS | Diseñado |
+| VPN Gateway (Site-to-Site IPsec) | strongSwan IKEv2 en el VPS ↔ OPNsense en la sede | Túnel IPsec equivalente con AES-256-GCM y PFS | Diseñado; validado en el entorno virtual (S2-E2 §8) |
 | IAM | Usuarios Linux con sudo y llaves SSH; roles de PostgreSQL y MySQL; claims de Firebase; cuentas de servicio | Mínimo privilegio por plataforma | Parcial |
 | CloudWatch | Uptime Kuma (disponibilidad), Netdata (métricas) y Wazuh (eventos) | Monitoreo y alertas sin costo de licencia | Pendiente |
 | Route 53 | DNS autoritativo de Punto.pe (servidores de RCP) | Dominio institucional `.edu.pe` | **Implementado** |
 | ACM | Let's Encrypt con Certbot; certificados gestionados por Vercel | TLS 1.2/1.3 verificado el 2026-10-24 | **Implementado** |
 | PaaS (Amplify/Elastic Beanstalk) | Vercel (frontend) y Firebase (Auth, Firestore, Storage) | Plataforma de la academia ya en producción | **Implementado** |
-| GuardDuty o IDS | Suricata en OPNsense y Wazuh | IDS/IPS y correlación de eventos | Pendiente |
+| GuardDuty o IDS | Suricata en OPNsense y Wazuh | IDS/IPS y correlación de eventos | Validado en el entorno virtual con Suricata, Loki y Grafana; en la sede, pendiente |
 
 !!! note "AWS Academy como alternativa"
     Si el jurado requiere evidencia sobre AWS, el mismo diseño puede reproducirse en AWS Academy (VPC 10.20.0.0/16, EC2, Security Groups, NACL y Site-to-Site VPN hacia OPNsense), sujeto a los servicios habilitados en esa cuenta educativa. **No se usó en este proyecto.**
@@ -127,5 +127,5 @@ Las capturas del 2026-10-24 (Vercel, pre-matrícula pública, clave rotada, VPS 
 | Activos del SGSI | 33 |
 | Riesgos evaluados (ISO/IEC 27005) | 29 |
 | Controles del Anexo A en la SoA | 93 (92 aplicables) |
-| Pruebas de red con resultado real / pendientes | 14 conformes y 1 no conforme / 27 pendientes |
-| Pruebas de recuperación ejecutadas / pendientes | 7 / 7 (REC-05 en la base real: 0,23 s; REC-13 y REC-14 en otro servidor: 0,33 s y 0,41 s) |
+| Pruebas de red con resultado real / pendientes | 37 conformes y 1 no conforme / 4 pendientes |
+| Pruebas de recuperación ejecutadas / pendientes | 10 / 4 (REC-05 en la base real: 0,23 s; REC-13 y REC-14 en otro servidor: 0,33 s y 0,41 s; en la simulación, REC-08 en 1 min 30 s, REC-09 en 2 s y REC-12 en 1 s) |

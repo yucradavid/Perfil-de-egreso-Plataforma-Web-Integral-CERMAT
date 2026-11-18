@@ -36,7 +36,7 @@ La verificación del 2026-11-16, con los mismos comandos del CI, da:
 - **TypeScript:** 0 errores en el frontend y en la API.
 - **Calidad:** pipeline de CI con 6 trabajos.
 
-La entrega de matrícula masiva (`f9447d8`) se había publicado con 34 errores de tipos y 6 pruebas en rojo. Se corrigieron ese mismo día, y la corrección está lista para subir ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
+La entrega de matrícula masiva (`f9447d8`) se había publicado con 34 errores de tipos y 6 pruebas en rojo. Se corrigieron ese mismo día, y la corrección se publicó el 2026-11-16 (`95b270d`), con las reglas verificadas sin sesión ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)).
 
 ## Sección 1: Arquitectura e Integración
 

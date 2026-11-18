@@ -1,7 +1,7 @@
 # S2-E2 · Implementación, Testing y Monitoreo de Red (CE0312–CE0313)
 
 !!! abstract "CE0312 y CE0313 — Implementación, pruebas y control de red"
-    Ejecución del [diseño de red del Semestre 1](s1-e1-analisis-diseno-red-ce0311.md): VPN, firewall, DMZ, segmentación, IDS/IPS, honeypot, monitoreo y pruebas reproducibles. Este documento separa lo **implementado con evidencia** (perímetro y TLS del VPS, DNS y HTTPS de la plataforma) de lo **pendiente de ejecución** (equipos de la sede, VPN, detección y monitoreo), que incluye procedimiento, criterio de aceptación y evidencia por adjuntar.
+    Ejecución del [diseño de red del Semestre 1](s1-e1-analisis-diseno-red-ce0311.md): VPN, firewall, DMZ, segmentación, IDS/IPS, honeypot, monitoreo y pruebas reproducibles. Este documento separa tres estados: lo **implementado con evidencia** en la red real (perímetro y TLS del VPS, DNS y HTTPS de la plataforma); lo **validado en el entorno virtual** del 2026-11-17, rotulado como SIMULACIÓN (red de la sede, firewall y DMZ, VPN y detección; sección 8), y lo **pendiente de ejecución** (equipos de la sede y monitoreo con alertas), que incluye procedimiento, criterio de aceptación y evidencia por adjuntar.
 
 ## Portada
 
@@ -26,9 +26,9 @@
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) | Estado |
 |---|---|---|---|---|
 | Informe de implementación, testing y monitoreo de red | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
-| Evidencias técnicas de configuración | Salidas de comandos, configuraciones sanitizadas y explicación de cada evidencia | Secciones 4 y 10 y Anexo B | Capturas legibles, configuraciones exportadas y propósito de cada evidencia | Parcial: evidencia real del VPS y externa; lo de la sede, pendiente |
-| Plan y resultados de pruebas | XLSX y sección 8 | [s2-e2-plan-resultados-pruebas-red.xlsx](../assets/infraestructura/s2-e2-plan-resultados-pruebas-red.xlsx) | Pruebas positivas y negativas: permitido/denegado y detección | De 42 pruebas, 14 conformes y 1 no conforme (PR-12, repetida el 2026-11-16) con resultado real; 27 pendientes (24 de la sede y 3 de métricas y enrutamiento) |
-| Repositorio técnico de red | Git | Sección 10.2 | Permite revisar o reconstruir la configuración sin credenciales | Parcial: `infra/` creada el 2026-11-16 con las reglas planeadas (CSV generados), scripts de prueba (PR-12, PR-36) y evidencias fechadas; configuraciones de la sede pendientes |
+| Evidencias técnicas de configuración | Salidas de comandos, configuraciones sanitizadas y explicación de cada evidencia | Secciones 4 y 10 y Anexo B | Capturas legibles, configuraciones exportadas y propósito de cada evidencia | Parcial: evidencia real del VPS y externa; del entorno virtual, configuraciones y salidas en `infra/red/docker/`, `infra/cd/deteccion/` e `infra/logs/2026-11-17/`; lo de la sede, pendiente |
+| Plan y resultados de pruebas | XLSX y sección 8 | [s2-e2-plan-resultados-pruebas-red.xlsx](../assets/infraestructura/s2-e2-plan-resultados-pruebas-red.xlsx) | Pruebas positivas y negativas: permitido/denegado y detección | De 42 pruebas, 37 conformes y 1 no conforme (PR-12); 4 pendientes (PR-21, PR-33, PR-36 y PR-41). La red de la sede, la VPN y la detección se probaron el 2026-11-17 en el entorno virtual |
+| Repositorio técnico de red | Git | Sección 10.2 | Permite revisar o reconstruir la configuración sin credenciales | Parcial: `infra/` (desde el 2026-11-16) con las reglas planeadas (CSV generados), la red de la sede en Docker con su VPN, la detección, scripts de prueba y evidencias fechadas (sección 10.2); configuraciones de la sede pendientes |
 
 ## 1. Resumen ejecutivo de la implementación de red
 
@@ -44,10 +44,10 @@
 | DNS del dominio (NS, MX y CNAME) | **Implementado y verificado** | PR-11 |
 | Cabeceras de seguridad HTTP y versión de Nginx oculta | **Implementado y verificado** | PR-10, repetida después del endurecimiento del 2026-10-24 (sección 4.3) |
 | Protección del dominio (CAA, SPF, DMARC y DNSSEC) | **No conforme** | PR-12: acciones en la sección 4.3 |
-| OPNsense, VLAN, DMZ y Wi-Fi de la sede | Pendiente de ejecución | Procedimiento en la sección 4.2 |
-| VPN IPsec sede ↔ VPS | Pendiente de ejecución | Procedimiento en la sección 3 |
-| Suricata, Cowrie y Wazuh | Pendiente de ejecución | Procedimiento en la sección 6 |
-| Monitoreo con Uptime Kuma y Netdata | Pendiente de ejecución | Procedimiento en la sección 7.2 |
+| OPNsense, VLAN, DMZ y Wi-Fi de la sede | **Validado en el entorno virtual** (2026-11-17), salvo el aislamiento Wi-Fi; en la sede, pendiente de ejecución | PR-14 a PR-20, PR-22, PR-23, PR-34 y PR-42 conformes en SIMULACIÓN; PR-21 no simulable; procedimiento para la sede en la sección 4.2 |
+| VPN IPsec sede ↔ VPS | **Validada en el entorno virtual** (2026-11-17); en la sede, pendiente de ejecución | PR-24 a PR-29 y PR-35 conformes y REC-09 en 2 s, en SIMULACIÓN; procedimiento para la sede en la sección 3 |
+| Suricata, Cowrie y Wazuh | **Validados en el entorno virtual** (2026-11-17), con Loki y Grafana en el lugar de Wazuh; en la sede, pendiente de ejecución | PR-30, PR-31, PR-32 y PR-37 conformes en SIMULACIÓN; procedimiento para la sede en la sección 6 |
+| Monitoreo con Uptime Kuma y Netdata | Pendiente de ejecución | Procedimiento en la sección 7.2; PR-33 pendiente |
 
 **Hallazgos.** Las verificaciones del 2026-10-24 confirman que el cifrado en tránsito es correcto en todos los sitios: TLS 1.0 y 1.1 se rechazan y TLS 1.2 y 1.3 usan cifrados AEAD. También revelaron dos brechas reales: el sitio del colegio no enviaba cabeceras de seguridad y exponía la versión de Nginx, lo que se corrigió el mismo día (PR-10 conforme), y el dominio no publica CAA, SPF, DMARC ni DNSSEC. Se registraron 6 incidencias: 3 incidentes (INC-01, INC-02 e INC-06, cerrados el 2026-10-24), 1 falso positivo cerrado y 2 observaciones (INC-04, cerrada, e INC-05, abierta).
 
@@ -58,17 +58,19 @@
 | Elemento de S1-E1 | Implementación | Cambio respecto del diseño | Justificación |
 |---|---|---|---|
 | UFW-01 a UFW-05 (Security Group del VPS) | Implementado | Ninguno | — |
-| UFW-06 a UFW-10 (VPN, SSH solo por VPN y fail2ban) | Pendiente | El cierre de SSH a Internet espera a la validación de la VPN | Evitar quedar sin acceso; la consola del proveedor es el acceso de emergencia |
+| UFW-06 a UFW-10 (VPN, SSH solo por VPN y fail2ban) | Pendiente en el VPS real; el SSH solo por la VPN se validó en el entorno virtual (PR-28) | El cierre de SSH a Internet espera a la validación de la VPN | Evitar quedar sin acceso; la consola del proveedor es el acceso de emergencia |
 | NET-25 Nginx con TLS | Implementado | Cabeceras de seguridad y `server_tokens off` aplicadas el 2026-10-24; sitios `api-academia` y `analitica-academia` con HTTPS | Hallazgo PR-10 (cerrado) y capa de la academia en el VPS |
 | NET-28 DNS | Implementado | Se agregan CAA, SPF, DKIM y DMARC | Hallazgo PR-12 |
-| NET-04 OPNsense, VLAN y reglas FW-01 a FW-73 | Pendiente | Ninguno | Requiere el host (fase 2); se valida en Packet Tracer en la fase 1b (sección 8) |
-| NET-27 túnel IPsec | Pendiente | Ninguno | Requiere OPNsense |
-| NET-05, NET-14 y NET-17 (detección) | Pendiente | Ninguno | Requiere el host |
+| NET-04 OPNsense, VLAN y reglas FW-01 a FW-73 | Pendiente | Ninguno | Requiere el host (fase 2); validado en el entorno virtual el 2026-11-17 (sección 8) |
+| NET-27 túnel IPsec | Pendiente en la sede | Ninguno en la sede; en el entorno virtual se autenticó con una clave precompartida de un solo uso en lugar de certificados | Requiere OPNsense; validado en el entorno virtual el 2026-11-17 (PR-24 a PR-28 y PR-35) |
+| NET-05, NET-14 y NET-17 (detección) | Pendiente en la sede | Ninguno en la sede; en el entorno virtual, Loki y Grafana hacen de SIEM en lugar de Wazuh | Requiere el host; validado en el entorno virtual el 2026-11-17 (PR-30 a PR-32 y PR-37) |
 | NET-31 PC local | Retirada (2026-10-24) | La capa relacional pasó al VPS; la PC queda para pruebas de restauración | Servicio 24/7 sin depender de una PC encendida |
 
 ## 3. Implementación de la conectividad híbrida (VPN)
 
-**Estado: pendiente de ejecución.** Requiere VM-FW01 (OPNsense). Los parámetros son los de [S1-E1 §10](s1-e1-analisis-diseno-red-ce0311.md).
+**Resultado en el entorno virtual (2026-11-17).** El túnel IKEv2 entre SIM-R1 (sede) y SIM-NUBE (VPS) se estableció con AES_GCM_16-256/PRF_HMAC_SHA2_256/ECP_384, los algoritmos de este diseño, y anuncia solo 10.10.40.0/24 y 10.10.99.0/27 frente a 10.20.0.0/24. PR-24 a PR-28 y PR-35 conformes. Al caer WAN1 el túnel siguió por WAN2 (PR-29) y, cortado a propósito, se rearmó solo en 2 s (REC-09). Evidencia: `infra/logs/2026-11-17/red-vpn.txt` y `red-pruebas-simulacion.txt`. Lo que sigue es el procedimiento para la sede (fase 2).
+
+**Estado en la sede: pendiente de ejecución** (fase 2). Requiere VM-FW01 (OPNsense). Los parámetros son los de [S1-E1 §10](s1-e1-analisis-diseno-red-ce0311.md).
 
 **Paso 1. Red interna del VPS (`dum0`, equivalente a la subred privada).**
 
@@ -182,9 +184,11 @@ ping -c 3 10.20.0.1
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
-| IKE_SA establecida y CHILD_SA instalada con AES-GCM-256 y ECP-384; respuesta en ambos sentidos; redes no anunciadas sin ruta (PR-24 a PR-26) | Pendiente de ejecución | Salida de `swanctl --list-sas`, captura del estado IPsec en OPNsense, salidas de `ping` y `curl` y registro de las reglas FW-70 a FW-73 |
+| IKE_SA establecida y CHILD_SA instalada con AES-GCM-256 y ECP-384; respuesta en ambos sentidos; redes no anunciadas sin ruta (PR-24 a PR-26) | Entorno virtual (2026-11-17): conforme, PR-24 a PR-26 (`infra/logs/2026-11-17/red-vpn.txt`). Sede: pendiente de ejecución | En la sede: salida de `swanctl --list-sas`, captura del estado IPsec en OPNsense, salidas de `ping` y `curl` y registro de las reglas FW-70 a FW-73 |
 
 ## 4. Implementación de la seguridad perimetral
+
+**Resultado en el entorno virtual (2026-11-17).** Las reglas FW-01 a FW-73 corren en SIM-R1 con nftables, en el mismo orden y con un contador por regla (`infra/logs/2026-11-17/red-firewall-contadores.txt`). PR-14 a PR-20, PR-22, PR-23 y PR-34 conformes; PR-21 no se puede simular. La configuración se borró y se restauró desde su respaldo en 1 s (REC-12).
 
 ### 4.1 Implementado en la nube (VPS)
 
@@ -202,7 +206,7 @@ En la nube, el VPS cumple el papel de un servidor en DMZ: expone solo 80 y 443, 
 
 ### 4.2 Pendiente en la sede (OPNsense, switch y Wi-Fi)
 
-**Estado: pendiente de ejecución** (fase 2). En la fase 1b se valida en el entorno simulado de la sección 8; los pasos siguientes son los de OPNsense en la sede.
+**Estado en la sede: pendiente de ejecución** (fase 2). En la fase 1b se validó el 2026-11-17 en el entorno simulado de la sección 8; los pasos siguientes son los de OPNsense en la sede.
 
 1. **OPNsense (VM-FW01).** Instalar desde la imagen oficial en la VM 101 (sección 3 de S2-E3). Asignar WAN = vtnet0, WAN2 = vtnet1 y la troncal vtnet2 con las VLAN 10, 20, 30, 40, 50 y 99 (*Interfaces → Other Types → VLAN*), cada una con su dirección .1.
 2. **Servicios.** DHCP por VLAN con los rangos y reservas de S1-E1 §8.1; Unbound con listas de bloqueo para GUEST y ACAD; NTP en todas las interfaces internas.
@@ -215,7 +219,7 @@ En la nube, el VPS cumple el papel de un servidor en DMZ: expone solo 80 y 443, 
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
-| PR-14 a PR-23 y PR-34 conformes; reglas exportadas iguales a S1-E1 §13.5 | Pendiente de ejecución | Captura de las reglas por interfaz, `config.xml` sanitizado (sin hashes ni llaves), configuración exportada del switch y capturas de los SSID |
+| PR-14 a PR-23 y PR-34 conformes; reglas exportadas iguales a S1-E1 §13.5 | Entorno virtual (2026-11-17): PR-14 a PR-20, PR-22, PR-23 y PR-34 conformes; PR-21 no simulable (`infra/logs/2026-11-17/red-firewall-contadores.txt`). Sede: pendiente de ejecución | En la sede: captura de las reglas por interfaz, `config.xml` sanitizado (sin hashes ni llaves), configuración exportada del switch y capturas de los SSID |
 
 ### 4.3 Endurecimiento pendiente del VPS y del dominio (brechas reales)
 
@@ -267,13 +271,15 @@ sudo apt install fail2ban && sudo fail2ban-client status sshd
 
 ## 5. Pruebas de segmentación
 
-| Prueba de la guía | Caso | Resultado esperado | Resultado obtenido | Estado |
+Resultados del entorno virtual del 2026-11-17 (sección 8; evidencia en `infra/logs/2026-11-17/red-pruebas-simulacion.txt` y `red-firewall-contadores.txt`). En la sede se repiten en la fase 2.
+
+| Prueba de la guía | Caso | Resultado esperado | Resultado obtenido (SIMULACIÓN) | Estado |
 |---|---|---|---|---|
-| Internet → DMZ | PR-14 | Solo 22/tcp hacia el honeypot; ningún otro puerto | Pendiente de ejecución | Pendiente |
-| Internet → LAN | PR-15 | Todo filtrado, sin reenvíos | Pendiente de ejecución | Pendiente |
-| DMZ → DB | PR-16 | 10.10.50.10 → 10.10.40.10:3306 bloqueado y registrado por FW-41 | Pendiente de ejecución | Pendiente |
-| Usuarios → MGMT | PR-17 | Equipos ADMIN sin rol TI y ACAD → 10.10.99.10:8006 bloqueados y registrados | Pendiente de ejecución | Pendiente |
-| ADMIN → MGMT | PR-18 | ADMIN_TI → 10.10.99.10:8006 permitido | Pendiente de ejecución | Pendiente |
+| Internet → DMZ | PR-14 | Solo 22/tcp hacia el honeypot; ningún otro puerto | El SSH a la IP de WAN llegó al honeypot por el reenvío FW-60 (DNAT a 10.10.50.10:2222) | Conforme en el entorno virtual; en la sede, pendiente |
+| Internet → LAN | PR-15 | Todo filtrado, sin reenvíos | nmap a 9 puertos de la WAN: solo 22/tcp abierto (reenvío al honeypot); el resto, filtrado | Conforme en el entorno virtual; en la sede, pendiente |
+| DMZ → DB | PR-16 | 10.10.50.10 → 10.10.40.10:3306 bloqueado y registrado por FW-41 | El honeypot no llega a 10.10.40.10:3306; el bloqueo queda en el contador de FW-41 | Conforme en el entorno virtual; en la sede, pendiente |
+| Usuarios → MGMT | PR-17 | Equipos ADMIN sin rol TI y ACAD → 10.10.99.10:8006 bloqueados y registrados | El equipo ADMIN no llega a 10.10.99.10:8006 y el equipo ACAD no llega a 10.10.99.2:443 | Conforme en el entorno virtual; en la sede, pendiente |
+| ADMIN → MGMT | PR-18 | ADMIN_TI → 10.10.99.10:8006 permitido | ADMIN_TI llega al hipervisor (8006) y al switch por SSH | Conforme en el entorno virtual; en la sede, pendiente |
 
 **Equivalentes ya verificados en la nube.**
 
@@ -284,7 +290,7 @@ Los comandos de cada prueba están en el Anexo A.
 
 ## 6. IDS/IPS, honeypot y detección
 
-**Estado: pendiente de ejecución** (requiere VM-FW01, VM-HPOT01 y VM-SIEM01).
+**Estado en la sede: pendiente de ejecución** (requiere VM-FW01, VM-HPOT01 y VM-SIEM01). En el entorno virtual, la cadena de detección ya se validó el 2026-11-17 (sección 6.4).
 
 ### 6.1 Suricata en OPNsense
 
@@ -365,6 +371,8 @@ Lectura de Cowrie en el agente del honeypot y reglas locales en el servidor (`/v
 
 ### 6.4 Evidencia de punta a punta
 
+**Resultado en el entorno de validación (2026-11-17).** En Docker (sección 8) se probó la cadena completa: el tráfico de prueba llega a Suricata (firmas 2100498 y 2009582), Promtail lleva el registro a Loki y la regla de Grafana pasa a «Firing»; un inicio de sesión o una fuerza bruta contra el honeypot llega de Cowrie a Grafana del mismo modo. **PR-30, PR-31, PR-32 y PR-37 conformes.** Evidencia: `infra/logs/2026-11-17/`, con las capturas `deteccion-grafana-panel.jpg` y `deteccion-grafana-alertas-firing.jpg`. Lo que sigue describe el diseño completo con Wazuh para la sede (fase 2).
+
 | Paso | Evidencia esperada |
 |---|---|
 | 1. Generar el evento controlado (PR-30, PR-31 o PR-32) | Comando ejecutado con hora |
@@ -375,7 +383,7 @@ Lectura de Cowrie en el agente del honeypot y reglas locales en el servidor (`/v
 
 | Criterio de aceptación | Resultado obtenido | Evidencia a adjuntar |
 |---|---|---|
-| PR-30, PR-31, PR-32 y PR-37 conformes, con la cadena completa en menos de 1 minuto | Pendiente de ejecución | Capturas del panel de Wazuh, extracto de `eve.json` y de `cowrie.json` |
+| PR-30, PR-31, PR-32 y PR-37 conformes, con la cadena completa en menos de 1 minuto | Entorno virtual (2026-11-17): las 4 conformes, con Grafana en lugar de Wazuh; el tiempo de punta a punta no se midió. Sede: pendiente de ejecución | En la sede: capturas del panel de Wazuh, extracto de `eve.json` y de `cowrie.json` |
 
 ## 7. Monitoreo y visibilidad de red
 
@@ -427,18 +435,18 @@ Mientras no exista el host, Uptime Kuma puede correr de forma transitoria en la 
 
 | Parte del diseño | En el entorno de validación | Herramienta | Pruebas |
 |---|---|---|---|
-| Switch de la sede con las VLAN 10, 20, 30, 40, 50 y 99 | Switch con las mismas VLAN y troncal 802.1Q | Cisco Packet Tracer | PR-19 a PR-22 y PR-34 |
-| OPNsense: reglas FW-01 a FW-73, DMZ, NAT y DNS forzado | Router con una subinterfaz por VLAN, firewall por zonas o listas de acceso, NAT y DNS | Packet Tracer | PR-14 a PR-23, PR-34 y PR-42 |
-| Grupo de gateways WAN1 y WAN2 | Ruta estática flotante por un segundo enlace | Packet Tracer | PR-29 |
-| VPN IPsec entre la sede y el VPS (10.20.0.0/24) | IPsec sitio a sitio con un router que representa la nube | Packet Tracer | PR-24 a PR-28, PR-35 y REC-09 |
-| Respaldo de `config.xml` de OPNsense | Copia de la configuración del router y restauración en un equipo nuevo | Packet Tracer | REC-12 |
+| Switch de la sede con las VLAN 10, 20, 30, 40, 50 y 99 | Una red de Docker por VLAN, sin etiquetas 802.1Q: cada zona es un segmento separado | Docker | PR-17 a PR-22 y PR-34 |
+| OPNsense: reglas FW-01 a FW-73, DMZ, NAT y DNS forzado | SIM-R1: las mismas reglas con nftables y estado, NAT por WAN1 y WAN2, reenvío al honeypot y DNS con dnsmasq | Docker | PR-14 a PR-23, PR-34 y PR-42 |
+| Grupo de gateways WAN1 y WAN2 | Ruta por defecto por WAN1 (métrica 1) y flotante por WAN2 (métrica 10) | Docker | PR-29 |
+| VPN IPsec entre la sede y el VPS (10.20.0.0/24) | strongSwan IKEv2 en SIM-R1 y SIM-NUBE con AES-256-GCM, PRF SHA-256 y ECP-384, como el diseño; MOBIKE para pasar de una WAN a otra | Docker | PR-24 a PR-28, PR-35 y REC-09 |
+| Respaldo de `config.xml` de OPNsense | Respaldo de las reglas con `nft list ruleset` y restauración con `nft -f` | Docker | REC-12 |
 | Suricata (IDS/IPS) | Suricata en un contenedor que comparte la red del honeypot y de un cliente de prueba | Docker | PR-30 y PR-31 |
 | Cowrie (VM-HPOT01) | Cowrie en un contenedor | Docker | PR-14 (sesión SSH), PR-32 y PR-37 |
 | Wazuh (SIEM) | Loki y Grafana con los registros JSON de Suricata y Cowrie, y reglas de alerta | Docker | PR-30 a PR-32 y PR-37 |
 | Uptime Kuma (VM-MON01) | Uptime Kuma de `infra/cd/monitoreo/` | Docker | PR-33 |
 | Enlace de la sede a la nube | Medición real desde la sede o, mientras tanto, desde la PC del equipo | `ping`, `pathping` y `curl` | PR-40 y PR-41 |
 
-Packet Tracer no tiene `nmap` y no ofrece todos los algoritmos del diseño (IKEv2 con AES-GCM-256). Por eso los casos de permitido y denegado se prueban con ping, SSH, Telnet y HTTP desde sus equipos, junto con los contadores de las reglas; los escaneos se hacen con `nmap` en Docker, y la VPN usa el cifrado más cercano disponible, con la diferencia declarada. Una prueba que la herramienta no pueda reproducir se marca **No simulable**, con su justificación, y no cuenta como conforme. El hipervisor y la recuperación de VM se validan en Hyper-V ([S2-E3, sección 3.3](s2-e3-implementacion-control-cd-ce0332-ce0333.md)).
+**Cómo se ejecutó.** La red de la sede corre en Docker (carpeta `infra/red/docker/` del repositorio de la plataforma): 18 equipos y 10 redes; `red.sh` la levanta y corre las pruebas. Se usó en lugar de Packet Tracer porque reproduce casi todo el diseño: firewall con estado, IKEv2 con los algoritmos del diseño, NAT en las dos WAN y pruebas automáticas con `nmap`, `curl` y `nc`. La guía de Packet Tracer de `infra/red/packet-tracer/` queda como alternativa. **Diferencias con el diseño:** las VLAN son redes separadas, sin etiquetas 802.1Q; la VPN se autentica con una clave precompartida de un solo uso en lugar de certificados; el aislamiento de clientes del AP no se reproduce (PR-21, «No simulable»). Una prueba que el entorno no pueda reproducir se marca **No simulable**, con su justificación, y no cuenta como conforme. El hipervisor y la recuperación de VM se validan en Hyper-V ([S2-E3, sección 3.3](s2-e3-implementacion-control-cd-ce0332-ce0333.md)).
 
 | ID | Caso | Objetivo | Procedimiento o comando | Resultado esperado | Resultado obtenido | Estado | Evidencia |
 |---|---|---|---|---|---|---|---|
@@ -455,37 +463,37 @@ Packet Tracer no tiene `nmap` y no ofrece todos los algoritmos del diseño (IKEv
 | PR-11 | Registros DNS | Delegación y registros esperados | nslookup -type=NS \| MX \| CNAME | NS de RCP; MX de Google; www → dominio | NS.RCP.NET.pe y NS2.RCP.NET.pe; 5 registros MX de Google; www CNAME al dominio (2026-10-24) | Conforme | Anexo B de S2-E2 |
 | PR-12 | Protección del dominio | CAA, SPF, DMARC y DNSSEC | Consultas DNS sobre HTTPS (tipos CAA, TXT, DS) | Registros presentes | Sin CAA, sin SPF, sin DMARC y sin DNSSEC (2026-10-24; repetida el 2026-11-16 con el mismo resultado) | No conforme | Anexo B de S2-E2; infra/logs/2026-11-16/pr-12.txt; acciones en R-11 y R-14 |
 | PR-13 | HTTPS de la plataforma de la academia (PaaS) | Redirección, HSTS y TLS | curl -sI http://… y https://…; openssl s_client | Redirección a HTTPS, HSTS y TLS ≥ 1.2 | 308 a HTTPS; HSTS max-age=63072000; includeSubDomains; preload; 1.0 y 1.1 sin negociación; 1.2 y 1.3 aceptados; certificado *.vercel.app vigente hasta 2026-11-27 (renovación gestionada por Vercel) | Conforme | Anexo B de S2-E2 |
-| PR-14 | Internet → DMZ (PC-01) | Validar FW-60, FW-61 | ssh; nmap -Pn -p 22 — origen: Equipo externo (datos móviles); destino: IP de WAN, 22/tcp (honeypot) | Sesión simulada de Cowrie y alerta en Wazuh; ningún otro puerto abierto | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-15 | Internet → LAN (PC-02) | Validar FW-61 | nmap -Pn -sS --top-ports 1000 — origen: Equipo externo; destino: IP de WAN, 1000 puertos más comunes | Solo responde 22/tcp (honeypot); el resto filtrado | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-16 | DMZ → DB (PC-03) | Validar FW-41 | nc -vz -w 3 — origen: VM-HPOT01 (10.10.50.10); destino: 10.10.40.10:3306 | Bloqueado y registrado por el firewall | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-17 | Usuarios → MGMT (PC-04) | Validar FW-12, FW-23 | curl -k -m 5; nc -vz — origen: Equipo ADMIN (10.10.10.150) y equipo ACAD (10.10.20.120); destino: 10.10.99.10:8006 y 10.10.99.2:443 | Bloqueado y registrado | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-18 | ADMIN → MGMT (PC-05) | Validar FW-20 | Navegador; curl -k — origen: ADMIN_TI (10.10.10.10); destino: 10.10.99.10:8006 | Permitido (interfaz de Proxmox) | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-19 | Invitados → redes internas (PC-06) | Validar FW-02 | ping; nmap -sn — origen: Cliente GUEST; destino: 10.10.10.0/24, 10.10.40.0/24 y 10.10.99.0/27 | Sin respuesta; bloqueos registrados | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-20 | Invitados → Internet (PC-07) | Validar FW-01, FW-03 | Navegador; curl -I — origen: Cliente GUEST; destino: https://academia-school-platform.vercel.app | Permitido; DNS resuelto por el firewall | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-21 | Aislamiento de clientes Wi-Fi (PC-08) | Validar Configuración del AP | ping — origen: Cliente GUEST A; destino: Cliente GUEST B | Sin respuesta (aislamiento en el AP) | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-22 | ACAD → impresora y ADMIN (PC-09) | Validar FW-11, FW-12 | nc -vz — origen: Equipo ACAD; destino: 10.10.10.20:9100 y 10.10.10.150 | Impresora permitida; equipo ADMIN bloqueado | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-23 | SRV → Internet (PC-10) | Validar FW-30, FW-34 | curl -I; nc -vz — origen: VM-APP01; destino: APIs de Google 443/tcp; servidor SMTP 25/tcp | 443 permitido; 25 bloqueado | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-24 | Establecimiento del túnel (PC-11) | Validar Diseño VPN | swanctl --list-sas; estado IPsec en OPNsense — origen: OPNsense ↔ VPS; destino: IKEv2 | IKE_SA ESTABLISHED y CHILD_SA INSTALLED con AES_GCM_16_256 y ECP_384 | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-25 | VPN bidireccional (PC-12) | Validar FW-54, FW-70 | ssh; curl — origen: Bastión ↔ VPS; destino: 10.20.0.1:22; desde el VPS, 10.10.40.10:3001/health | Ambos sentidos responden dentro del túnel | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-26 | Selectores de tráfico (PC-13) | Validar Diseño VPN | ping; nc -vz — origen: VPS 10.20.0.1; destino: 10.10.10.0/24 y 10.10.20.0/24 | Sin ruta por el túnel (redes no anunciadas) | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-27 | Publicación de la API por el VPS (PC-14) | Validar Nginx (proxy) | curl -I — origen: Internet; destino: https://api-academia…/health y otra ruta | /health responde 200 a través del túnel; otras rutas 404 | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-28 | SSH del VPS tras el endurecimiento (PC-15) | Validar UFW-08, UFW-09 | nc -vz; ssh — origen: Internet y bastión; destino: IP pública del VPS:22 y 10.20.0.1:22 | Bloqueado desde Internet; permitido desde el bastión | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-29 | Conmutación de enlaces (PC-16) | Validar Grupo de gateways | ping continuo; desconectar WAN1 — origen: Equipo ADMIN; destino: Internet | Recuperación en ≤ 60 s por WAN2; el túnel se restablece | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-30 | Detección IDS con firma de prueba (PC-17) | Validar Suricata | curl — origen: Equipo ACAD; destino: http://testmynids.org/uid/index.html | Alerta de Suricata SID 2100498 visible en Wazuh | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-31 | Detección de escaneo (PC-18) | Validar Suricata | nmap -sS -T4 — origen: Cliente GUEST; destino: 10.10.30.1 (firewall) | Alertas ET SCAN en Suricata y en Wazuh | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-32 | Inicio de sesión en el honeypot (PC-19) | Validar Cowrie y Wazuh | ssh root@<IP de WAN> — origen: Equipo externo; destino: Honeypot Cowrie | Evento cowrie.login en Wazuh con regla local de nivel ≥ 10 | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
+| PR-14 | Internet → DMZ (PC-01) | Validar FW-60, FW-61 | ssh; nmap -Pn -p 22 — origen: Equipo externo (datos móviles); destino: IP de WAN, 22/tcp (honeypot) | Sesión simulada de Cowrie y alerta en Wazuh; ningún otro puerto abierto | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el SSH a la IP de WAN llegó al honeypot por el reenvío FW-60 (DNAT a 10.10.50.10:2222) | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-15 | Internet → LAN (PC-02) | Validar FW-61 | nmap -Pn -sS --top-ports 1000 — origen: Equipo externo; destino: IP de WAN, 1000 puertos más comunes | Solo responde 22/tcp (honeypot); el resto filtrado | SIMULACIÓN (red de la sede en Docker, 2026-11-17): nmap a 9 puertos de la WAN: solo 22/tcp abierto (reenvío al honeypot); el resto, filtrado | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-16 | DMZ → DB (PC-03) | Validar FW-41 | nc -vz -w 3 — origen: VM-HPOT01 (10.10.50.10); destino: 10.10.40.10:3306 | Bloqueado y registrado por el firewall | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el honeypot no llega a 10.10.40.10:3306 (FW-41, con su contador en el firewall) | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-17 | Usuarios → MGMT (PC-04) | Validar FW-12, FW-23 | curl -k -m 5; nc -vz — origen: Equipo ADMIN (10.10.10.150) y equipo ACAD (10.10.20.120); destino: 10.10.99.10:8006 y 10.10.99.2:443 | Bloqueado y registrado | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el equipo ADMIN no llega a 10.10.99.10:8006 y el equipo ACAD no llega a 10.10.99.2:443 | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-18 | ADMIN → MGMT (PC-05) | Validar FW-20 | Navegador; curl -k — origen: ADMIN_TI (10.10.10.10); destino: 10.10.99.10:8006 | Permitido (interfaz de Proxmox) | SIMULACIÓN (red de la sede en Docker, 2026-11-17): ADMIN_TI llega al hipervisor (8006) y al switch por SSH | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-19 | Invitados → redes internas (PC-06) | Validar FW-02 | ping; nmap -sn — origen: Cliente GUEST; destino: 10.10.10.0/24, 10.10.40.0/24 y 10.10.99.0/27 | Sin respuesta; bloqueos registrados | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el invitado no recibe respuesta de ADMIN, SRV ni MGMT | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-20 | Invitados → Internet (PC-07) | Validar FW-01, FW-03 | Navegador; curl -I — origen: Cliente GUEST; destino: https://academia-school-platform.vercel.app | Permitido; DNS resuelto por el firewall | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el DNS del firewall resuelve plataforma.sim y el invitado navega a la plataforma simulada | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-21 | Aislamiento de clientes Wi-Fi (PC-08) | Validar Configuración del AP | ping — origen: Cliente GUEST A; destino: Cliente GUEST B | Sin respuesta (aislamiento en el AP) | No simulable en Docker: los equipos de una misma red se ven entre sí; el aislamiento lo hace el AP en la sede (fase 2) | Pendiente | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
+| PR-22 | ACAD → impresora y ADMIN (PC-09) | Validar FW-11, FW-12 | nc -vz — origen: Equipo ACAD; destino: 10.10.10.20:9100 y 10.10.10.150 | Impresora permitida; equipo ADMIN bloqueado | SIMULACIÓN (red de la sede en Docker, 2026-11-17): ACAD llega a la impresora 10.10.10.20:9100 y no llega al equipo ADMIN | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-23 | SRV → Internet (PC-10) | Validar FW-30, FW-34 | curl -I; nc -vz — origen: VM-APP01; destino: APIs de Google 443/tcp; servidor SMTP 25/tcp | 443 permitido; 25 bloqueado | SIMULACIÓN (red de la sede en Docker, 2026-11-17): VM-APP01 sale por 443 y el SMTP 25 queda bloqueado | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-24 | Establecimiento del túnel (PC-11) | Validar Diseño VPN | swanctl --list-sas; estado IPsec en OPNsense — origen: OPNsense ↔ VPS; destino: IKEv2 | IKE_SA ESTABLISHED y CHILD_SA INSTALLED con AES_GCM_16_256 y ECP_384 | SIMULACIÓN (red de la sede en Docker, 2026-11-17): IKE_SA ESTABLISHED y CHILD_SA INSTALLED con AES_GCM_16-256/PRF_HMAC_SHA2_256/ECP_384, los algoritmos del diseño (strongSwan 5.9.13) | Conforme | infra/logs/2026-11-17/red-vpn.txt |
+| PR-25 | VPN bidireccional (PC-12) | Validar FW-54, FW-70 | ssh; curl — origen: Bastión ↔ VPS; destino: 10.20.0.1:22; desde el VPS, 10.10.40.10:3001/health | Ambos sentidos responden dentro del túnel | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el bastión llega al VPS (10.20.0.1:22) y el VPS llega a VM-APP01:3001, los dos por el túnel | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-26 | Selectores de tráfico (PC-13) | Validar Diseño VPN | ping; nc -vz — origen: VPS 10.20.0.1; destino: 10.10.10.0/24 y 10.10.20.0/24 | Sin ruta por el túnel (redes no anunciadas) | SIMULACIÓN (red de la sede en Docker, 2026-11-17): desde el VPS, 10.10.10.10 y 10.10.20.120 no responden: no están en los selectores del túnel | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
+| PR-27 | Publicación de la API por el VPS (PC-14) | Validar Nginx (proxy) | curl -I — origen: Internet; destino: https://api-academia…/health y otra ruta | /health responde 200 a través del túnel; otras rutas 404 | SIMULACIÓN (red de la sede en Docker, 2026-11-17): /health del VPS responde 200 a través del túnel y otra ruta responde 404 | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
+| PR-28 | SSH del VPS tras el endurecimiento (PC-15) | Validar UFW-08, UFW-09 | nc -vz; ssh — origen: Internet y bastión; destino: IP pública del VPS:22 y 10.20.0.1:22 | Bloqueado desde Internet; permitido desde el bastión | SIMULACIÓN (red de la sede en Docker, 2026-11-17): SSH al VPS bloqueado desde Internet y permitido desde el bastión por el túnel | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
+| PR-29 | Conmutación de enlaces (PC-16) | Validar Grupo de gateways | ping continuo; desconectar WAN1 — origen: Equipo ADMIN; destino: Internet | Recuperación en ≤ 60 s por WAN2; el túnel se restablece | SIMULACIÓN (red de la sede en Docker, 2026-11-17): con WAN1 apagado, 40 de 40 solicitudes web correctas por WAN2, y el túnel siguió por WAN2 (MOBIKE) | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
+| PR-30 | Detección IDS con firma de prueba (PC-17) | Validar Suricata | curl — origen: Equipo ACAD; destino: http://testmynids.org/uid/index.html | Alerta de Suricata SID 2100498 visible en Wazuh | SIMULACIÓN (Docker, 2026-11-17): Suricata registró la firma 2100498 cuando sim-cliente descargó el texto de prueba del equipo externo simulado; la regla de Grafana «Suricata detectó tráfico malicioso» pasó a Firing. testmynids.org ya no publica el texto (dominio estacionado), por eso lo sirve sim-atacante | Conforme | infra/logs/2026-11-17/pr-30-simulacion.txt; deteccion-grafana-panel.jpg y deteccion-grafana-alertas-firing.jpg |
+| PR-31 | Detección de escaneo (PC-18) | Validar Suricata | nmap -sS -T4 — origen: Cliente GUEST; destino: 10.10.30.1 (firewall) | Alertas ET SCAN en Suricata y en Wazuh | SIMULACIÓN (Docker, 2026-11-17): nmap -sS -T4 desde sim-atacante (10.10.50.200) generó la alerta ET SCAN NMAP -sS window 1024 (2009582, activada con enable.conf porque ET Open la trae apagada); regla de Grafana en Firing | Conforme | infra/logs/2026-11-17/pr-31-simulacion.txt; capturas de Grafana |
+| PR-32 | Inicio de sesión en el honeypot (PC-19) | Validar Cowrie y Wazuh | ssh root@<IP de WAN> — origen: Equipo externo; destino: Honeypot Cowrie | Evento cowrie.login en Wazuh con regla local de nivel ≥ 10 | SIMULACIÓN (Docker, 2026-11-17): Cowrie registró cowrie.login.success y los comandos uname -a e id desde 10.10.50.200; la regla de Grafana «Inicio de sesión en el honeypot» pasó a Firing | Conforme | infra/logs/2026-11-17/pr-32-simulacion.txt; capturas de Grafana |
 | PR-33 | Caída de la API (PC-20) | Validar Uptime Kuma | pm2 stop cermat-api — origen: VM-APP01; destino: Uptime Kuma | Alerta en ≤ 2 min y recuperación registrada | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-34 | DNS forzado en invitados (PC-21) | Validar FW-01, FW-04 | nslookup — origen: Cliente GUEST; destino: 8.8.8.8:53 | Bloqueado; solo resuelve el firewall | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
-| PR-35 | MTU por el túnel (PC-22) | Validar Diseño VPN | sftp; ping -M do -s 1332 — origen: VM-BKP01 → VPS; destino: Transferencia SFTP de 100 MB | Sin fragmentación ni cortes (MSS 1360) | Pendiente de ejecución | Pendiente | A adjuntar: salida del comando, registro del firewall o alerta del SIEM con fecha |
+| PR-34 | DNS forzado en invitados (PC-21) | Validar FW-01, FW-04 | nslookup — origen: Cliente GUEST; destino: 8.8.8.8:53 | Bloqueado; solo resuelve el firewall | SIMULACIÓN (red de la sede en Docker, 2026-11-17): el invitado no resuelve con 8.8.8.8; solo con el DNS del firewall | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt; red-firewall-contadores.txt |
+| PR-35 | MTU por el túnel (PC-22) | Validar Diseño VPN | sftp; ping -M do -s 1332 — origen: VM-BKP01 → VPS; destino: Transferencia SFTP de 100 MB | Sin fragmentación ni cortes (MSS 1360) | SIMULACIÓN (red de la sede en Docker, 2026-11-17): 20 MB de VM-BKP01 al VPS por el túnel en 1 s, sin cortes, con MSS 1360 | Conforme | infra/logs/2026-11-17/red-pruebas-simulacion.txt |
 | PR-36 | Base de datos de la nube no alcanzable desde Internet | Confirmar desde afuera lo verificado en PR-02 | nc -vz -w 3 <IP pública del VPS> 5432 (desde la sede o datos móviles) | Tiempo agotado o rechazo | Pendiente de ejecución | Pendiente | A adjuntar: salida de nc con fecha |
-| PR-37 | Fuerza bruta SSH detectada en el VPS | Detección de ataques reales sobre el servicio expuesto | Agente Wazuh en el VPS; revisar alertas de sshd (reglas 5710, 5712, 5716 y 5720) | Alertas con IP de origen y conteo | Pendiente de ejecución | Pendiente | A adjuntar: captura del panel de Wazuh |
+| PR-37 | Fuerza bruta SSH detectada en el VPS | Detección de ataques reales sobre el servicio expuesto | Agente Wazuh en el VPS; revisar alertas de sshd (reglas 5710, 5712, 5716 y 5720) | Alertas con IP de origen y conteo | SIMULACIÓN (Docker, 2026-11-17): 8 intentos de SSH desde 10.10.50.200 contra el honeypot; Cowrie los registró con la IP de origen y la regla de Grafana «Fuerza bruta SSH» (5 o más en 5 min) pasó a Firing. En el VPS real se hará solo con la autorización del colegio | Conforme | infra/logs/2026-11-17/pr-37-simulacion.txt; capturas de Grafana |
 | PR-38 | HTTPS de los subdominios de la academia en el VPS | Cifrado y disponibilidad de la API y la analítica | `curl -sI http://…`; `curl -s https://api-academia…/health` y `https://analitica-academia…/health`; `certbot renew --dry-run` | 301 a HTTPS; `/health` con MySQL conectado; certificado vigente | 301 en ambos; `"status":"ok"` con MySQL conectado; certificado de Let's Encrypt para los dos subdominios, vence el 2027-01-23; renovación simulada correcta (2026-10-24) | Conforme | Manual de despliegue §9.5 |
 | PR-39 | Exposición de la capa de la academia | Solo Nginx atiende desde afuera y nada responde sin sesión | `ss -lntp` en el VPS; `curl` sin token; `OPTIONS` con un `Origin` ajeno | 3001, 8000 y 3306 solo en 127.0.0.1; 401 sin sesión; CORS solo para el origen de la academia | 3001 y 8000 solo en 127.0.0.1 y MySQL con `bind-address` 127.0.0.1; API 401 en `/api/sync/payment` y analítica 401 sin sesión; origen de Vercel permitido y origen ajeno rechazado (2026-10-24) | Conforme | Manual de despliegue §9.1, §9.4 y §9.5 |
-| PR-40 | Latencia y pérdida de paquetes hacia la nube | Validar SUP-04 y la calidad del enlace (CE0313) | `ping -n 100` y `pathping` (o `mtr`) hacia el VPS y hacia la plataforma en Vercel, desde la red de la sede o, mientras tanto, desde la PC del equipo; si el VPS no responde ICMP, `curl -w "%{time_connect}"` | Pérdida < 1 %; latencia media al VPS entre 90 y 150 ms (SUP-04) | Pendiente de ejecución | Pendiente | A adjuntar: salida con fecha, lugar de la medición, promedio, mínimo, máximo y pérdida |
-| PR-41 | Throughput del enlace principal | Validar SUP-02 (CE0313) | Prueba de velocidad y descarga de un archivo de la plataforma con `curl -w "%{speed_download}"`, 5 repeticiones, desde la red de la sede | Bajada ≥ 50 Mb/s (SUP-02); subida medida | Pendiente de ejecución | Pendiente | A adjuntar: salidas con fecha y promedio |
-| PR-42 | Tabla de enrutamiento de la sede | Validar el direccionamiento y el enrutamiento del diseño (CE0312) | `show ip route` y `show ip interface brief` en el router del entorno simulado | Redes conectadas de las 6 VLAN, ruta por defecto por WAN1 y ruta flotante por WAN2; el tráfico a 10.20.0.0/24 sale cifrado por el túnel (PR-24) | Pendiente de ejecución | Pendiente | A adjuntar: salida de los comandos y archivo .pkt |
+| PR-40 | Latencia y pérdida de paquetes hacia la nube | Validar SUP-04 y la calidad del enlace (CE0313) | ping -n 100 y pathping (o mtr) hacia el VPS y hacia la plataforma en Vercel, desde la red de la sede o, mientras tanto, desde la PC del equipo; si el VPS no responde ICMP, curl -w "%{time_connect}" | Pérdida < 1 %; latencia media al VPS entre 90 y 150 ms (SUP-04) | Desde la PC del equipo (2026-11-17), no desde la sede: ping al VPS con media de 123 ms (mín 119, máx 152) y 0 % de pérdida, dentro de SUP-04; a Vercel, 30 ms y 0 %. Repetir en la sede | Conforme | infra/logs/2026-11-17/pr-40.txt |
+| PR-41 | Throughput del enlace principal | Validar SUP-02 (CE0313) | Prueba de velocidad y descarga de un archivo de la plataforma con curl -w "%{speed_download}", 5 repeticiones, desde la red de la sede | Bajada ≥ 50 Mb/s (SUP-02); subida medida | Referencia desde la PC del equipo (2026-11-17), no desde la sede: 18,3 Mb/s de promedio (9,0 a 24,9) en 5 descargas de 18,3 MB. Falta medir en la red de la sede y la subida | Pendiente | infra/logs/2026-11-17/pr-41.txt |
+| PR-42 | Tabla de enrutamiento de la sede | Validar el direccionamiento y el enrutamiento del diseño (CE0312) | ip route en el firewall del entorno virtual (S2-E2 §8) | Redes conectadas de las 6 VLAN, ruta por defecto por WAN1 y ruta flotante por WAN2; el tráfico a 10.20.0.0/24 sale cifrado por el túnel (PR-24) | SIMULACIÓN (red de la sede en Docker, 2026-11-17): redes de las 6 VLAN conectadas, ruta por defecto por WAN1 (métrica 1) y flotante por WAN2 (métrica 10) | Conforme | infra/logs/2026-11-17/red-rutas.txt |
 
-**Resumen:** 42 casos. 14 conformes y 1 no conforme con resultado real (PR-01 a PR-13, PR-38 y PR-39); 27 pendientes de ejecución: PR-14 a PR-35, PR-37 y PR-42 en el entorno simulado, y PR-36, PR-40 y PR-41 sobre la red real. Incluye pruebas positivas (permitido), negativas (denegado), de detección y de rendimiento.
+**Resumen:** 42 casos. 37 conformes y 1 no conforme (PR-12). Sobre la red real: PR-01 a PR-11, PR-13, PR-38 y PR-39. En el entorno virtual (2026-11-17): PR-14 a PR-20, PR-22 a PR-32, PR-34, PR-35, PR-37 y PR-42. Desde la PC del equipo: PR-40. 4 pendientes: PR-21 (no simulable; se prueba en la sede), PR-33 (Uptime Kuma), PR-36 (requiere la autorización firmada) y PR-41 (velocidad medida en la sede). Incluye pruebas positivas (permitido), negativas (denegado), de detección y de rendimiento.
 
 ## 9. Incidencias detectadas
 
@@ -519,32 +527,33 @@ Packet Tracer no tiene `nmap` y no ofrece todos los algoritmos del diseño (IKEv
 | EV-03 | Captura de `ufw status verbose` | Respaldo visual de PR-01 | A adjuntar | — |
 | EV-04 | Captura de `ss -tlnp` | Respaldo visual de PR-02 | A adjuntar | — |
 | EV-05 | Captura de `certbot renew --dry-run` | Respaldo visual de PR-08 | A adjuntar | — |
-| EV-06 | Configuración sanitizada de Nginx | Revisar los bloqueos y el TLS | A adjuntar | `infra/red/vps/` |
-| EV-07 | `swanctl.conf` aplicado | Reconstruir la VPN | Plantilla en la sección 3; pendiente de aplicar | `infra/red/vps/` |
-| EV-08 | `config.xml` de OPNsense sanitizado y reglas exportadas | Reconstruir el perímetro | Pendiente | `infra/red/opnsense/` |
-| EV-09 | Alertas de Suricata, Cowrie y Wazuh | Demostrar la detección | Pendiente | `infra/logs/` |
+| EV-06 | Configuración sanitizada de Nginx | Revisar los bloqueos y el TLS | Versionada: sitios de la academia y fragmento de cabeceras de seguridad | `infra/cd/nube/nginx/` |
+| EV-07 | `swanctl.conf` aplicado | Reconstruir la VPN | Aplicado en el entorno virtual (la clave precompartida se pasa por variable, nunca en Git); en el VPS, pendiente | `infra/red/docker/scripts/nube.sh` y `r1.sh`; plantilla de la sede en la sección 3 |
+| EV-08 | `config.xml` de OPNsense sanitizado y reglas exportadas | Reconstruir el perímetro | En la sede, pendiente. Equivalente del entorno virtual: reglas FW-01 a FW-73 en nftables y su respaldo | `infra/red/reglas-opnsense-planeadas.csv`, `infra/red/docker/scripts/r1.sh` e `infra/logs/2026-11-17/rec-12-firewall-respaldo.nft` |
+| EV-09 | Alertas de Suricata, Cowrie y Wazuh | Demostrar la detección | Del entorno virtual: real (Suricata, Cowrie y Grafana); de Wazuh en la sede, pendiente | `infra/logs/2026-11-17/` (pr-30 a pr-37 y las 2 capturas de Grafana) |
 | EV-10 | Página de estado de Uptime Kuma | Demostrar el monitoreo | Pendiente | `infra/logs/` |
 | EV-11 | Manual de despliegue de la academia (2026-10-24) | Fuente de PR-38, PR-39 y de la repetición de PR-10 | Real; en el repositorio privado de la plataforma | `deploy/MANUAL-DESPLIEGUE-CERMAT.md` |
 | EV-12 | 18 capturas del 2026-10-24, con los datos personales tapados | Respaldo visual de PR-38 y PR-39 (capturas 13 a 18) y del cierre en producción | Real | [Evidencias del despliegue](evidencias-despliegue-2026-10-24.md) |
 
 ### 10.2 Repositorio técnico de red
 
-Estructura propuesta, solo con configuraciones sanitizadas (sin hashes, llaves, contraseñas ni IP públicas):
+Estructura de `infra/` en el repositorio de la plataforma, solo con configuraciones sanitizadas (sin hashes, llaves, contraseñas ni IP públicas):
 
 ```text
 infra/
 ├── README.md        # orden de despliegue, cómo reconstruir y qué no se versiona
-├── diagramas/       # copia de los .drawio de docs/assets/infraestructura/diagramas
+├── diagramas/       # enlaces a los .drawio de docs/assets/infraestructura/diagramas
 ├── red/
-│   ├── opnsense/    # config.xml sanitizado y reglas exportadas
-│   ├── switch/      # configuración exportada (VLAN, LAG, puertos)
-│   └── vps/         # sede.conf (swanctl), reglas UFW y bloques de Nginx
-├── cd/              # ver S2-E3
-├── scripts/         # verificación (curl, openssl, nc) y respaldos
+│   ├── reglas-opnsense-planeadas.csv   # FW-01 a FW-73, generadas desde el diseño
+│   ├── reglas-ufw-vps.csv              # UFW-01 a UFW-10
+│   ├── docker/          # red de la sede simulada: firewall, DMZ, 2 WAN y VPN (red.sh)
+│   └── packet-tracer/   # alternativa en Packet Tracer
+├── cd/              # ver S2-E3 (incluye la detección en cd/deteccion/)
+├── scripts/         # verificación: DNS, puertos, enlace, versión del frontend y salud
 └── logs/            # salidas de pruebas con fecha, sin datos personales
 ```
 
-**Estado actual:** ya están versionados `firestore.rules` con sus pruebas, `.github/workflows/ci.yml`, los scripts de base de datos (`server/src/db/*.sql`) y de respaldo (`server/scripts/*.js`); y, en el repositorio de esta documentación, los diagramas, las matrices y el script que las genera. **Pendiente:** crear `infra/` con las configuraciones a medida que se implementen. Topics del repositorio según el estándar de la escuela: `campus-juliaca`, `semestre-2026-2`, `linea-infraestructura`, `tipo-epe`, `seccion-g1` y `grupo-<n>-<nombre>`.
+**Estado actual:** además de `firestore.rules` con sus pruebas, `.github/workflows/ci.yml`, los scripts de base de datos (`server/src/db/*.sql`) y de respaldo (`server/scripts/*.js`) y, en el repositorio de esta documentación, los diagramas, las matrices y el script que las genera, `infra/` ya contiene la red del entorno virtual, la detección y sus evidencias del 2026-11-17. **Pendiente:** `red/opnsense/`, `red/switch/` y `red/vps/` con las configuraciones reales, a medida que se implementen en la sede y en el VPS. Topics del repositorio según el estándar de la escuela: `campus-juliaca`, `semestre-2026-2`, `linea-infraestructura`, `tipo-epe`, `seccion-g1` y `grupo-<n>-<nombre>`.
 
 ## 11. Conclusiones, limitaciones, mejoras futuras y referencias
 
@@ -552,11 +561,12 @@ infra/
 
 1. El perímetro implementado en la nube cumple el diseño: entrada denegada por defecto, base de datos no expuesta, TLS 1.2/1.3 con AEAD y redirección a HTTPS en todos los sitios, verificados con evidencia reproducible.
 2. Las pruebas encontraron dos brechas reales (cabeceras HTTP y registros DNS de seguridad), con acción definida y criterio de cierre. La de cabeceras se cerró el mismo día (PR-10 conforme); la de DNS requiere el visto bueno del colegio.
-3. La VPN, el perímetro de la sede y la detección tienen procedimiento, configuración sin secretos y criterio de aceptación, listos para ejecutarse en cuanto exista la plataforma on-premise.
+3. La VPN, el perímetro de la sede y la detección ya se validaron en un entorno virtual el 2026-11-17 (sección 8), con los algoritmos y las reglas del diseño. Para la sede tienen procedimiento, configuración sin secretos y criterio de aceptación, listos para ejecutarse en cuanto exista la plataforma on-premise.
+4. El monitoreo con alertas (Uptime Kuma y Netdata) sigue abierto: PR-33 está pendiente y con él la no conformidad NC-05.
 
 ### 11.2 Limitaciones
 
-- La sede no tiene todavía el hardware del diseño: PR-14 a PR-35 se validan en un entorno simulado (sección 8), que comprueba el diseño pero no reemplaza la prueba en la sede.
+- La sede no tiene todavía el hardware del diseño: sus pruebas se validaron en un entorno simulado (sección 8), que comprueba el diseño pero no reemplaza la prueba en la sede.
 - La verificación externa se limitó a consultas no intrusivas: no se escanearon puertos del VPS sin una autorización escrita.
 - PR-01, PR-02 y PR-08 se basan en el manual del propietario; falta adjuntar las capturas.
 

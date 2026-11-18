@@ -331,6 +331,25 @@ flowchart TB
 | 4. Medición TO-BE de personal | Cronometrar 10 trámites en el panel (registro rápido, revisión, pago, aprobación y creación del acceso) | Campaña 2027 | Promedio ≤ 12 min (OBJ-2) | Hojas de cronometraje |
 | 5. Actualización del modelo | Reemplazar los supuestos S12 y S13 del libro por los valores medidos y recalcular | Antes del 2027-03-31 | Libro recalculado para el hito de continuidad | `business-case.xlsx` actualizado |
 
+## 4.4 Plan de cambio organizacional
+
+El TO-BE solo rinde si el personal lo adopta, y la causa raíz del [E1](e1-diagnostico-organizacional-ce0111.md) es justamente la falta de una decisión institucional de uso. El plan sigue las cinco etapas del modelo ADKAR [5]: conciencia, deseo, conocimiento, habilidad y refuerzo.
+
+| Etapa | Qué se hace | Con quién | Indicador |
+|---|---|---|---|
+| Conciencia | Mostrar el antes y el después: de 40 a 10,5 minutos de personal por matrícula y menos errores de digitación | Dirección, secretaría y caja | Reunión realizada |
+| Deseo | La Dirección decide que las matrículas del ciclo se registran en la plataforma | Dirección de la academia | Decisión escrita |
+| Conocimiento | Capacitación práctica de una hora con datos ficticios y una guía de una página por rol | Secretaría, caja, docentes y auxiliares | 100 % del personal capacitado |
+| Habilidad | Piloto de dos semanas con apoyo en la sede; el papel queda solo como respaldo | Secretaría y caja | Matrículas del piloto registradas en la plataforma |
+| Refuerzo | Se deja el registro en papel y se mide cada mes con el plan de la sección 4.3.4 | Dirección y Product Owner | Indicadores del TO-BE |
+
+| Resistencia probable | Respuesta |
+|---|---|
+| «Con el papel es más rápido» | Medir los tiempos reales en el piloto y mostrarlos |
+| Miedo a equivocarse | Practicar con datos ficticios; un responsable resuelve dudas durante el piloto |
+| Familias sin smartphone | La secretaría sigue atendiendo en persona y registra por ellas |
+| Conexión inestable en la sede | Enlace 4G de respaldo del diseño (fase 2); mientras tanto, se registra apenas vuelve la conexión |
+
 ## Referencias
 
 [1] Object Management Group, *Business Process Model and Notation (BPMN), Version 2.0*, formal/2011-01-03, ene. 2011.
@@ -340,6 +359,8 @@ flowchart TB
 [3] M. Dumas, M. La Rosa, J. Mendling y H. A. Reijers, *Fundamentals of Business Process Management*, 2nd ed. Berlín, Alemania: Springer, 2018.
 
 [4] J. P. Womack y D. T. Jones, *Lean Thinking*. New York, NY, USA: Simon & Schuster, 1996.
+
+[5] J. M. Hiatt, *ADKAR: A Model for Change in Business, Government and our Community*. Loveland, CO, USA: Prosci, 2006.
 
 ## Rúbrica de evaluación
 

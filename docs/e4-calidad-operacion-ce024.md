@@ -15,14 +15,14 @@
 
 ## Resumen Ejecutivo
 
-**Calidad del producto.** El sistema cuenta con **372 pruebas automáticas en cuatro niveles**; el 2026-10-24 eran 99:
+**Calidad del producto.** El sistema cuenta con **372 pruebas automáticas en cuatro niveles** (376 desde el 2026-11-17, con las 4 del respaldo de Firestore); el 2026-10-24 eran 99:
 
 - 150 pruebas unitarias del frontend (34 al 2026-10-24).
 - 96 de la API: rutas de sincronización, cuentas de alumnos, usuarios del personal, conexión a MySQL, conversión desde Firestore, comparación de la réplica y migración de accesos (27 al 2026-10-24).
 - 101 de reglas de seguridad de Firestore, ejecutadas en el emulador (19 al 2026-10-24).
 - 25 de la base de datos MySQL (19 al 2026-10-24).
 
-Las 372 pasan. La verificación para este informe encontró que la última entrega, la de matrícula masiva por Excel (`f9447d8`), se había publicado con 6 pruebas en rojo (2 de API y 4 de reglas) y 34 errores de tipos. Se corrigió el mismo día, y la corrección está lista para subir ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
+Las 372 pasan. La verificación para este informe encontró que la última entrega, la de matrícula masiva por Excel (`f9447d8`), se había publicado con 6 pruebas en rojo (2 de API y 4 de reglas) y 34 errores de tipos. Se corrigió el mismo día y la corrección se publicó el 2026-11-16 (`95b270d`) ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
 
 Las pruebas encontraron **tres fallas activas en producción**. Las reglas publicadas, del 22-jun-2026, permitían que cualquier usuario se asignara el rol de auxiliar o docente, permitían listar sin sesión las matrículas pagadas (nombres y teléfonos) y bloqueaban la matrícula pública de visitantes. La causa raíz fue que la primera línea de `firestore.rules` (`#`) impedía compilar el archivo, así que las versiones posteriores nunca llegaron a producción. Las tres fallas quedaron corregidas en el código: con las reglas de junio fallan 10 pruebas, y con las corregidas pasan las 19. El 2026-10-24 se publicaron el frontend y las reglas corregidas, y se verificó en producción que las tres fallas quedaron cerradas ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
 
@@ -100,7 +100,7 @@ Inventario al 2026-11-16, por archivo de prueba (unitarias y API) y por bloque (
 Script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQL 8.0.30). Se midieron dos versiones:
 
 - el commit publicado `f9447d8`;
-- la corrección hecha ese mismo día, todavía sin subir.
+- la corrección hecha ese mismo día y publicada el 2026-11-16 (`95b270d`).
 
 | Suite | Comando | `f9447d8` (publicado) | Con la corrección | 2026-10-24 |
 |---|---|---|---|---|
@@ -137,7 +137,7 @@ Ese mismo día se agregaron 4 pruebas de API para el respaldo de Firestore (REC-
 
     **Mejora de seguridad.** El cambio a `affectedKeys()` de esa entrega cierra un hueco. Con `changedKeys()`, el alumno podía agregar o borrar campos de su perfil fuera de la lista, por ejemplo borrar `passwordInicial` y esconder el aviso.
 
-    **Pendiente:** subir la corrección y publicar las reglas.
+    **Publicado:** la corrección se subió el 2026-11-16 (`95b270d`), con las reglas verificadas sin sesión.
 
 ### 1.4 Reporte de cobertura
 
@@ -317,7 +317,7 @@ Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el V
 | 2026-11-13/14 | Push de `22dba3a`: réplica reparable | CI #22 en verde; Vercel publicó el frontend |
 | 2026-11-14, 21:47 | VPS: réplica reparable y conciliación nocturna | 22 huellas; 3 diferencias de milisegundos reparadas; comparación final «coinciden»; temporizador habilitado y primera corrida `SUCCESS` |
 | 2026-11-15/16 | VPS: rutas `/api/cuentas` y `/api/usuarios` (manual §9.7.10, sin hora registrada) | El 2026-11-16 responden 401 sin sesión |
-| 2026-11-16 | Push de `f9447d8`: matrícula masiva por fila y configuración institucional | Vercel la publicó (el bundle contiene sus textos), aunque no pasaba las comprobaciones del CI. Se corrigió el mismo día, pendiente de subir ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). El manual aún no registra la migración 06 en el VPS |
+| 2026-11-16 | Push de `f9447d8`: matrícula masiva por fila y configuración institucional | Vercel la publicó (el bundle contiene sus textos), aunque no pasaba las comprobaciones del CI. Se corrigió y se publicó el mismo día (`95b270d`) ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). El manual aún no registra la migración 06 en el VPS |
 
 **Lección aprendida.** Desde el 2026-10-28 cada entrega declara su orden de publicación (reglas o frontend primero) con una tabla de qué combinación falla. Así la ventana de riesgo queda del lado del administrador, que es quien despliega ([E3 §4.1](e3-sistema-funcional-ce023.md#41-instrucciones-de-instalacion)). La entrega del 16-nov muestra el hueco que queda: Vercel publica `main` aunque el CI esté en rojo.
 
@@ -380,7 +380,7 @@ Cada entrega se probó primero en los emuladores y en un MySQL temporal. En el V
 | PB-23 | Seguridad de accesos: activación sin leer la matrícula, códigos de padres revocables, firma fuera del perfil y de las marcas, QR rotativo del docente y cuentas desactivadas | Alta | Hecho (28-oct y 12-nov), con su migración en el VPS |
 | PB-24 | Editar matrícula, Estado de cuenta, talleres con cupo y varios docentes por grupo | Alta | Hecho (2026-11-12) |
 | PB-25 | Ficha de matrícula y acceso directo de alumnos; módulo Usuarios | Alta | Hecho en el código; las rutas de la API están activas en el VPS al 2026-11-16. Falta confirmar la titularidad de `cermatacademia.edu.pe` y validar el aviso de privacidad |
-| PB-26 | Matrícula masiva por fila y configuración institucional de pago | Alta | En el código y publicado (2026-11-16). La corrección de tipos y pruebas (372/372) está lista para subir; falta registrar la migración 06 en el VPS |
+| PB-26 | Matrícula masiva por fila y configuración institucional de pago | Alta | En el código y publicado (2026-11-16). La corrección de tipos y pruebas (372/372) se publicó el 2026-11-16 (`95b270d`); falta registrar la migración 06 en el VPS |
 | PB-27 | Que Vercel publique solo los commits con el CI en verde | Alta | Pendiente (lección del 2026-11-16) |
 
 ### 3.4 Sprint Backlog — Sprint 1 "Calidad y seguridad"
@@ -429,7 +429,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Borrado auditado de marcas en MySQL y conciliación de las anteriores | PB-19 | Hecho (12-nov, aplicado en el VPS) | `sp_eliminar_asistencia`; 9 pruebas de conciliación |
 | Réplica reparable y conciliación nocturna | PB-19 | Hecho (14-nov, aplicado en el VPS) | 10 pruebas de comparación; temporizador en `SUCCESS` |
 | Ficha de matrícula, acceso directo de alumnos y módulo Usuarios | PB-25 | Hecho (15-nov) | API: 21 de cuentas y 10 de usuarios; reglas: 101 |
-| Matrícula masiva por fila y configuración institucional | PB-26 | Hecho; corrección lista para subir | 372/372 y 0 errores de tipos (sección 1.3) |
+| Matrícula masiva por fila y configuración institucional | PB-26 | Hecho; corrección publicada el 2026-11-16 | 372/372 y 0 errores de tipos (sección 1.3) |
 | Actualizar la documentación del EPE | — | Hecho (16-nov) | Este documento |
 | Exigir el CI en verde antes de publicar en Vercel | PB-27 | Pendiente | — |
 
@@ -472,14 +472,14 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 
 ### 3.6 Comparación con otros marcos de proceso
 
-| Aspecto | Scrum (adaptado, usado) | RUP | Cascada (predictivo PMBOK) |
-|---|---|---|---|
-| Ciclo de vida | Iterativo e incremental en sprints de 2 semanas | Iterativo dentro de 4 fases | Lineal, una sola entrega |
-| Fases | Sin fases formales; cada sprint entrega un incremento | Inicio, elaboración, construcción, transición | Requisitos, diseño, construcción, pruebas, despliegue |
-| Disciplinas | Integradas en cada sprint | 9 disciplinas (modelado de negocio, requisitos, análisis y diseño, implementación, pruebas, despliegue, configuración, gestión, entorno) | Una por fase |
-| Roles | Product Owner, Scrum Master, equipo | Más de 30 roles (analista, arquitecto, tester…) | Jefe de proyecto y especialistas por fase |
-| Artefactos | Backlogs, incremento, definición de terminado | Modelos UML, documento de arquitectura, casos de uso | Documentos firmados por fase |
-| Cuándo conviene | Requisitos cambiantes y cliente cercano | Sistemas grandes que exigen arquitectura temprana | Requisitos estables y contratos cerrados |
+| Aspecto | Scrum (adaptado, usado) | RUP | OpenUP | Cascada (predictivo PMBOK) |
+|---|---|---|---|---|
+| Ciclo de vida | Iterativo e incremental en sprints de 2 semanas | Iterativo dentro de 4 fases | Iterativo dentro de las 4 fases de RUP, con iteraciones cortas | Lineal, una sola entrega |
+| Fases | Sin fases formales; cada sprint entrega un incremento | Inicio, elaboración, construcción, transición | Las mismas 4 fases que RUP | Requisitos, diseño, construcción, pruebas, despliegue |
+| Disciplinas | Integradas en cada sprint | 9 disciplinas (modelado de negocio, requisitos, análisis y diseño, implementación, pruebas, despliegue, configuración, gestión, entorno) | Menos disciplinas, centradas en requisitos, arquitectura, desarrollo, pruebas y gestión del proyecto | Una por fase |
+| Roles | Product Owner, Scrum Master, equipo | Más de 30 roles (analista, arquitecto, tester…) | Pocos roles: interesado, analista, arquitecto, desarrollador, tester y jefe de proyecto | Jefe de proyecto y especialistas por fase |
+| Artefactos | Backlogs, incremento, definición de terminado | Modelos UML, documento de arquitectura, casos de uso | Visión, casos de uso, cuaderno de arquitectura, plan de iteración y lista de trabajo | Documentos firmados por fase |
+| Cuándo conviene | Requisitos cambiantes y cliente cercano | Sistemas grandes que exigen arquitectura temprana | Equipos pequeños que quieren la arquitectura temprana de RUP sin su peso | Requisitos estables y contratos cerrados |
 
 **Adaptación elegida.** Se usa Scrum ligero porque el equipo es pequeño, la Dirección está cerca y los requisitos cambiaron durante la construcción: grupos, sedes y turnos se agregaron después del inicio. Se toman de **RUP** los artefactos de análisis y diseño que el proyecto ya produjo (casos de uso, UML y vistas de arquitectura del [E1](e1-definicion-sistema-ce021.md)) y su disciplina de **gestión de configuración** (migraciones numeradas y entornos separados). No se adopta Cascada: el sistema ya está en operación y recibe cambios continuos.
 
@@ -609,7 +609,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | 10 | Respaldo programado de Firestore con prueba de restauración | RPO | ≤ 24 h | Sprint 3 |
 | 11 | Programar el respaldo diario de MySQL y el arranque automático de los servicios | RPO de MySQL | ≤ 24 h | Hecho (2026-10-24): temporizador de systemd y servicio `pm2-academia` en el VPS |
 | 12 | Reparar los envíos fallidos a MySQL (PB-19; la carga inicial se hizo el 2026-10-24) | Diferencias Firestore ↔ MySQL | 0 | Hecho (2026-11-14): conciliación nocturna; meta siguiente, 30 días seguidos en `SUCCESS` |
-| 13 | Corregir la entrega del 16-nov: 34 errores de tipos, 2 pruebas de API y 4 de reglas | Pruebas en verde y errores de tipos | 372 de 372 y 0 | Hecho en el código (2026-11-16); falta subirlo y publicar las reglas |
+| 13 | Corregir la entrega del 16-nov: 34 errores de tipos, 2 pruebas de API y 4 de reglas | Pruebas en verde y errores de tipos | 372 de 372 y 0 | Hecho y publicado el 2026-11-16 (`95b270d`), con las reglas verificadas sin sesión |
 | 14 | Agregar a la cobertura los módulos nuevos con prueba (ficha, accesos, comprobantes, estado de cuenta, código rotativo) | Módulos medidos | ≥ 13 | Sprint 3 |
 | 15 | Hacer que Vercel espere los checks de GitHub (PB-27) | Publicaciones con el CI en rojo | 0 | Sprint 2 |
 | 16 | Medir las contraseñas iniciales sin cambiar después de 7 días | Cuentas con `passwordInicial` vencida | 0 | Sprint 3 |

@@ -7,12 +7,16 @@
 
 Cada integrante debe dominar el sistema completo y defender en profundidad al menos un área. El historial de git muestra un solo autor, así que el jurado puede preguntar a cualquiera.
 
+**Exposición del jueves 2026-11-19: Infraestructura (CE03) e Ingeniería de Software (CE02).** Propuesta del 2026-11-17, a confirmar por el equipo:
+
 | Área / entregable | Responsable principal | Suplente |
 |---|---|---|
-| Gestión TI (E1–E5) | (a definir por el equipo) | (a definir) |
-| Software E1–E2: requerimientos y datos | (a definir) | (a definir) |
-| Software E3–E4: sistema, pruebas y CI | (a definir) | (a definir) |
-| Infraestructura (S1 y S2) | (a definir) | (a definir) |
+| Software E1–E2: requerimientos y plataforma de datos | Gladys Rosaura Yana Pari | David Robert Yucra Mamani |
+| Software E3–E4: sistema, pruebas y CI | David Robert Yucra Mamani | Gladys Rosaura Yana Pari |
+| Infraestructura S1-E1 y S2-E2: diseño de la red y su prueba (red, VPN y detección en Docker) | Denilson Leeke Mamani Flores | David Robert Yucra Mamani |
+| Infraestructura S2-E1: SGSI y ética | Cárdenas Vilca Rennzo | Denilson Leeke Mamani Flores |
+| Infraestructura S1-E2 y S2-E3: centro de datos (Hyper-V, nube y recuperación) | David Robert Yucra Mamani | Cárdenas Vilca Rennzo |
+| Gestión TI (E1–E5) | No entra el 2026-11-19; Leeke preparó E4 (procesos) | — |
 
 ## 2. Guion de demostración (10 minutos)
 
@@ -72,3 +76,16 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 | Entregable | Fecha | Docente | Integrante(s) | Observaciones | Acciones acordadas |
 |---|---|---|---|---|---|
 | (completar tras cada exposición) | | | | | |
+## 7. Video pitch (1 a 3 minutos)
+
+La guía de la línea de Software pide un video pitch de 1 a 3 minutos. Guion de 2 minutos y 30 segundos:
+
+| Tiempo | Imagen | Qué se dice |
+|---|---|---|
+| 0:00–0:20 | Fila en secretaría o fotos del registro en papel | El problema: matricular a un alumno tomaba 40 minutos de personal y los datos quedaban en papel y en hojas sueltas |
+| 0:20–0:50 | Portada del sitio y pre-matrícula desde un celular | La solución: una plataforma web donde la familia se pre-matricula desde su casa y la academia confirma en minutos |
+| 0:50–1:30 | Panel de administración, comprobante con QR y asistencia por QR | Lo que hace: matrícula, pagos con comprobante, asistencia y portales para docentes, alumnos y padres |
+| 1:30–2:00 | Pantalla del CI en verde y del panel de detección | Por qué confiar: 376 pruebas automáticas, reglas de seguridad probadas, respaldos restaurados y monitoreo |
+| 2:00–2:30 | El equipo | El resultado: de 40 a 10,5 minutos por matrícula; la invitación a probarla en academia-school-platform.vercel.app |
+
+Recomendaciones: grabar en horizontal, con datos ficticios en todas las pantallas, subtítulos y sin música con derechos de autor.
