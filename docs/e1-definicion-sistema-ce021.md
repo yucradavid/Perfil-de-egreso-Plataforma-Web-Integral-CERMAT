@@ -21,7 +21,7 @@
 
 **Alcance.** 30 requerimientos funcionales y 11 no funcionales: sitio público, matrícula en línea con ficha del alumno, gestión académica, pagos con comprobante y estado de cuenta, acceso de alumnos con usuario y contraseña, asistencia por QR, consulta para padres, talleres con cupo, contenidos y una réplica relacional que se compara y repara cada noche. Quedan fuera la app móvil nativa, la pasarela de pagos y la facturación electrónica.
 
-**Solución.** Una aplicación web (SPA en React y TypeScript) publicada en Vercel, con Firebase como identidad y base operativa protegida por reglas por rol. Una capa relacional complementaria (API Node.js, MySQL y analítica en Python) cubre reportes, continuidad y la administración de cuentas; desde el 2026-10-24 corre en el VPS del colegio. El diseño se documenta con vistas C4, 12 decisiones arquitectónicas y diagramas UML. Cada requerimiento se traza hasta su código y, cuando existe, hasta su prueba automática (372 pruebas en el proyecto).
+**Solución.** Una aplicación web (SPA en React y TypeScript) publicada en Vercel, con Firebase como identidad y base operativa protegida por reglas por rol. Una capa relacional complementaria (API Node.js, MySQL y analítica en Python) cubre reportes, continuidad y la administración de cuentas; desde el 2026-10-24 corre en el VPS del colegio. El diseño se documenta con vistas C4, 12 decisiones arquitectónicas y diagramas UML. Cada requerimiento se traza hasta su código y, cuando existe, hasta su prueba automática (378 pruebas en el proyecto).
 
 !!! info "Cambios desde la versión del 2026-10-24"
     Se agregaron los requerimientos RF23 a RF30 y el RNF11, las reglas de negocio RN12 a RN20, las historias HU11 a HU17 y las decisiones ADR-09 a ADR-12. RF05 a RF09, RF13, RF20 y RF21 se ampliaron para reflejar lo construido entre el 25 de octubre y el 16 de noviembre de 2026.
@@ -67,7 +67,7 @@
 
 | ID | Tipo (ISO/IEC 25010) | Descripción | Verificación |
 |---|---|---|---|
-| RNF01 | Seguridad | Toda lectura y escritura se autoriza con Firebase Auth, claims, documento de rol y reglas de Firestore. | 101 pruebas de reglas en emulador |
+| RNF01 | Seguridad | Toda lectura y escritura se autoriza con Firebase Auth, claims, documento de rol y reglas de Firestore. | 103 pruebas de reglas en emulador |
 | RNF02 | Usabilidad | La interfaz es adaptable a móvil y separa los flujos público, administrativo y privado. | Capturas de escritorio y móvil (Sección 2) |
 | RNF03 | Eficiencia | Las consultas usan filtros compatibles con los índices de Firestore. | Revisión de consultas |
 | RNF04 | Mantenibilidad | El código se organiza por dominio en `src/features/*` (`api.ts`, `hooks.ts`, `schemas.ts`, `types.ts`). | Estructura del repositorio |
@@ -183,7 +183,7 @@ Capturas del sitio desplegado tomadas el 2026-10-24:
 
 | Aspecto | Estado |
 |---|---|
-| Validación funcional con el equipo | Recorridos de los flujos críticos en los emuladores para cada entrega de octubre y noviembre (escritorio y celular, sin errores de consola) y 372 pruebas automáticas (ver [E4](e4-calidad-operacion-ce024.md)) |
+| Validación funcional con el equipo | Recorridos de los flujos críticos en los emuladores para cada entrega de octubre y noviembre (escritorio y celular, sin errores de consola) y 378 pruebas automáticas (ver [E4](e4-calidad-operacion-ce024.md)) |
 | Uso real en piloto | Conteos de Firestore al 2026-10-24: 8 matrículas, 2 pagos, 7 marcas de asistencia, 8 usuarios con perfil. Al 2026-11-14, según la conciliación: 10 matrículas, 3 pagos y 7 marcas |
 | Decisiones de producto tomadas por el equipo | Mostrar el horario de cada grupo en el sitio público (12-nov). Contraseña inicial `cermat` + DNI como riesgo aceptado. Ficha completa en la pre-matrícula pública. Retiro inmediato del código fijo del docente. Quedan registradas en `docs/FASE_LOGICA_ROLES_REGLAS.md` y `docs/PLAN_ACCESO_DIRECTO_ALUMNOS.md` |
 | Validación con la Dirección y usuarios finales | **Pendiente de acta firmada.** Protocolo propuesto: recorrido guiado de HU01–HU17 con la Dirección, un docente y un auxiliar; registro de observaciones y conformidad en el acta del Anexo A. |

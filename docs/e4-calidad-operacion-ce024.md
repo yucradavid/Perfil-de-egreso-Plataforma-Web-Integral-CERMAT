@@ -15,18 +15,18 @@
 
 ## Resumen Ejecutivo
 
-**Calidad del producto.** El sistema cuenta con **372 pruebas automáticas en cuatro niveles** (376 desde el 2026-11-17, con las 4 del respaldo de Firestore); el 2026-10-24 eran 99:
+**Calidad del producto.** El sistema cuenta con **378 pruebas automáticas en cuatro niveles** al 2026-11-18; el 2026-10-24 eran 99:
 
 - 150 pruebas unitarias del frontend (34 al 2026-10-24).
-- 96 de la API: rutas de sincronización, cuentas de alumnos, usuarios del personal, conexión a MySQL, conversión desde Firestore, comparación de la réplica y migración de accesos (27 al 2026-10-24).
-- 101 de reglas de seguridad de Firestore, ejecutadas en el emulador (19 al 2026-10-24).
+- 100 de la API: rutas de sincronización, cuentas de alumnos, usuarios del personal, conexión a MySQL, conversión desde Firestore, comparación de la réplica, migración de accesos y respaldo de Firestore (27 al 2026-10-24).
+- 103 de reglas de seguridad de Firestore, ejecutadas en el emulador (19 al 2026-10-24).
 - 25 de la base de datos MySQL (19 al 2026-10-24).
 
-Las 372 pasan. La verificación para este informe encontró que la última entrega, la de matrícula masiva por Excel (`f9447d8`), se había publicado con 6 pruebas en rojo (2 de API y 4 de reglas) y 34 errores de tipos. Se corrigió el mismo día y la corrección se publicó el 2026-11-16 (`95b270d`) ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
+Las 378 pasan en la verificación completa del 2026-11-18. El total creció en dos pasos: 372 el 2026-11-16, 376 con las 4 de API del respaldo de Firestore y 378 con las 2 de reglas del defecto de recursos del alumno ([sección 1.6](#16-las-pruebas-detectan-defectos-reales)). La verificación del 2026-11-16 encontró que la última entrega, la de matrícula masiva por Excel (`f9447d8`), se había publicado con 6 pruebas en rojo (2 de API y 4 de reglas) y 34 errores de tipos. Se corrigió el mismo día y la corrección se publicó el 2026-11-16 (`95b270d`) ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). La cobertura de los módulos de lógica medidos es de 89 % de líneas y 94 % de ramas.
 
 Las pruebas encontraron **tres fallas activas en producción**. Las reglas publicadas, del 22-jun-2026, permitían que cualquier usuario se asignara el rol de auxiliar o docente, permitían listar sin sesión las matrículas pagadas (nombres y teléfonos) y bloqueaban la matrícula pública de visitantes. La causa raíz fue que la primera línea de `firestore.rules` (`#`) impedía compilar el archivo, así que las versiones posteriores nunca llegaron a producción. Las tres fallas quedaron corregidas en el código: con las reglas de junio fallan 10 pruebas, y con las corregidas pasan las 19. El 2026-10-24 se publicaron el frontend y las reglas corregidas, y se verificó en producción que las tres fallas quedaron cerradas ([sección 2.7](#27-cierre-en-produccion-2026-10-24)).
 
-**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y publica las reglas de Firestore solo si todo lo anterior pasó. Su ejecución #22 en GitHub, la del commit `22dba3a` (réplica reparable), terminó en verde.
+**Operación continua.** Un pipeline de GitHub Actions con 6 trabajos verifica tipos, pruebas y build en cada cambio. También ejecuta las migraciones y pruebas de la base en un MySQL 8 real, y está preparado para publicar las reglas de Firestore solo si todo lo anterior pasó; hoy omite ese paso porque falta el secreto `FIREBASE_SERVICE_ACCOUNT`. En GitHub terminaron en verde la ejecución #22 (commit `22dba3a`, réplica reparable) y la #25 (commit `95b270d`, la corrección del 16 de noviembre), con capturas en la [sección 2.3](#23-evidencias-de-integracion-y-despliegue).
 
 La operación se observa con:
 
@@ -95,6 +95,8 @@ Inventario al 2026-11-16, por archivo de prueba (unitarias y API) y por bloque (
 | BD | Sin filas a medias tras un rechazo | 1 |
 | | **Total** | **372** |
 
+Después de este inventario se sumaron 4 pruebas de API del respaldo de Firestore (REC-11) y 2 de reglas que listan los recursos generales con las consultas del portal del alumno ([sección 1.6](#16-las-pruebas-detectan-defectos-reales)). Total al 2026-11-18: **378**.
+
 ### 1.3 Reporte de ejecución (2026-11-16)
 
 Script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQL 8.0.30). Se midieron dos versiones:
@@ -114,6 +116,8 @@ Script que reproduce `.github/workflows/ci.yml` en local (Node 24, Java 21, MySQ
 | **Total de pruebas** | | **366/372** | **372/372** | 99/99 |
 
 Ese mismo día se agregaron 4 pruebas de API para el respaldo de Firestore (REC-11). Con ellas, la API tiene 100 y el proyecto **376**, todas en verde según la verificación posterior del CI.
+
+**Verificación completa del 2026-11-18**, con el mismo script, después de corregir los recursos del alumno: tipos del frontend y de la API sin errores, 150/150 unitarias, 100/100 de API, 103/103 de reglas y build OK. La base no se repitió porque la corrección no toca SQL; sus 25 pruebas pasaron ese mismo día en una instancia MySQL aislada ([E2 §2.3](e2-base-datos-ce022.md)). Total: **378/378**.
 
 !!! warning "La entrega de matrícula masiva (`f9447d8`) se publicó sin pasar el CI; se corrigió el mismo día"
     La verificación para este informe encontró los defectos. Vercel publica `main` sin esperar al CI (PB-27).
@@ -181,6 +185,16 @@ La misma suite de reglas se ejecutó contra la versión **que estaba publicada e
 | Resto | 9 pasan | OK | — |
 | **Total** | **10 fallan / 9 pasan** | **19/19** | |
 
+**Defecto hallado el 2026-11-18: recursos generales del alumno.** Al tomar las capturas del E3 con datos de prueba, el inicio del portal del alumno mostró «No se pudieron cargar tus recursos». Cada consulta de `fetchResourcesForStudent` se repitió por separado en el emulador. Las reglas rechazaban las 2 que listan los recursos generales para estudiantes (`groupId` nulo o vacío y `targetAudience` con «estudiantes»), y una sola consulta rechazada tumbaba todo el bloque. Las pruebas leían esos recursos por su id, pero no los listaban con la consulta del portal, y Firestore evalúa distinto una consulta que una lectura.
+
+| Paso | Resultado |
+|---|---|
+| Prueba nueva con las mismas consultas del portal | Falla con las reglas anteriores: el defecto queda reproducido |
+| Regla corregida: condiciones que Firestore puede comprobar en una consulta (`"estudiantes" in targetAudience`, `groupId == null`), sin perder los recursos antiguos | Las pruebas de recursos pasan, incluidos un visitante y un alumno desactivado que siguen sin poder listar |
+| Portal: una consulta rechazada ya no tumba las demás (`recursosSiSePermite`) | El alumno ve los recursos públicos y los de su grupo aunque falte publicar la regla |
+
+Con ellas, las reglas suman 103 pruebas y el proyecto 378. La lección es la misma de octubre: probar con la consulta que usa la pantalla, no solo con la lectura del documento.
+
 ## Sección 2: Integración, Despliegue y Operación Continua
 
 ### 2.1 Pipeline CI/CD
@@ -188,7 +202,7 @@ La misma suite de reglas se ejecutó contra la versión **que estaba publicada e
 ```mermaid
 flowchart LR
   P["push / pull request a main"] --> F["frontend: tipos, 150 pruebas + cobertura, build"]
-  P --> R["reglas-firestore: emulador + 101 pruebas"]
+  P --> R["reglas-firestore: emulador + 103 pruebas"]
   P --> A["api: tipos + 96 pruebas"]
   P --> B["base-datos: MySQL 8, migraciones en base nueva y existente + 25 pruebas + EXPLAIN"]
   P --> Y["analítica: sintaxis Python"]
@@ -215,8 +229,23 @@ flowchart LR
 
 Cada paso del pipeline se ejecutó en local el 2026-10-24 con los mismos comandos y versiones (Node 22/24, MySQL 8.0.30, Java 21, Firebase CLI 14.15). En GitHub, la ejecución #22 (commit `22dba3a`, réplica reparable) terminó en verde, y Vercel publicó ese frontend. El 2026-11-16 se repitió todo en local con el script que reproduce el CI ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)).
 
-!!! note "Capturas a adjuntar"
-    Pestaña *Actions* con la ejecución #22 en verde y el detalle del trabajo `base-datos` (tabla de 25 pruebas y los 9 permisos de la base existente).
+**Ejecución #25 en GitHub Actions (capturada el 2026-11-18).** Es la del commit `95b270d`, que publicó la corrección del 2026-11-16 ([sección 1.3](#13-reporte-de-ejecucion-2026-11-16)). Los 6 trabajos terminaron en verde en 1 min 29 s. El trabajo de base de datos re-ejecutó `03`, `04` y `05` sobre una base existente, comprobó los 9 permisos `EXECUTE` de la API y pasó las 25 pruebas.
+
+La lista también muestra las ejecuciones en rojo: la #18 y la #19, del 12 de noviembre, y la #23 y la #24, del 15 y el 16. En los dos casos la siguiente ejecución volvió a verde (#20 y #25). Vercel publica `main` aunque el CI falle, y así se publicó `f9447d8`: por eso sigue abierto PB-27.
+
+El trabajo «Publicar reglas de Firestore» terminó en verde sin publicar nada. Su aviso dice «Sin secreto FIREBASE_SERVICE_ACCOUNT: se omite la publicación automática de reglas». Mientras no se configure ese secreto, las reglas se publican a mano con `firebase deploy --only firestore:rules`.
+
+![Lista de ejecuciones del CI: la #25 en verde arriba y las #23 y #24 en rojo](assets/capturas/11-ci-actions.png)
+
+???+ example "Ejecución #25: los 6 trabajos en verde, avisos y artefactos"
+    ![Resumen de la ejecución #25 con los 6 trabajos en verde y el aviso de reglas sin publicar](assets/capturas/12-ci-ejecucion.png)
+
+???+ example "Trabajo de base de datos: 9 de 9 permisos y las 25 pruebas en OK"
+    ![Trabajo de base de datos con el paso de permisos (9 de 9) y el inicio de las pruebas](assets/capturas/13-ci-base-datos.png)
+
+    ![Tabla de las 25 pruebas de la base de datos, todas en OK](assets/capturas/14-ci-base-datos-pruebas.png)
+
+La corrección de recursos del alumno del 2026-11-18 ([sección 1.6](#16-las-pruebas-detectan-defectos-reales)) tendrá su propia ejecución cuando se suba. Hasta entonces, su evidencia es la verificación local de la [sección 1.3](#13-reporte-de-ejecucion-2026-11-16).
 
 ### 2.4 Observabilidad en producción
 
@@ -444,7 +473,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 
 **Métricas del Sprint 1:** al 2026-10-24 estaban hechas 16 de las 17 tareas planificadas; al cierre, las 17 y las 5 agregadas. Pruebas automáticas: de 0 a 99 el 2026-10-24. Errores de TypeScript: de 66 a 0. Defectos corregidos en código hasta el 2026-10-24: 18.
 
-**Métricas del Sprint 2 (al 2026-11-16):** 8 de 9 tareas hechas. Pruebas automáticas: de 99 a 372, todas en verde después de corregir la última entrega. Usos de `any`: de 233 a 71. Los defectos de lógica y seguridad corregidos en octubre y noviembre se listan en el [E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones).
+**Métricas del Sprint 2 (al 2026-11-16):** 8 de 9 tareas hechas. Pruebas automáticas: de 99 a 372, todas en verde después de corregir la última entrega; 378 al 2026-11-18. Usos de `any`: de 233 a 71. Los defectos de lógica y seguridad corregidos en octubre y noviembre se listan en el [E3 §3.4](e3-sistema-funcional-ce023.md#34-manejo-de-errores-y-validaciones).
 
 - **3 críticos de seguridad en producción**, cerrados en producción el 2026-10-24.
 - **4 de lógica de datos:** riesgo calculado sobre 30 días calendario, alumnos sin asistencias que no aparecían en el cálculo de riesgo, docentes contados como alumnos y fecha UTC en el registro manual de asistencia.
@@ -490,7 +519,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Característica | Atributo | Métrica | Valor actual | Meta | Riesgo |
 |---|---|---|---|---|---|
 | Adecuación funcional | Corrección | Flujos críticos con pruebas automáticas | 6 de 6 | 6 de 6 | Bajo |
-| Adecuación funcional | Corrección | Pruebas automáticas en verde | 372 de 372 con la corrección del 2026-11-16 (366 en la entrega publicada `f9447d8`) | 100 % antes de publicar | Medio: falta impedir que se publique con el CI en rojo (PB-27) |
+| Adecuación funcional | Corrección | Pruebas automáticas en verde | 378 de 378 al 2026-11-18 (366 de 372 en la entrega publicada `f9447d8`) | 100 % antes de publicar | Medio: falta impedir que se publique con el CI en rojo (PB-27) |
 | Seguridad | Confidencialidad / autorización | Fallas de reglas detectadas por la suite | 0 fallas de seguridad publicadas desde el 2026-10-24 (3 con las reglas de junio). En `f9447d8`, 2 reglas negaban funciones legítimas (borrar el QR viejo y el aviso del personal desactivado), sin abrir accesos; se corrigieron el 2026-11-16 | 0 publicadas | Bajo |
 | Seguridad | Confidencialidad | Datos que el personal no debe leer: documento del alumno, firma del QR, secreto del QR del docente | Ninguno legible por docentes ni auxiliares (pruebas de reglas) | 0 | Bajo |
 | Seguridad | Autenticidad | Contraseñas iniciales de alumnos sin cambiar | No medido; el panel muestra la métrica «Contraseña inicial» | 0 después de 7 días | Medio (riesgo aceptado, ADR-11) |
@@ -500,7 +529,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Fiabilidad | Disponibilidad | Disponibilidad medida por monitor externo | No medida | 99 % mensual | **Alto** |
 | Mantenibilidad | Analizabilidad | Errores de TypeScript (`tsc --noEmit`) | 0 con la corrección del 2026-11-16 (34 en `f9447d8`; 0 el 2026-10-24 y 66 al inicio del Sprint 1) | 0 | Bajo |
 | Mantenibilidad | Modificabilidad | Usos de `any` (ESLint: src, server, scripts) | 71 (233 el 2026-10-24; 240 al inicio del Sprint 1) | < 120 | Bajo |
-| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 372 (99 el 2026-10-24) | En aumento cada sprint | Bajo |
+| Mantenibilidad | Capacidad de prueba | Pruebas automáticas | 378 (99 el 2026-10-24) | En aumento cada sprint | Bajo |
 | Mantenibilidad | Modularidad | Archivos de más de 800 líneas | 11 (8 el 2026-10-24) | ≤ 3 | Medio |
 | Eficiencia de desempeño | Comportamiento temporal | JS inicial | 3,14 MB (890 KB gzip); 2,84 MB el 2026-10-24 | < 1 MB | Medio |
 | Compatibilidad | Interoperabilidad | Diferencias Firestore ↔ MySQL | 0 en la comparación del 2026-11-14, después de reparar 3 de milisegundos; desde entonces se miden cada noche | 0 diferencias 30 días seguidos | Bajo |
@@ -569,7 +598,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Ingeniería | Requisitos trazables a código y pruebas | Cumple (E1, Anexo B: 28 de 30 RF con prueba) |
 | Ingeniería | Arquitectura documentada | Cumple (E1 y E3) |
 | Ingeniería | Validación con usuarios mediante acta | **No cumple** |
-| Software | Build reproducible y pruebas automáticas | Cumple (372 en verde con la corrección del 2026-11-16) |
+| Software | Build reproducible y pruebas automáticas | Cumple (378 en verde al 2026-11-18) |
 | Software | Cero errores de compilación de tipos | Cumple; la entrega del 16-nov lo rompió (34 errores) y se corrigió el mismo día |
 | Software | Solo se publica lo que pasa el CI | Cumple para las reglas (las publica el CI). **No cumple** para el frontend: Vercel publicó `f9447d8` sin esperar al CI |
 | Software | Repositorio sin secretos | Cumple parcialmente: la clave de los ZIP fue revocada y las contraseñas de docentes restablecidas (2026-10-24); los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
@@ -581,7 +610,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 |---|---|---|
 | Desarrollo y gestión de requisitos (RDM) | RF01–RF30, RNF01–RNF11 y trazabilidad | Ampliamente implementada |
 | Solución técnica (TS) | Arquitectura y 12 decisiones documentadas | Ampliamente implementada |
-| Verificación y validación (VV) | 372 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
+| Verificación y validación (VV) | 378 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
 | Aseguramiento de calidad del proceso (PQA) | 108 auditorías por fase y orden de publicación por entrega | Ampliamente implementada |
 | Integración de producto (PI) | Pipeline que integra 4 componentes y corre en GitHub (ejecución #22 en verde); paquetes del VPS verificables | Ampliamente implementada; falta impedir publicar con el CI en rojo |
 | Planificación (PLAN) | Charter y backlog recientes | Parcialmente implementada |
@@ -621,7 +650,7 @@ Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestio
 | Anexo | Ubicación |
 |---|---|
 | Reportes de pruebas | Salida de `npm run test:coverage`, `npm run test:rules`, `cd server && npm test` y `92_pruebas_bd.sql`; reporte HTML de cobertura en `coverage/index.html` |
-| Capturas del pipeline y de observabilidad | Pestaña *Actions* (ejecución #22 en verde); panel admin "Infraestructura" (`/health`); salida de `journalctl -u academia-replica.service` con `SUCCESS` |
+| Capturas del pipeline y de observabilidad | Pestaña *Actions*: ejecución #25 en verde, sus 6 trabajos y el de base de datos con 9 de 9 permisos y 25 pruebas en OK ([sección 2.3](#23-evidencias-de-integracion-y-despliegue)); panel admin "Infraestructura" con `/health` ([Evidencias del despliegue](infraestructura/evidencias-despliegue-2026-10-24.md)); estado de la réplica con `journalctl -u academia-replica.service` en el VPS, todavía sin captura |
 | Artefactos ágiles | Secciones 3.1 a 3.5 (Charter, historias, Product Backlog, Sprint Backlog, retrospectiva) |
 | Matriz de calidad y checklists de auditoría | Secciones 4.1 y 4.4; `.github/pull_request_template.md` |
 | Evidencia de sustentación | Exposición breve ante el docente (pendiente) |

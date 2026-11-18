@@ -294,7 +294,7 @@ Estimación de lecturas (supuesto a validar con la pestaña de uso de Firebase):
 | PostgreSQL (colegio) | 16 | Hasta noviembre de 2028 | Migrar a una versión mayor | 2028 |
 | Ubuntu (VPS) | 24.04 LTS | Soporte estándar hasta 2029 | — | 2029 |
 
-**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 372 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
+**Sostenibilidad organizacional:** transferencia de conocimiento al responsable técnico de CERMAT (C.5), revisión por pares, documentación de este perfil de egreso, CI con 378 pruebas que permite cambiar sin miedo y un presupuesto anual de mantenimiento aprobado.
 
 ## 5.5 Plan de implementación y gestión del sistema de información (CE0144)
 
@@ -365,7 +365,7 @@ Línea base real: conteos agregados de Firestore al 2026-10-24, sin datos person
 | IM-04 | Recuperabilidad | Restauraciones de prueba exitosas; RPO de Firestore | MySQL: base real restaurada en 0,23 s (REC-05) y en otro servidor en 0,33 s y 0,41 s (REC-13 y REC-14), todas del 2026-10-24; base de prueba en 0,27–0,38 s; respaldo diario de MySQL; Firestore sin respaldo | 1 restauración al mes; RPO ≤ 24 h | Registro de restauraciones | Mensual |
 | IM-05 | Integridad de la réplica | Filas en `v_conciliacion_pagos` | Vista disponible; sincronización 24/7 en el VPS y carga inicial hecha (2026-10-24) | 0 | MySQL | Semanal |
 | IM-06 | Integración con el colegio | Niveles de integración activos y procesos con datos compartidos | 0 | N0 y N1 activos en 2027; ≥ 2 procesos en 2028 | Inventario de integraciones | Semestral |
-| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 372 pruebas (99 al 2026-10-24); 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
+| IM-07 | Calidad del cambio | Pruebas automáticas; cambios revisados por un segundo integrante | 378 pruebas (99 al 2026-10-24); 0 revisiones registradas | En aumento; 100 % revisados | CI y repositorio | Por sprint |
 | IM-08 | Seguridad web y DNS | Cabeceras de seguridad publicadas en ambos sitios; registros CAA, SPF, DMARC y DNSSEC | SPA y colegio con cabeceras de seguridad (2026-10-24; antes, la SPA solo con HSTS y el colegio sin ninguna); 0 de 4 registros | Cabeceras completas; 4 de 4 (DNSSEC si el registro lo permite) | Verificación externa | Trimestral |
 
 **Ciclo de revisión:** el Product Owner prepara el tablero mensual con conteos agregados de Firestore y las vistas de MySQL (`v_estado_cuenta`, `v_asistencia_diaria`, `v_conciliacion_pagos`); la Dirección lo revisa en el comité mensual; cada trimestre se revisan costos y proveedores y cada año se recalcula el business case. Los indicadores de proceso IP-01 a IP-03 del [E4](e4-modelado-procesos-ce0131.md#nuevos-indicadores) complementan esta tabla.

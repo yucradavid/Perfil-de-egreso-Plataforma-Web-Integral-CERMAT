@@ -29,7 +29,7 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 | 2–4 | Confirmación, pago y acceso | `/admin/matriculas`, `/admin/pagos`, `/admin/estado-de-cuenta` | Máquina de estados; un pago no se borra; comprobante con QR que se verifica sin sesión; acceso del alumno con usuario y tarjeta |
 | 4–5 | Asistencia por QR | Portal auxiliar y «QR del docente» | QR firmado del alumno con resumen en la marca; código del docente que cambia cada 2 minutos |
 | 5–6 | Consulta de padres | `/consulta-asistencia` | Código sin caracteres ambiguos, revocable y de solo lectura |
-| 6–8 | Calidad | Pestaña *Actions* o terminal | 372 pruebas; las reglas de junio fallaban 10 de 19 y las corregidas se publicaron el 2026-10-24. Mostrar con honestidad el estado de la última entrega (E4 §1.3) |
+| 6–8 | Calidad | Pestaña *Actions* o terminal | 378 pruebas; las reglas de junio fallaban 10 de 19 y las corregidas se publicaron el 2026-10-24. Mostrar con honestidad el estado de la última entrega (E4 §1.3) |
 | 8–9 | Datos | Salida de `92_pruebas_bd.sql`, `restore.js` y `compararReplica.js` | Integridad en la base, auditoría, RTO medido y réplica que se repara cada noche |
 | 9–10 | Cierre | Plan de mejora del E4 | Qué falta, por qué y con qué métrica se medirá |
 
@@ -52,7 +52,7 @@ Cada integrante debe dominar el sistema completo y defender en profundidad al me
 |---|---|
 | ¿Por qué Firestore y además MySQL? | Firestore da tiempo real y reglas por rol sin servidor propio. MySQL resuelve reportes, conciliación y auditoría, que Firestore no hace bien. La réplica nunca bloquea la operación. |
 | ¿Qué pasa si se cae la API o MySQL? | La matrícula, los pagos y la asistencia siguen funcionando: la sincronización no bloquea y es idempotente. Lo que no llegó se repara esa noche a las 03:30, cuando se compara la réplica con Firestore. Si quedan diferencias, el servicio queda en `failed`. |
-| ¿Cómo saben que las reglas de seguridad funcionan? | Con 101 pruebas en el emulador que corren en el CI. Al principio eran 19, y contra las reglas que estaban publicadas fallaban 10: así encontramos 3 fallas reales en producción. Publicamos la versión corregida el 2026-10-24 y lo verificamos como visitante sin sesión: listar matrículas pagadas ahora devuelve 403. |
+| ¿Cómo saben que las reglas de seguridad funcionan? | Con 103 pruebas en el emulador que corren en el CI. Al principio eran 19, y contra las reglas que estaban publicadas fallaban 10: así encontramos 3 fallas reales en producción. Publicamos la versión corregida el 2026-10-24 y lo verificamos como visitante sin sesión: listar matrículas pagadas ahora devuelve 403. |
 | ¿Por qué las reglas de producción estaban desactualizadas? | La línea 1 del archivo tenía un `#`, que no es sintaxis válida, y el despliegue fallaba sin que nadie lo viera. La versión corregida se publicó el 2026-10-24 desde la consola, después de pasar las 19 pruebas; cuando se configure el secreto del CI, la publicación será automática y solo tras las pruebas. |
 | ¿Cómo evitan que se falsifique un QR? | El QR del alumno lleva una firma opaca que solo leen el alumno y el admin. La marca guarda un resumen sha256 ligado al alumno, al día y al sentido, que la regla recalcula: el auxiliar no puede fabricar otra marca con lo que ve. El QR del docente cambia cada 2 minutos, así que una foto o un texto reenviado deja de servir. |
 | ¿No es insegura la contraseña `cermat` + DNI? | Sí, quien conozca el DNI puede entrar hasta que el alumno la cambie. Lo aceptó el equipo para que el alumno entre desde el primer día (ADR-11), y está pendiente de validar con la Dirección. Lo mitigan un recordatorio de 7 días, un aviso fijo después y el restablecimiento desde el panel. El DNI nunca se muestra en la tarjeta y solo lo lee el administrador. |
@@ -87,7 +87,7 @@ La guía de la línea de Software pide un video pitch de 1 a 3 minutos. Guion de
 | 0:00–0:20 | Fila en secretaría o fotos del registro en papel | El problema: matricular a un alumno tomaba 40 minutos de personal y los datos quedaban en papel y en hojas sueltas |
 | 0:20–0:50 | Portada del sitio y pre-matrícula desde un celular | La solución: una plataforma web donde la familia se pre-matricula desde su casa y la academia confirma en minutos |
 | 0:50–1:30 | Panel de administración, comprobante con QR y asistencia por QR | Lo que hace: matrícula, pagos con comprobante, asistencia y portales para docentes, alumnos y padres |
-| 1:30–2:00 | Pantalla del CI en verde y del panel de detección | Por qué confiar: 376 pruebas automáticas, reglas de seguridad probadas, respaldos restaurados y monitoreo |
+| 1:30–2:00 | Pantalla del CI en verde y del panel de detección | Por qué confiar: 378 pruebas automáticas, reglas de seguridad probadas, respaldos restaurados y monitoreo |
 | 2:00–2:30 | El equipo | El resultado: de 40 a 10,5 minutos por matrícula; la invitación a probarla en academia-school-platform.vercel.app |
 
 Recomendaciones: grabar en horizontal, con datos ficticios en todas las pantallas, subtítulos y sin música con derechos de autor.

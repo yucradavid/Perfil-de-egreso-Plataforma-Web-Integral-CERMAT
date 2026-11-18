@@ -36,7 +36,7 @@
 | [E1 — Requerimientos y diseño del sistema](e1-definicion-sistema-ce021.md) | CE021 | 30 RF, 11 RNF, reglas de negocio, historias, prototipo, C4, ADR, UML y trazabilidad |
 | [E2 — Plataforma de datos](e2-base-datos-ce022.md) | CE022 | Modelo, DDL/DML, procedimientos, funciones, triggers, roles, respaldo, conciliación nocturna y 25 pruebas SQL |
 | [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue |
-| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 372 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
+| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 378 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
 
 ### C. Infraestructura Tecnológica (CE03)
 
@@ -62,7 +62,7 @@ Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustent
 | Base relacional MySQL | 6 tablas de negocio + auditoría; 3 FK, 8 CHECK, 4 funciones, 6 procedimientos, 7 triggers y 3 vistas; migraciones 02 a 06 |
 | API REST | Sincronización, cuentas de alumnos (`/api/cuentas`) y administración de usuarios (`/api/usuarios`) |
 | Requerimientos | 30 funcionales y 11 no funcionales |
-| Pruebas automáticas | 372 al 2026-11-16 (376 desde el 2026-11-17, con las 4 del respaldo de Firestore): 150 unitarias, 96 de API, 101 de reglas de seguridad y 25 de base de datos. Las 372 pasan con la corrección del 2026-11-16, que arregla 6 que había roto la última entrega. Ese día se sumaron 4 de API del respaldo de Firestore: 376 ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)) |
+| Pruebas automáticas | 378 al 2026-11-18, todas en verde: 150 unitarias, 100 de API, 103 de reglas de seguridad y 25 de base de datos. El 2026-11-16 eran 372 y pasaron con la corrección de ese día, que arregló 6 que había roto la última entrega. Después se sumaron 4 de API del respaldo de Firestore y 2 de reglas del portal del alumno ([E4 §1.3](e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16)) |
 | Integración continua | 6 trabajos en GitHub Actions |
 | Réplica relacional | Comparación y reparación nocturna desde Firestore (03:30) desde el 2026-11-14; ese día Firestore y MySQL coincidieron |
 | Uso en piloto | Al 2026-11-14: 10 matrículas, 3 pagos y 7 marcas de asistencia (conteo de la conciliación) |
@@ -125,7 +125,7 @@ flowchart LR
     - **Réplica:**
         - las marcas borradas se eliminan en MySQL con auditoría;
         - la comparación campo por campo y la reparación corren cada noche (PB-19 cerrado el 2026-11-14).
-    - **Pruebas:** de 99 a 372 ([E4](e4-calidad-operacion-ce024.md)).
+    - **Pruebas:** de 99 a 378 ([E4](e4-calidad-operacion-ce024.md)).
 
 !!! warning "Pendientes que solo puede cerrar el equipo"
     - Hacer que Vercel espere al CI antes de publicar (PB-27).

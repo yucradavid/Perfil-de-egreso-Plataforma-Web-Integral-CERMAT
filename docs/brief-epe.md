@@ -242,7 +242,7 @@ flowchart TD
 | Tiempo | Viable como EPE porque integra evidencias desarrolladas previamente y documenta un sistema funcional con módulos existentes. |
 | Recursos | Viable con un equipo pequeño de desarrollo web, Firebase, Node.js y administradores institucionales para la validación. |
 | Riesgos | Dependencia de la configuración correcta de roles, reglas de Firestore, índices y calidad de los datos migrados. |
-| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 372 pruebas automáticas, pipeline de CI y conciliación nocturna de la réplica. |
+| Mitigación | Validaciones Zod, reglas de seguridad probadas en emulador, separación por rol, 378 pruebas automáticas, pipeline de CI y conciliación nocturna de la réplica. |
 
 ## 9. Alineación con competencias
 
@@ -251,7 +251,7 @@ flowchart TD
 | CE021 - Ingeniería de Requerimientos | X | El sistema cuenta con problema, actores, objetivos, alcance, requerimientos, prototipos, arquitectura y trazabilidad. |
 | CE022 - Ingeniería de la Información | X | Gestiona entidades, colecciones, reglas de seguridad, sincronización SQL, consultas e índices. |
 | CE023 - Programación | X | Implementa módulos React/TypeScript, Firebase SDK, hooks, validaciones, rutas, componentes y servicios. |
-| CE024 - QA | X | Incluye 372 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
+| CE024 - QA | X | Incluye 378 pruebas automáticas en 4 niveles, pipeline de CI, control de estados, reglas de seguridad probadas y restricciones de duplicidad. |
 
 !!! success "Resultado de viabilidad"
     La viabilidad está **demostrada**. La plataforma está desplegada en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) con Firebase y opera en piloto: al 2026-11-14 tenía 10 matrículas, 3 pagos y 7 marcas de asistencia. La capa relacional (Node.js, MySQL y analítica) corre las 24 horas en el VPS del colegio desde el 2026-10-24, publicada por HTTPS. Tiene respaldo diario y, desde el 2026-11-14, se compara y repara cada noche a partir de Firestore.

@@ -32,7 +32,7 @@
 La verificación del 2026-11-16, con los mismos comandos del CI, da:
 
 - **Build:** de producción correcto.
-- **Pruebas:** 372 automáticas, todas en verde.
+- **Pruebas:** 378 automáticas, todas en verde.
 - **TypeScript:** 0 errores en el frontend y en la API.
 - **Calidad:** pipeline de CI con 6 trabajos.
 
@@ -308,7 +308,7 @@ Las contraseñas de MySQL van en `server/.env.local` y `analytics/.env.local`. N
 | Paquetes del VPS de noviembre | 12-nov, 20:52: marcas borradas, activación y cuentas desactivadas (`9 de 9` permisos). 12-nov, 21:07: conciliación de marcas (nada que borrar). 14-nov, 21:47: réplica reparable y temporizador, con la comparación final «coinciden» ([E2 §2.3](e2-base-datos-ce022.md#23-evidencias-de-creacion)) |
 | Build de producción | `vite build` correcto (aviso de chunk mayor de 500 kB, registrado en el plan de mejora del E4) |
 | Tipos | 2026-10-24: `tsc --noEmit` sin errores. 2026-11-16: 0 en la API y en el frontend, tras corregir los 34 de la entrega de matrícula masiva |
-| Pruebas | 2026-10-24: 99 en verde. 2026-11-16: 150 unitarias, 96 de API, 101 de reglas y 25 de base de datos; 372 en verde con la corrección (366 en la entrega publicada) |
+| Pruebas | 2026-10-24: 99 en verde. 2026-11-16: 150 unitarias, 96 de API, 101 de reglas y 25 de base de datos; 372 en verde con la corrección (366 en la entrega publicada). 2026-11-18: 378 en verde (100 de API y 103 de reglas) |
 | Respaldo y restauración | Restauración verificada con SHA-256: RTO de 0,23 s en la base real (REC-05) y de 0,27 s en la base de prueba; en otro servidor, 0,33 s en el VPS (REC-13) y 0,41 s del VPS a la PC (REC-14) ([E2](e2-base-datos-ce022.md)) |
 | Capa relacional en el VPS | `https://api-academia.cermatschool.edu.pe/health` y `https://analitica-academia.cermatschool.edu.pe/health` responden `"status":"ok"` con MySQL conectado; sincronización de punta a punta con respuesta 200 (2026-10-24, 22:10 y 22:11) |
 | Respaldo diario | Temporizador de systemd en el VPS, a las 03:00 de Perú; primera ejecución correcta el 2026-10-24 a las 22:18 |

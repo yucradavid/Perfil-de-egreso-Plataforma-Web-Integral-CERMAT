@@ -6,7 +6,7 @@
 !!! info "Actualización del 2026-11-16"
     El diagnóstico describe la situación al 2026-10-24 y se mantiene como línea base. Desde entonces:
 
-    - **F1, F2 y F4 se fortalecieron:** 27 colecciones con reglas, 372 pruebas automáticas y una réplica que se compara y repara cada noche.
+    - **F1, F2 y F4 se fortalecieron:** 27 colecciones con reglas, 378 pruebas automáticas y una réplica que se compara y repara cada noche.
     - **La raíz R4 quedó tratada:** la reparación nocturna reemplaza al reintento que faltaba.
     - **El efecto «morosidad poco visible» tiene respuesta:** la vista Estado de cuenta muestra la deuda vencida y lo que vence en 7 días.
     - **El acceso del alumno ya no depende de un enlace que vence:** el administrador crea su usuario y contraseña. Esto introduce un riesgo aceptado (la contraseña inicial predecible), registrado en el SGSI.
