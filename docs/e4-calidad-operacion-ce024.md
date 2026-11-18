@@ -192,6 +192,7 @@ La misma suite de reglas se ejecutó contra la versión **que estaba publicada e
 | Prueba nueva con las mismas consultas del portal | Falla con las reglas anteriores: el defecto queda reproducido |
 | Regla corregida: condiciones que Firestore puede comprobar en una consulta (`"estudiantes" in targetAudience`, `groupId == null`), sin perder los recursos antiguos | Las pruebas de recursos pasan, incluidos un visitante y un alumno desactivado que siguen sin poder listar |
 | Portal: una consulta rechazada ya no tumba las demás (`recursosSiSePermite`) | El alumno ve los recursos públicos y los de su grupo aunque falte publicar la regla |
+| Publicación (2026-11-18): frontend de `04dce19` en Vercel (bundle `index-DN35Sjy6.js`) y la regla en Firestore a las 15:49, publicada a mano porque el CI no tiene el secreto | Sin sesión, en producción: matrículas pagadas, usuarios, pagos y recursos generales del alumno responden 403; una matrícula inexistente, 404; los recursos públicos, 200 |
 
 Con ellas, las reglas suman 103 pruebas y el proyecto 378. La lección es la misma de octubre: probar con la consulta que usa la pantalla, no solo con la lectura del documento.
 
@@ -245,7 +246,7 @@ El trabajo «Publicar reglas de Firestore» terminó en verde sin publicar nada.
 
     ![Tabla de las 25 pruebas de la base de datos, todas en OK](assets/capturas/14-ci-base-datos-pruebas.png)
 
-La corrección de recursos del alumno del 2026-11-18 ([sección 1.6](#16-las-pruebas-detectan-defectos-reales)) tendrá su propia ejecución cuando se suba. Hasta entonces, su evidencia es la verificación local de la [sección 1.3](#13-reporte-de-ejecucion-2026-11-16).
+La corrección de recursos del alumno se subió el 2026-11-18 (`04dce19`). Su verificación local está en la [sección 1.3](#13-reporte-de-ejecucion-2026-11-16), y la comprobación en producción, en la [sección 1.6](#16-las-pruebas-detectan-defectos-reales).
 
 ### 2.4 Observabilidad en producción
 
