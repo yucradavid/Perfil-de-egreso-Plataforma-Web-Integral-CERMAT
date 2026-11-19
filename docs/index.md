@@ -3,7 +3,7 @@
 !!! abstract "EPE — Sistema desplegado y en operación piloto"
     Evidencias del proyecto **Plataforma Web Integral de Gestión Académica CERMAT**, organizadas según la guía oficial vigente de evaluación del perfil de egreso (Escuela Profesional de Ingeniería de Sistemas, UPeU, versión de septiembre de 2026). El sistema está publicado en [academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) y opera en piloto en la Academia La Prepa Cermat (Azángaro, Puno).
 
-    Repositorio de esta documentación: [Perfil-de-egreso-Plataforma-Web-Integral-CERMAT](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) · Versión imprimible: [PDF completo](assets/perfil-egreso-completo.pdf)
+    Repositorio de esta documentación: [Perfil-de-egreso-Plataforma-Web-Integral-CERMAT](https://github.com/yucradavid/Perfil-de-egreso-Plataforma-Web-Integral-CERMAT) · Versión imprimible: [PDF completo](assets/perfil-egreso-completo.pdf) · Por línea: [Ingeniería de Software (PDF)](assets/perfil-egreso-ce02-ingenieria-de-software.pdf) · [Infraestructura Tecnológica (PDF)](assets/perfil-egreso-ce03-infraestructura-tecnologica.pdf)
 
 ## Proyecto
 
@@ -38,6 +38,8 @@
 | [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue | [Word](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.docx) · [PDF](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.pdf) |
 | [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 378 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI | [Word](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.docx) · [PDF](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.pdf) |
 
+:material-download: **Descargar toda la línea en un PDF:** [Ingeniería de Software (CE02)](assets/perfil-egreso-ce02-ingenieria-de-software.pdf), con portada, índice y los 4 entregables.
+
 ### C. Infraestructura Tecnológica (CE03)
 
 | Momento | Entregable | Códigos |
@@ -51,6 +53,8 @@
 | Semestre 2 | [Producto final: informe de implementación integral](infraestructura/s2-producto-final.md) | — |
 
 Cada informe de Infraestructura está también en Word y PDF: ver [Informes en Word y PDF](infraestructura/index.md#informes-en-word-y-pdf).
+
+:material-download: **Descargar toda la línea en un PDF:** [Infraestructura Tecnológica (CE03)](assets/perfil-egreso-ce03-infraestructura-tecnologica.pdf), con portada, índice, el resumen del área y todos los entregables de los 2 semestres.
 
 Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustentacion-ce0217.md).
 

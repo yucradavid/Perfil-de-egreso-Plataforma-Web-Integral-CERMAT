@@ -3,6 +3,8 @@
 !!! abstract "Competencia CE03"
     Diseña y ejecuta proyectos de infraestructura tecnológica para contribuir en la solución de problemas de la organización siguiendo estándares internacionales y presenta formalmente sus resultados demostrando una actitud ética de la ACM.
 
+:material-download: **Descargar toda la línea en un PDF:** [Infraestructura Tecnológica (CE03)](../assets/perfil-egreso-ce03-infraestructura-tecnologica.pdf), con portada, índice y todas las páginas de esta sección.
+
 ## Objeto del proyecto
 
 La línea de infraestructura diseña, implementa, valida y opera una **arquitectura de seguridad híbrida on-premise + nube** para CERMAT (Azángaro, Puno), que reúne a la Academia La Prepa Cermat y a CERMAT School:
@@ -116,7 +118,7 @@ La guía pide cada informe en DOCX y PDF. Ambos se generan desde estas mismas p�
 | S2-E3 · Implementación, Gestión y Control de Centro de Datos (CE0332–CE0333) | [S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.docx](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.docx) | [PDF](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.pdf) |
 | Producto final S2 · Informe de Implementación Integral y Operativa | [S2_Producto_Final_Informe_Integral_y_Operativo.docx](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.docx) | [PDF](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.pdf) |
 
-Para regenerarlos después de un cambio, desde `perfil-egreso/`: `mkdocs build --strict` y luego `node scripts/generar-informes.mjs infraestructura` (requiere pandoc, Google Chrome y Playwright).
+Para regenerarlos después de un cambio, desde `perfil-egreso/`: `mkdocs build --strict` y luego `node scripts/generar-informes.mjs infraestructura` (requiere pandoc, Google Chrome y Playwright). El PDF de toda la línea se regenera con `node scripts/generar-pdf-lineas.mjs`.
 
 ## Matrices y diagramas
 
