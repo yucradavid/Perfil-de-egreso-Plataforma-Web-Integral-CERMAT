@@ -10,8 +10,9 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
+| Fecha | 2026-11-18 (primera versión: 2026-10-24) |
 | Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
+| Documento | [Word](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.docx) y [PDF](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.pdf), generados desde esta página |
 
 ## Resumen Ejecutivo
 
@@ -541,7 +542,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 |---|---|---|
 | Lista de revisión de cambios | Obligatoria en cada pull request: tipos, pruebas, reglas, secretos, migraciones y reversión | `.github/pull_request_template.md` |
 | Definición de terminado | Una tarea está terminada si tiene prueba, el CI está en verde y queda documentada su forma de reversión | Esta sección |
-| Inspección automatizada de reglas | Cada cambio de `firestore.rules` se valida con 101 casos en el emulador | `tests/firestore-rules/` |
+| Inspección automatizada de reglas | Cada cambio de `firestore.rules` se valida con 103 casos en el emulador | `tests/firestore-rules/` |
 | Inspección de migraciones | Cada migración se ejecuta en un MySQL limpio y sobre una base existente en el CI antes de llegar a la base real | Trabajo `base-datos` |
 | Auditorías por fase | 108 documentos de hallazgo, riesgo y decisión antes de cambiar código (104 el 2026-10-24) | `docs/AUDITORIA_*.md`, `docs/FASE_*.md`, `docs/PLAN_*.md` |
 | Orden de publicación por entrega | Tabla de qué combinación de reglas y frontend falla, y el orden que la evita | `docs/FASE_*.md` y manual de despliegue §5.2 |
@@ -601,7 +602,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Ingeniería | Validación con usuarios mediante acta | **No cumple** |
 | Software | Build reproducible y pruebas automáticas | Cumple (378 en verde al 2026-11-18) |
 | Software | Cero errores de compilación de tipos | Cumple; la entrega del 16-nov lo rompió (34 errores) y se corrigió el mismo día |
-| Software | Solo se publica lo que pasa el CI | Cumple para las reglas (las publica el CI). **No cumple** para el frontend: Vercel publicó `f9447d8` sin esperar al CI |
+| Software | Solo se publica lo que pasa el CI | **No cumple.** Las reglas se publican a mano, porque el CI no tiene el secreto `FIREBASE_SERVICE_ACCOUNT` y omite ese paso (ejecución #25, [sección 2.3](#23-evidencias-de-integracion-y-despliegue)). En el frontend, Vercel publicó `f9447d8` sin esperar al CI |
 | Software | Repositorio sin secretos | Cumple parcialmente: la clave de los ZIP fue revocada y las contraseñas de docentes restablecidas (2026-10-24); los `.env`, sin contraseñas, siguen versionados por decisión del equipo |
 | Software | Cambios revisados por un segundo integrante | **No cumple** (plantilla creada, sin revisiones registradas; solo revisiones automatizadas de scripts críticos) |
 
@@ -613,7 +614,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | Solución técnica (TS) | Arquitectura y 12 decisiones documentadas | Ampliamente implementada |
 | Verificación y validación (VV) | 378 pruebas automáticas; validación sin acta | Ampliamente implementada (verificación) / parcial (validación) |
 | Aseguramiento de calidad del proceso (PQA) | 108 auditorías por fase y orden de publicación por entrega | Ampliamente implementada |
-| Integración de producto (PI) | Pipeline que integra 4 componentes y corre en GitHub (ejecución #22 en verde); paquetes del VPS verificables | Ampliamente implementada; falta impedir publicar con el CI en rojo |
+| Integración de producto (PI) | Pipeline que integra 4 componentes y corre en GitHub (ejecuciones #22 y #25 en verde); paquetes del VPS verificables | Ampliamente implementada; falta impedir publicar con el CI en rojo |
 | Planificación (PLAN) | Charter y backlog recientes | Parcialmente implementada |
 | Monitoreo y control (MC) | Estado del sprint y métricas | Parcialmente implementada |
 | Revisiones entre pares (PR) | Plantilla creada, sin registros | Parcialmente implementada |
@@ -628,7 +629,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | # | Acción | Métrica | Meta | Plazo |
 |---|---|---|---|---|
 | 1 | Publicar las reglas corregidas y probar una matrícula sin sesión en producción | Fallas críticas publicadas | 0 | Hecho (2026-10-24) |
-| 2 | Subir los cambios y obtener el primer pipeline en verde | Trabajos en verde | 6 de 6 | Hecho (ejecución #22 en verde) |
+| 2 | Subir los cambios y obtener el primer pipeline en verde | Trabajos en verde | 6 de 6 | Hecho (ejecuciones #22 y #25 en verde) |
 | 3 | Retirar secretos del historial y rotar la clave de servicio | Secretos vigentes en git | 0 | Hecho en lo esencial (2026-10-24) |
 | 4 | Revisión obligatoria de cada cambio por un segundo integrante | Cambios revisados | 100 % | Desde Sprint 2 |
 | 5 | Estimar cada ítem del backlog y medir la velocidad | Sprints con estimación | 100 % | Desde Sprint 2 |
@@ -643,6 +644,7 @@ Desde el 2026-11-08, en curso. Objetivo: que la réplica se repare sola y que el
 | 14 | Agregar a la cobertura los módulos nuevos con prueba (ficha, accesos, comprobantes, estado de cuenta, código rotativo) | Módulos medidos | ≥ 13 | Sprint 3 |
 | 15 | Hacer que Vercel espere los checks de GitHub (PB-27) | Publicaciones con el CI en rojo | 0 | Sprint 2 |
 | 16 | Medir las contraseñas iniciales sin cambiar después de 7 días | Cuentas con `passwordInicial` vencida | 0 | Sprint 3 |
+| 17 | Configurar en GitHub el secreto `FIREBASE_SERVICE_ACCOUNT` para que el CI publique las reglas (hallazgo del 2026-11-18) | Publicaciones de reglas hechas a mano | 0 | Sprint 3 |
 
 Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestionado). La acción 2 ya se cumplió; la 15 evita que se pierda.
 
@@ -654,7 +656,7 @@ Cumplir las acciones 2 a 5 lleva las áreas PLAN, MC, PR y CM al nivel 2 (Gestio
 | Capturas del pipeline y de observabilidad | Pestaña *Actions*: ejecución #25 en verde, sus 6 trabajos y el de base de datos con 9 de 9 permisos y 25 pruebas en OK ([sección 2.3](#23-evidencias-de-integracion-y-despliegue)); panel admin "Infraestructura" con `/health` ([Evidencias del despliegue](infraestructura/evidencias-despliegue-2026-10-24.md)); estado de la réplica con `journalctl -u academia-replica.service` en el VPS, todavía sin captura |
 | Artefactos ágiles | Secciones 3.1 a 3.5 (Charter, historias, Product Backlog, Sprint Backlog, retrospectiva) |
 | Matriz de calidad y checklists de auditoría | Secciones 4.1 y 4.4; `.github/pull_request_template.md` |
-| Evidencia de sustentación | Exposición breve ante el docente (pendiente) |
+| Evidencia de sustentación | Exposición breve ante el docente el 2026-11-19, con el reparto por integrante y el guion de la [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md) |
 
 ## Rúbrica de Evaluación
 

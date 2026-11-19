@@ -14,7 +14,7 @@
 | Organización | CERMAT — Academia La Prepa Cermat (el colegio CERMAT School tiene su propio sistema de gestión) |
 | Equipo | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Ciclo / semestre | 9° ciclo — 2026-2, campus Juliaca |
-| Fecha de esta versión | 2026-11-16 (primera versión completa: 2026-10-24) |
+| Fecha de esta versión | 2026-11-18 (primera versión completa: 2026-10-24) |
 | Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
 
 ## Entregables
@@ -31,12 +31,12 @@
 
 ### B. Ingeniería de Software (CE02)
 
-| Entregable | Competencia | Contenido |
-|---|---|---|
-| [E1 — Requerimientos y diseño del sistema](e1-definicion-sistema-ce021.md) | CE021 | 30 RF, 11 RNF, reglas de negocio, historias, prototipo, C4, ADR, UML y trazabilidad |
-| [E2 — Plataforma de datos](e2-base-datos-ce022.md) | CE022 | Modelo, DDL/DML, procedimientos, funciones, triggers, roles, respaldo, conciliación nocturna y 25 pruebas SQL |
-| [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue |
-| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 378 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI |
+| Entregable | Competencia | Contenido | Documento |
+|---|---|---|---|
+| [E1 — Requerimientos y diseño del sistema](e1-definicion-sistema-ce021.md) | CE021 | 30 RF, 11 RNF, reglas de negocio, historias, prototipo, C4, ADR, UML y trazabilidad | [Word](assets/software/informes/CE021_S1_E1_Requerimientos_y_Diseno_del_Sistema.docx) · [PDF](assets/software/informes/CE021_S1_E1_Requerimientos_y_Diseno_del_Sistema.pdf) |
+| [E2 — Plataforma de datos](e2-base-datos-ce022.md) | CE022 | Modelo, DDL/DML, procedimientos, funciones, triggers, roles, respaldo, conciliación nocturna y 25 pruebas SQL | [Word](assets/software/informes/CE022_S2_E2_Plataforma_de_Datos_del_Sistema.docx) · [PDF](assets/software/informes/CE022_S2_E2_Plataforma_de_Datos_del_Sistema.pdf) |
+| [E3 — Sistema funcional integrado](e3-sistema-funcional-ce023.md) | CE023 | Arquitectura, flujos, código, manejo de errores y despliegue | [Word](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.docx) · [PDF](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.pdf) |
+| [E4 — Gestión del proyecto y calidad](e4-calidad-operacion-ce024.md) | CE024 | 378 pruebas, CI/CD, observabilidad, gestión ágil, ISO 25010 y CMMI | [Word](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.docx) · [PDF](assets/software/informes/CE024_S2_E4_Gestion_del_Proyecto_y_Calidad_de_Software.pdf) |
 
 ### C. Infraestructura Tecnológica (CE03)
 
@@ -49,6 +49,8 @@
 | Semestre 2 | [E2 — Implementación, testing y monitoreo de red](infraestructura/s2-e2-implementacion-red-ce0312-ce0313.md) | CE0312–CE0313 |
 | Semestre 2 | [E3 — Implementación, gestión y control de centro de datos](infraestructura/s2-e3-implementacion-control-cd-ce0332-ce0333.md) | CE0332–CE0333 |
 | Semestre 2 | [Producto final: informe de implementación integral](infraestructura/s2-producto-final.md) | — |
+
+Cada informe de Infraestructura está también en Word y PDF: ver [Informes en Word y PDF](infraestructura/index.md#informes-en-word-y-pdf).
 
 Transversal: [Guía de sustentación y defensa técnica](e5-presentacion-sustentacion-ce0217.md).
 

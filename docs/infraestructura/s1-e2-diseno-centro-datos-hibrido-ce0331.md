@@ -11,8 +11,8 @@
 | Entregable | Semestre 1 · Entregable 2 · CE0331 |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 | Organización | CERMAT, Azángaro (Puno, Perú) |
 
 **Control de versiones**
@@ -21,12 +21,13 @@
 |---|---|---|
 | 1.0 | 2026-07-06 | Diseño de rack, Tier y dimensionamiento de un servidor local con contenedores (estructura anterior de la guía) |
 | 2.0 | 2026-10-24 | Reescrito según la guía vigente: hipervisor, VM, nube con equivalencias AWS, integración híbrida, RTO/RPO por servicio y matriz de componentes |
+| 2.1 | 2026-11-18 | Diagramas exportados a PDF y PNG (2026-11-17); 27 colecciones y 103 pruebas de reglas de Firestore; el hipervisor se valida en Hyper-V (S2-E3 §3.3) en lugar de un Proxmox de laboratorio; informe también en DOCX y PDF |
 
 **Productos obligatorios**
 
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) |
 |---|---|---|---|
-| Informe de análisis y diseño de centro de datos híbrido | Página versionada en Git; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con la organización |
+| Informe de análisis y diseño de centro de datos híbrido | Página versionada en Git; [DOCX](../assets/infraestructura/informes/S1_E2_Analisis_y_Diseno_de_Centro_de_Datos_Hibrido.docx) y [PDF](../assets/infraestructura/informes/S1_E2_Analisis_y_Diseno_de_Centro_de_Datos_Hibrido.pdf) generados desde ella | Este documento | Completo, versionado y coherente con la organización |
 | Diagramas de arquitectura | draw.io editable de 3 páginas, PDF y PNG exportados (2026-11-17) y Mermaid | [arquitectura-centro-datos-hibrido.drawio](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.drawio) · [PDF de las 3 páginas](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.pdf) · PNG: [página 1](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p1.png), [2](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p2.png) y [3](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p3.png) | Topología física on-premise, hipervisor y nube (VPC/AWS equivalente) |
 | Matriz de componentes y dimensionamiento | XLSX y secciones 9 y 10 | [s1-e2-matriz-componentes-dimensionamiento.xlsx](../assets/infraestructura/s1-e2-matriz-componentes-dimensionamiento.xlsx) | 100 % de los elementos dibujados (36) y sustento del dimensionamiento |
 
@@ -316,7 +317,7 @@ El VPS aloja el sistema del colegio: Nginx sirve Angular y hace de proxy hacia P
 |---|---|---|---|
 | Vercel | SPA de la academia | HTTPS con HSTS (verificado), reversión de despliegues, variables de entorno fuera del repositorio | Plan contratado (SUP-13) |
 | Firebase Authentication | Identidad y claims de rol | Invitaciones de un solo uso; MFA para administradores (recomendado) | — |
-| Cloud Firestore | 27 colecciones con reglas por rol (22 al 2026-10-24) | Reglas probadas con 101 casos (19 al 2026-10-24); publicación por CI | Ubicación de la base y plan (SUP-11, SUP-12) |
+| Cloud Firestore | 27 colecciones con reglas por rol (22 al 2026-10-24) | Reglas probadas con 103 casos (19 al 2026-10-24); el CI está preparado para publicarlas, pero sin su secreto se publican desde la consola (la última, el 2026-11-18) | Ubicación de la base y plan (SUP-11, SUP-12) |
 | Firebase Storage | Imágenes y archivos | Reglas de acceso | — |
 
 ### 7.6 Alternativa en AWS Academy (no usada)
@@ -425,7 +426,7 @@ La aplicación ya permite cambiar la URL de la API y de la analítica desde el p
 | CD-28 | strongSwan e interfaz dum0 10.20.0.1 (equivale a VPN Gateway y subred privada) | Nube IaaS | Red | Extremo del túnel IPsec | Alta | Diseñado |
 | CD-29 | Vercel: SPA de la academia | Nube PaaS | Hosting | Entrega web con HTTPS y reversión de despliegues | Crítica | Implementado |
 | CD-30 | Firebase Authentication con claims por rol | Nube PaaS | Identidad | Autenticación y roles | Crítica | Implementado |
-| CD-31 | Cloud Firestore (27 colecciones con reglas por rol) | Nube PaaS | Base de datos | Fuente de verdad operativa | Crítica | Implementado (reglas corregidas publicadas el 2026-10-24) |
+| CD-31 | Cloud Firestore (27 colecciones con reglas por rol) | Nube PaaS | Base de datos | Fuente de verdad operativa | Crítica | Implementado (reglas corregidas publicadas el 2026-10-24; última publicación, el 2026-11-18) |
 | CD-32 | Firebase Storage | Nube PaaS | Archivos | Imágenes y archivos | Media | Implementado |
 | CD-33 | GitHub: repositorios y Actions (CI de 6 trabajos) | Nube SaaS | Código y CI | Control de versiones y verificación | Media | Implementado (primera ejecución en GitHub pendiente) |
 | CD-34 | DNS autoritativo Punto.pe/RCP (equivale a Route 53) | Proveedor | DNS | Resolución del dominio | Alta | Implementado |

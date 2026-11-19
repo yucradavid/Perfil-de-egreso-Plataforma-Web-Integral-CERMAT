@@ -10,8 +10,9 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
+| Fecha | 2026-11-18 (primera versión: 2026-10-24) |
 | Scripts | `server/src/db/` del repositorio `academia-school-platform` |
+| Documento | [Word](assets/software/informes/CE022_S2_E2_Plataforma_de_Datos_del_Sistema.docx) y [PDF](assets/software/informes/CE022_S2_E2_Plataforma_de_Datos_del_Sistema.pdf), generados desde esta página |
 
 ## Resumen Ejecutivo
 
@@ -567,7 +568,7 @@ El CI prueba además la actualización de una base existente: aplica `03`, `04` 
 | Capturas de ejecución | Resultado de `92_pruebas_bd.sql` (25/25), de `91_consultas.sql` (consultas + `EXPLAIN`), de `restore.js` y de `compararReplica.js` («coinciden») |
 | Resultados de consultas | Salida de `91_consultas.sql` sobre la base de prueba |
 | Documentación técnica de administración | `server/src/db/README.md` (orden de migración, cuentas, respaldo, recuperación, carga inicial, comparación y conciliación) |
-| Evidencia de sustentación | Exposición breve ante el docente (pendiente) |
+| Evidencia de sustentación | Exposición breve ante el docente el 2026-11-19, con el reparto por integrante y el guion de la [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md) |
 
 ## Rúbrica de Evaluación
 

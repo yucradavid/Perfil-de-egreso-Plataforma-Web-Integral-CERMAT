@@ -11,14 +11,14 @@
 | Entregable | Producto final del Semestre 2 (CE031, CE032 y CE033) |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 
 **Productos**
 
 | Producto | Formato sugerido por la guía | Entregado | Estado |
 |---|---|---|---|
-| Informe integral | PDF consolidado | Este documento y los tres entregables; el [PDF completo del sitio](../assets/perfil-egreso-completo.pdf) se genera desde la vista de impresión | Entregado (versión del 2026-10-24; se regenera tras cada cambio) |
+| Informe integral | PDF consolidado | Este documento y los tres entregables; el [PDF completo del sitio](../assets/perfil-egreso-completo.pdf) se genera desde la vista de impresión | Entregado (versión del 2026-11-18; se regenera tras cada cambio); este informe también en [DOCX](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.docx) y [PDF](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.pdf) |
 | Demo, video o recorrido técnico | Video o demostración en vivo | Guion en la sección 11 | **Grabación pendiente** |
 
 ## Resumen ejecutivo
@@ -76,7 +76,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 | Centro de datos (sede) | Configuración de red de Proxmox, comandos `qm`, PBS y migración | Pendiente de ejecución (también la validación en Hyper-V: script listo, sin ejecutar) | S2-E3 §3 |
 | Continuidad | REC-01 a REC-05, REC-13 y REC-14: restauración con SHA-256 y RTO medido, también en otro servidor | Real (base de prueba, base real y recuperación entre la PC y el VPS) | S2-E3 §7.2; registro XLSX |
 | Continuidad | Carga inicial de Firestore a MySQL: 10 matrículas (0 provisionales), 2 pagos y 7 asistencias, sin rechazos ni errores y repetible sin duplicar | Real (2026-10-24, 22:56) | S2-E3 §7.8 |
-| Seguridad de aplicación | 101 pruebas de reglas (de las 19 del 2026-10-24, 10 fallaban con las reglas de junio; 0 fallas observadas en producción desde ese día), 100 de API y 25 de base de datos, al 2026-11-16 | Real | [E4 de Ingeniería de Software](../e4-calidad-operacion-ce024.md) |
+| Seguridad de aplicación | 103 pruebas de reglas (de las 19 del 2026-10-24, 10 fallaban con las reglas de junio; 0 fallas observadas en producción desde ese día), 100 de API y 25 de base de datos, al 2026-11-18 | Real | [E4 de Ingeniería de Software](../e4-calidad-operacion-ce024.md) |
 | SGSI | Inventario, riesgos, SoA, políticas, auditoría y no conformidades | Real (documental) y auditoría del 2026-10-24 | S2-E1 |
 | Ética | Declaración de ética y autorización de pruebas | Pendiente de firma | S2-E1 §12 |
 | Despliegue | 18 capturas del 2026-10-24 (Vercel, pre-matrícula, clave rotada, VPS y panel), con los datos personales tapados | Real | [Evidencias del despliegue](evidencias-despliegue-2026-10-24.md) |
@@ -89,7 +89,7 @@ Los tres se integran por un túnel IPsec IKEv2 con AES-256-GCM y PFS.
 |---|---|---|---|---|
 | R-01 Datos personales listables sin sesión | 20 | Publicar las reglas corregidas y verificar en producción | 2026-10-31 | Tratado (2026-10-24) |
 | R-02 Auto-asignación de rol | 16 | Publicar las reglas y revisar los perfiles | 2026-10-31 | Tratado (2026-10-24); falta revisar los perfiles |
-| R-04 Cambios de seguridad que no llegan a producción | 16 | Publicación solo por CI y comparación mensual | 2026-11-07 | En curso (falta el secreto del CI) |
+| R-04 Cambios de seguridad que no llegan a producción | 16 | Publicación solo por CI y comparación mensual | 2026-11-07 | En curso (falta el secreto del CI; las reglas del 2026-11-18 se publicaron desde la consola) |
 | R-03 Matrícula pública bloqueada | 15 | Publicar las reglas y hacer una matrícula de prueba | 2026-10-31 | Tratado (2026-10-24) |
 | R-07 Pérdida de datos del colegio | 15 | `pg_dump` diario, copia externa y restauración mensual | 2026-11-07 | Pendiente |
 | R-11 Toma de cuentas por phishing | 15 | MFA, SPF, DKIM y DMARC | 2026-10-31 | Pendiente |
@@ -125,7 +125,7 @@ La declaración de ética de seguridad ([S2-E1 §12.7](s2-e1-sgsi-ce0321-ce0324.
 |---|---:|---:|---:|
 | Pruebas de red y perímetro (PR) | 42 | 37 conformes y 1 no conforme | 4 |
 | Pruebas de recuperación (REC) | 14 | 10 | 4 |
-| Pruebas automáticas de software (E4) | 376 | 376 en verde al 2026-11-16 (150 de frontend, 101 de reglas, 100 de API y 25 de base de datos); el CI corre en GitHub (ejecución #22 en verde) | 0 |
+| Pruebas automáticas de software (E4) | 378 | 378 en verde al 2026-11-18 (150 de frontend, 103 de reglas, 100 de API y 25 de base de datos); el CI corre en GitHub (ejecuciones #22 y #25 en verde) | 0 |
 
 Incluyen pruebas positivas (permitido), negativas (denegado, rechazo de un respaldo alterado, negativa a restaurar sobre producción) y de detección (PR-30 a PR-32 y PR-37, conformes en SIMULACIÓN).
 
@@ -206,7 +206,7 @@ La guía exige demostrar coherencia entre requerimientos, diseño, implementaci�
 | Operación | Procedimientos del VPS; respaldo y restauración de MySQL | Respaldos del VPS y de Firestore; recuperación de VM en el entorno virtual |
 | Monitoreo | `/health` y registros locales | Uptime Kuma, Netdata y Wazuh |
 | Documentación | 8 documentos versionados con evidencia y pendientes declarados; PDF consolidado | Adjuntar capturas del entorno simulado |
-| Repositorio técnico | Scripts, CI, pruebas, matrices reproducibles y diagramas | Carpeta `infra/` con configuraciones sanitizadas; limpiar secretos del historial |
+| Repositorio técnico | Scripts, CI, pruebas, matrices reproducibles y diagramas; carpeta `infra/` con configuraciones sanitizadas (red y detección del entorno virtual, Nginx, Hyper-V, monitoreo y REC-08) y los registros de las pruebas | Configuraciones reales de la sede (`red/opnsense/`, `red/switch/` y `red/vps/`) a medida que se implementen; el historial conserva los `.env` sin contraseñas (riesgo residual aceptado de NC-03) |
 | Sustentación | Guion del recorrido técnico | Grabación y defensa individual |
 
 **Pregunta central de la guía:** *¿el estudiante puede diseñar, implementar, validar, operar y defender una solución de infraestructura tecnológica híbrida con criterio profesional, responsabilidad ética y evidencia técnica verificable?*

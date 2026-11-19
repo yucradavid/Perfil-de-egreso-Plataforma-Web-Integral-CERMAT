@@ -11,8 +11,8 @@
 | Entregable | Semestre 2 · Entregable 3 · CE0332 y CE0333 |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 
 **Control de versiones**
 
@@ -20,12 +20,13 @@
 |---|---|---|
 | 1.0 | 2026-07-06 | Servicios del servidor local, RAID, SLA y procedimientos (estructura anterior de la guía) |
 | 2.0 | 2026-10-24 | Reescrito según la guía vigente: VPS como EC2 equivalente, procedimientos de Proxmox, identidades, inventario final con evidencia, registro de recuperación real, RTO/RPO medido y control de cambios |
+| 2.1 | 2026-11-18 | Réplica reparable (§7.9, 2026-11-14); repositorio `infra/` (2026-11-16); procedimiento de validación del hipervisor en Hyper-V (§3.3); REC-08, REC-09 y REC-12 en SIMULACIÓN (2026-11-17); publicaciones del 2026-11-16 y del 2026-11-18 en el historial de cambios; informe también en DOCX y PDF |
 
 **Productos obligatorios**
 
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) | Estado |
 |---|---|---|---|---|
-| Informe de implementación, gestión y control de centro de datos | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
+| Informe de implementación, gestión y control de centro de datos | Página versionada; [DOCX](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.docx) y [PDF](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.pdf) generados desde ella | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
 | Evidencias técnicas de configuración | Configuraciones sanitizadas y salidas de comandos | Secciones 3, 4, 5 y 7 | Incluye nube (VPC/EC2/SG/NACL/IAM equivalentes) e hipervisor (vSwitch/VLAN/VM equivalentes) | Parcial: nube con evidencia; hipervisor con procedimiento para la sede y script de validación en Hyper-V (`infra/cd/hyperv/`), todavía sin ejecutar |
 | Registro de prueba de recuperación | XLSX y sección 7.7 | [s2-e3-registro-prueba-recuperacion.xlsx](../assets/infraestructura/s2-e3-registro-prueba-recuperacion.xlsx) | Al menos un ejercicio de recuperación completo, documentado | **Cumplido**: 10 ejercicios ejecutados (REC-01 a REC-05, REC-08, REC-09 y REC-12 a REC-14; REC-08, REC-09 y REC-12 en SIMULACIÓN); 4 pendientes (REC-06, REC-07, REC-10 y REC-11) |
 | Repositorio técnico de centro de datos | Git | Sección 10 | Scripts, configuraciones sanitizadas, README y control de versiones sin secretos | Parcial: `infra/` (desde el 2026-11-16) con README, Nginx y cabeceras del VPS, Uptime Kuma, la red simulada, la detección, REC-08, el script de Hyper-V, scripts de prueba y evidencias fechadas, más el respaldo de Firestore verificado en el emulador; faltan las configuraciones reales de la sede (Proxmox, OPNsense y switch). Secretos del historial revocados el 2026-10-24 (NC-03 cerrada) |
@@ -54,7 +55,7 @@ Desde el 2026-10-24 la capa relacional de la academia corre en el VPS: usuario `
 | CD-23 a CD-27 (VPS, Ubuntu con UFW, Nginx con Certbot, sistema del colegio y PostgreSQL) | Implementado | Desde el 2026-10-24 el VPS aloja también la capa relacional de la academia (desvío del diseño, sección 3.1) |
 | CD-28 (strongSwan y `dum0`) | Pendiente en el VPS real | Requiere OPNsense en la sede; validado en el entorno virtual el 2026-11-17 (S2-E2 §3) |
 | CD-29 a CD-32 (Vercel y Firebase) | Implementado | Reglas de Firestore corregidas publicadas y frontend con cabeceras de seguridad, verificados el 2026-10-24 (NC-01 cerrada) |
-| CD-33 (GitHub y CI) | Implementado | El CI corre en GitHub con cada push (ejecución #22 en verde, E4 de Software §2.3); Vercel todavía publica sin esperar al CI (sección 10.4) |
+| CD-33 (GitHub y CI) | Implementado | El CI corre en GitHub con cada push (ejecuciones #22 y #25 en verde, E4 de Software §2.3); Vercel todavía publica sin esperar al CI (sección 10.4) |
 | CD-34 (DNS) | Implementado | Se agregan CAA, SPF y DMARC (PR-12) |
 | CD-35 (túnel) | Pendiente en la sede | Requiere OPNsense; validado en el entorno virtual el 2026-11-17 (PR-24 a PR-28 y REC-09) |
 | CD-36 (PC local) | Retirada (2026-10-24) | La capa pasó al VPS; la PC queda para pruebas de restauración |
@@ -230,7 +231,7 @@ Pruebas de recuperación en el entorno de validación:
 |---|---|---|
 | Vercel (SPA) | En producción; último despliegue el 2026-10-15; redirección 308 a HTTPS y HSTS con preload | PR-13; panel de Vercel |
 | Firebase Authentication | En producción; administradores por claim; invitaciones de un solo uso para el personal; cuentas de alumnos creadas por la API del VPS (desde el 2026-11-15) | `firestore.rules`; `server/src/routes/cuentas.ts`; 8 perfiles al 2026-10-24 |
-| Cloud Firestore | 27 colecciones con reglas por rol; versión corregida probada 19/19 y publicada el 2026-10-24; 101 pruebas de reglas al 2026-11-16 | `tests/firestore-rules/reglas.test.ts`; verificación sin sesión en producción ([E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24)) |
+| Cloud Firestore | 27 colecciones con reglas por rol; versión corregida probada 19/19 y publicada el 2026-10-24; 103 pruebas de reglas al 2026-11-18, día de la última publicación | `tests/firestore-rules/reglas.test.ts`; verificación sin sesión en producción ([E4 §2.7](../e4-calidad-operacion-ce024.md#27-cierre-en-produccion-2026-10-24) y [E4 §1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales)) |
 | Firebase Storage | En producción | Consola de Firebase |
 
 ### 4.4 Pendiente en la nube
@@ -295,7 +296,7 @@ Pruebas de recuperación en el entorno de validación:
 | MySQL | 4 roles de mínimo privilegio; `cermat_api` sin DML directo | Implementado en la base de prueba y en la base real (2026-10-24): cuentas `cermat_api`, `cermat_analitica` y `cermat_respaldo`, con contraseñas solo en `.env.local` no versionados | `server/src/db/04_seguridad.sql`; error 1142 verificado en la base real |
 | MySQL | Contraseñas solo en variables de entorno, con un mínimo de 12 caracteres | Implementado en los scripts | `server/scripts/db-crear-usuarios.js` |
 | Firebase | Claim de administrador; roles solo con invitación vigente | Implementado y publicado (2026-10-24) | `firestore.rules` y 8 pruebas de roles |
-| Google Cloud | Cuenta de servicio del CI con rol mínimo (*Firebase Rules Admin*), en el entorno protegido `produccion` | Definido en el CI; configuración del secreto por confirmar | `.github/workflows/ci.yml` |
+| Google Cloud | Cuenta de servicio del CI con rol mínimo (*Firebase Rules Admin*), en el entorno protegido `produccion` | Definido en el CI, pero sin el secreto: la ejecución #25 omitió la publicación de reglas, que se publican desde la consola (2026-11-18) | `.github/workflows/ci.yml` |
 | Google Cloud | Rotación de la clave expuesta en copias ZIP | Hecho (2026-10-24): clave `283b43c3…` eliminada y reemplazada por `ddf50bfe…` | NC-03 |
 | Proveedores | MFA en Google, GitHub, Vercel, RackNerd y Punto.pe | No verificado | NC-07 |
 | Proxmox, OPNsense y Wazuh | Usuarios nominativos con TOTP; root solo por consola | Planificado | Sección 3 |
@@ -322,8 +323,8 @@ Pruebas de recuperación en el entorno de validación:
 | ACT-03 | Registros de asistencia (attendanceLogs, attendanceDayState, parentAttendance; tabla asistencia) | Dirección de la academia | Firestore y MySQL | Alta | Operativo | 7 registros (conteo agregado); sp_registrar_asistencia idempotente |
 | ACT-04 | Contenido público (ciclos, sedes, posts, recursos y talleres) | Dirección de la academia | Firestore y Storage | Media | Operativo | Sitio público en Vercel (200 OK, 2026-10-24) |
 | ACT-05 | Configuración de servicios (config/services) | Líder técnico | Firestore | Alta | Operativo | src/lib/syncService.ts lee config/services |
-| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (publicada 2026-10-24) | firestore.rules y 101 pruebas (19 al 2026-10-24); versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026) |
-| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos, ejecución #22 en verde); 372 pruebas (99 al 2026-10-24) |
+| ACT-06 | Reglas de seguridad de Firestore | Líder técnico | Repositorio Git y Firebase | Alta | Operativo (última publicación 2026-11-18) | firestore.rules y 103 pruebas (19 al 2026-10-24); versión corregida publicada el 2026-10-24 (reemplazó la del 22-jun-2026); última publicación el 2026-11-18, desde la consola |
+| ACT-07 | Código fuente, pruebas y pipeline CI | Líder técnico | GitHub (repositorio privado) | Alta | Operativo | .github/workflows/ci.yml (6 trabajos, ejecuciones #22 y #25 en verde); 378 pruebas (99 al 2026-10-24) |
 | ACT-08 | Secretos y credenciales (cuenta de servicio, contraseñas de BD, llaves SSH, credenciales de VPN) | Líder técnico | Gestor de contraseñas y servidores | Alta | Operativo (clave rotada 2026-10-24) | db-crear-usuarios.js lee contraseñas del entorno; clave de servicio rotada (H-03 corregido) |
 | ACT-09 | Respaldos (MySQL, PostgreSQL, Firestore y VM) | Responsable de respaldos | VPS (respaldo diario de MySQL), PC (copia semanal), PBS y disco externo | Crítica | Parcial (solo MySQL) | Temporizador `academia-respaldo` (diario, 03:00); REC-01, REC-02, REC-05, REC-13 y REC-14 |
 | ACT-10 | Datos del sistema del colegio (PostgreSQL cermat_produccion) | Dirección del colegio | VPS (New York) | Crítica | Operativo | Manual del VPS (2026-10-17): 116 migraciones, base solo en loopback |
@@ -592,7 +593,7 @@ CE0333 pide evaluar la eficiencia energética y la disponibilidad de la operaci�
 
 **Ya versionado en Git:**
 
-- `firestore.rules` con 101 pruebas (19 al 2026-10-24).
+- `firestore.rules` con 103 pruebas (19 al 2026-10-24).
 - `infra/`: configuración de infraestructura, scripts de prueba y evidencias (estructura abajo).
 - `.github/workflows/ci.yml` (6 trabajos).
 - `server/src/db/` (migraciones numeradas, pruebas y su README).
@@ -642,8 +643,10 @@ El README (`infra/README.md`) indica el propósito y el estado de cada carpeta, 
 | 2026-11-14 21:47 | Réplica reparable y temporizador `academia-replica` | MySQL, API y systemd del VPS | Commit `22dba3a`; §7.9 |
 | 2026-11-15/16 | Rutas `/api/cuentas` y `/api/usuarios` (Firebase Admin) para el acceso directo de alumnos | API del VPS | Commit `c7d6302`; manual §9.7.10; 401 sin sesión el 2026-11-16 |
 | 2026-11-16 | Matrícula masiva por fila y migración `06` (descuento y cronograma); aplicación de la migración en el VPS no registrada aún | Repositorio y Vercel | Commit `f9447d8` |
+| 2026-11-16 | Corrección de tipos y pruebas de esa entrega (372/372), publicada el mismo día; el CI volvió a verde (ejecución #25) | Repositorio y Vercel | Commit `95b270d`; [E4 de Software §1.3](../e4-calidad-operacion-ce024.md#13-reporte-de-ejecucion-2026-11-16) |
 | 2026-11-16 | Repositorio técnico `infra/`: README, Nginx y cabeceras del VPS, reglas planeadas (CSV) y scripts de PR-12, PR-36, PR-40, PR-41 y REC-10 | Repositorio de la aplicación | `infra/README.md`; `infra/logs/2026-11-16/` |
 | 2026-11-17 | Entorno de validación: red de la sede en Docker (firewall, DMZ, 2 WAN y VPN), detección (Suricata, Cowrie, Loki y Grafana) y reconstrucción del VPS en contenedores (REC-08) | PC del equipo (SIMULACIÓN) | `infra/logs/2026-11-17/` |
+| 2026-11-18 | Recursos generales del alumno: frontend publicado por Vercel (bundle `index-DN35Sjy6.js`) y regla de Firestore publicada desde la consola a las 15:49, porque el CI no tiene el secreto `FIREBASE_SERVICE_ACCOUNT` | Vercel y Firebase | Commit `04dce19`; sin sesión, recursos generales del alumno → 403 y públicos → 200 ([E4 de Software §1.6](../e4-calidad-operacion-ce024.md#16-las-pruebas-detectan-defectos-reales)); manual de despliegue |
 
 ### 10.3 PRO-02 · Procedimiento de gestión de cambios
 
@@ -660,7 +663,8 @@ El README (`infra/README.md`) indica el propósito y el estado de cada carpeta, 
 
 - Un solo autor en el historial y mensajes de commit genéricos ("mejoras").
 - Sin revisiones registradas en la plantilla de PR.
-- El CI corre en GitHub (ejecución #22 en verde), pero Vercel publica `main` aunque falle: el 2026-11-16 se publicó `f9447d8` sin pasar las comprobaciones (E4 de Software §1.3).
+- El CI corre en GitHub (ejecuciones #22 y #25 en verde), pero Vercel publica `main` aunque falle: el 2026-11-16 se publicó `f9447d8` sin pasar las comprobaciones (E4 de Software §1.3).
+- El CI no publica las reglas de Firestore: le falta el secreto `FIREBASE_SERVICE_ACCOUNT` y omite ese paso. Las del 2026-11-18 se publicaron desde la consola tras pasar sus 103 pruebas y se verificaron sin sesión (R-04).
 - Secretos en el historial: revocados el 2026-10-24; los `.env`, sin contraseñas, siguen versionados por decisión del equipo.
 - Dos despliegues bloqueados en Vercel que el push no mostraba; se resolvió el 2026-10-24 y desde entonces se verifica la versión en producción tras cada cambio.
 

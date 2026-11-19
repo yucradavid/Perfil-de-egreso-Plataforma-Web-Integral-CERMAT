@@ -11,15 +11,15 @@
 | Entregable | Producto final del Semestre 1 (CE0311 + CE0331) |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 
 **Productos**
 
 | Producto | Formato sugerido por la guía | Entregado | Estado |
 |---|---|---|---|
-| Expediente consolidado | PDF consolidado | Este documento y los dos entregables enlazados; el PDF se genera desde la vista de impresión del sitio (*Documentación completa*) | Contenido entregado; exportación a PDF a cargo del equipo |
-| Diagramas | Draw.io y PDF/PNG | 4 archivos draw.io (6 páginas) y diagramas Mermaid | Entregado |
+| Expediente consolidado | PDF consolidado | Este documento y los dos entregables enlazados, dentro del [PDF completo del sitio](../assets/perfil-egreso-completo.pdf), que se genera desde la vista de impresión (*Documentación completa*) | Entregado (PDF regenerado el 2026-11-18); este expediente también en [DOCX](../assets/infraestructura/informes/S1_Producto_Final_Diseno_Tecnico_Consolidado.docx) y [PDF](../assets/infraestructura/informes/S1_Producto_Final_Diseno_Tecnico_Consolidado.pdf) |
+| Diagramas | Draw.io y PDF/PNG | 4 archivos draw.io (6 páginas), exportados a PNG y PDF el 2026-11-17, y diagramas Mermaid | Entregado |
 | Matrices | XLSX | 3 libros con 31 componentes de red, 36 del centro de datos y 22 pruebas planeadas | Entregado |
 
 ## Resumen ejecutivo
@@ -74,6 +74,8 @@ El diseño es **verificable**: cada componente tiene un ID (NET-xx, CD-xx) que a
 | Topología lógica (VLAN y subredes) | [topologia-logica-vlan.drawio](../assets/infraestructura/diagramas/topologia-logica-vlan.drawio) | 1 | S1-E1 §8 |
 | Zonas de seguridad y VPN | [zonas-seguridad-vpn.drawio](../assets/infraestructura/diagramas/zonas-seguridad-vpn.drawio) | 1 | S1-E1 §9 y §10 |
 | Arquitectura del centro de datos híbrido | [arquitectura-centro-datos-hibrido.drawio](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.drawio) | 3 (rack y física, hipervisor, nube) | S1-E2 §5 a §7 |
+
+**Exportaciones del 2026-11-17.** PNG de la [topología general](../assets/infraestructura/diagramas/topologia-general-hibrida.png), de la [topología lógica](../assets/infraestructura/diagramas/topologia-logica-vlan.png) y de las [zonas de seguridad y VPN](../assets/infraestructura/diagramas/zonas-seguridad-vpn.png). El centro de datos, en un [PDF de 3 páginas](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido.pdf) y en PNG por página ([1](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p1.png), [2](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p2.png) y [3](../assets/infraestructura/diagramas/arquitectura-centro-datos-hibrido-p3.png)).
 
 ## 5. Matrices
 

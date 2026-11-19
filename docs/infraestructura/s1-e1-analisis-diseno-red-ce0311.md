@@ -11,8 +11,8 @@
 | Entregable | Semestre 1 · Entregable 1 · CE0311 |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 | Organización | CERMAT, Azángaro (Puno, Perú): Academia La Prepa Cermat y CERMAT School |
 
 **Control de versiones**
@@ -21,12 +21,13 @@
 |---|---|---|
 | 1.0 | 2026-07-06 | Diseño de red de la sede con 4 VLAN, según la estructura anterior de la guía |
 | 2.0 | 2026-10-24 | Reescrito según la guía vigente (2026-09-09): arquitectura híbrida, DMZ, VPN IPsec, detección, matrices y diagramas editables |
+| 2.1 | 2026-11-18 | Diagramas exportados a PNG (2026-11-17); 27 colecciones de Firestore; la fase 1b de la hoja de ruta se valida en un entorno simulado (Docker) y virtual (Hyper-V), con la red probada el 2026-11-17; informe también en DOCX y PDF |
 
 **Productos obligatorios**
 
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) |
 |---|---|---|---|
-| Informe de análisis y diseño de red | Página versionada en Git; PDF desde la vista de impresión del sitio | Este documento | Completo, versionado y coherente con la organización descrita |
+| Informe de análisis y diseño de red | Página versionada en Git; [DOCX](../assets/infraestructura/informes/S1_E1_Analisis_y_Diseno_de_Red.docx) y [PDF](../assets/infraestructura/informes/S1_E1_Analisis_y_Diseno_de_Red.pdf) generados desde ella | Este documento | Completo, versionado y coherente con la organización descrita |
 | Diagramas de red | draw.io editable, PNG exportado (2026-11-17) y Mermaid | [Topología general](../assets/infraestructura/diagramas/topologia-general-hibrida.drawio) ([PNG](../assets/infraestructura/diagramas/topologia-general-hibrida.png)) · [Topología lógica](../assets/infraestructura/diagramas/topologia-logica-vlan.drawio) ([PNG](../assets/infraestructura/diagramas/topologia-logica-vlan.png)) · [Zonas de seguridad y VPN](../assets/infraestructura/diagramas/zonas-seguridad-vpn.drawio) ([PNG](../assets/infraestructura/diagramas/zonas-seguridad-vpn.png)) | Topología general, lógica, seguridad por zonas y VPN híbrida |
 | Matriz de componentes de red | XLSX y sección 12 | [s1-e1-matriz-componentes-red.xlsx](../assets/infraestructura/s1-e1-matriz-componentes-red.xlsx) | Cubre el 100 % de los componentes dibujados (31 componentes) |
 | Matriz de pruebas de conectividad planeadas | XLSX y Anexo A | [s1-e1-matriz-pruebas-conectividad.xlsx](../assets/infraestructura/s1-e1-matriz-pruebas-conectividad.xlsx) | Coherente con el diseño de VPN y segmentación (22 pruebas) |

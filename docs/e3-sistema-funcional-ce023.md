@@ -10,9 +10,10 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
+| Fecha | 2026-11-18 (primera versión: 2026-10-24) |
 | Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) (Vercel) |
 | Repositorio | `github.com/yucradavid/academia-school-platform` (privado; acceso para el jurado a solicitud) |
+| Documento | [Word](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.docx) y [PDF](assets/software/informes/CE023_S2_E3_Sistema_de_Software_Funcional_Integrado.pdf), generados desde esta página |
 
 ## Resumen Ejecutivo
 
@@ -324,7 +325,7 @@ Las contraseñas de MySQL van en `server/.env.local` y `analytics/.env.local`. N
 | Diseño de cada entrega | `docs/FASE_LOGICA_ROLES_REGLAS.md`, `docs/FASE_COMPROBANTES_DE_PAGO.md`, `docs/PLAN_ACCESO_DIRECTO_ALUMNOS.md` y `docs/FASE_UIX_*.md` |
 | Capturas de funcionamiento | `docs/assets/capturas/` (6 capturas del sitio desplegado y 4 de los portales con sesión, con datos de prueba; sección 2.3) y [18 capturas del despliegue del 2026-10-24](infraestructura/evidencias-despliegue-2026-10-24.md) |
 | Evidencia de despliegue | URL de Vercel, `vercel.json`, `firebase.json`, `.github/workflows/ci.yml` |
-| Evidencia de sustentación | Pendiente (ver [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md)) |
+| Evidencia de sustentación | Exposición breve ante el docente el 2026-11-19, con el reparto por integrante y el guion de la [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md) |
 
 ## Rúbrica de Evaluación
 

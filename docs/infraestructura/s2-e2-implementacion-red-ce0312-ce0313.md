@@ -11,8 +11,8 @@
 | Entregable | Semestre 2 · Entregable 2 · CE0312 y CE0313 |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo), UPeU campus Juliaca, sección g1 |
-| Fecha | 2026-10-24 |
-| Versión | 2.0 |
+| Fecha | 2026-11-18 |
+| Versión | 2.1 |
 
 **Control de versiones**
 
@@ -20,12 +20,13 @@
 |---|---|---|
 | 1.0 | 2026-07-06 | Plantillas de configuración de VLAN y protocolo de pruebas (estructura anterior de la guía) |
 | 2.0 | 2026-10-24 | Reescrito según la guía vigente: evidencia real del VPS y de las verificaciones externas, procedimientos de VPN, perímetro y detección, plan de 37 pruebas e incidencias |
+| 2.1 | 2026-11-18 | Repositorio técnico `infra/` (2026-11-16); red de la sede, VPN y detección probadas en un entorno simulado el 2026-11-17, rotuladas como SIMULACIÓN; plan ampliado a 42 pruebas; informe también en DOCX y PDF |
 
 **Productos obligatorios**
 
 | Producto | Formato entregado | Ubicación | Criterio de aceptación (guía) | Estado |
 |---|---|---|---|---|
-| Informe de implementación, testing y monitoreo de red | Página versionada; PDF desde la vista de impresión | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
+| Informe de implementación, testing y monitoreo de red | Página versionada; [DOCX](../assets/infraestructura/informes/S2_E2_Implementacion_Testing_y_Monitoreo_de_Red.docx) y [PDF](../assets/infraestructura/informes/S2_E2_Implementacion_Testing_y_Monitoreo_de_Red.pdf) generados desde ella | Este documento | Completo, versionado y coherente con el diseño de S1 | Entregado |
 | Evidencias técnicas de configuración | Salidas de comandos, configuraciones sanitizadas y explicación de cada evidencia | Secciones 4 y 10 y Anexo B | Capturas legibles, configuraciones exportadas y propósito de cada evidencia | Parcial: evidencia real del VPS y externa; del entorno virtual, configuraciones y salidas en `infra/red/docker/`, `infra/cd/deteccion/` e `infra/logs/2026-11-17/`; lo de la sede, pendiente |
 | Plan y resultados de pruebas | XLSX y sección 8 | [s2-e2-plan-resultados-pruebas-red.xlsx](../assets/infraestructura/s2-e2-plan-resultados-pruebas-red.xlsx) | Pruebas positivas y negativas: permitido/denegado y detección | De 42 pruebas, 37 conformes y 1 no conforme (PR-12); 4 pendientes (PR-21, PR-33, PR-36 y PR-41). La red de la sede, la VPN y la detección se probaron el 2026-11-17 en el entorno virtual |
 | Repositorio técnico de red | Git | Sección 10.2 | Permite revisar o reconstruir la configuración sin credenciales | Parcial: `infra/` (desde el 2026-11-16) con las reglas planeadas (CSV generados), la red de la sede en Docker con su VPN, la detección, scripts de prueba y evidencias fechadas (sección 10.2); configuraciones de la sede pendientes |

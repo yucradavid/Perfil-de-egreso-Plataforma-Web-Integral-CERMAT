@@ -10,8 +10,9 @@
 | Título del sistema | Plataforma Web Integral de Gestión Académica CERMAT |
 | Estudiantes | David Robert Yucra Mamani (líder), Gladys Rosaura Yana Pari, Denilson Leeke Mamani Flores, Cárdenas Vilca Rennzo |
 | Semestre | 2026-2 (9° ciclo) |
-| Fecha | 2026-11-16 (primera versión: 2026-10-24) |
+| Fecha | 2026-11-18 (primera versión: 2026-10-24) |
 | Despliegue | [https://academia-school-platform.vercel.app](https://academia-school-platform.vercel.app) |
+| Documento | [Word](assets/software/informes/CE021_S1_E1_Requerimientos_y_Diseno_del_Sistema.docx) y [PDF](assets/software/informes/CE021_S1_E1_Requerimientos_y_Diseno_del_Sistema.pdf), generados desde esta página |
 
 ## Resumen Ejecutivo
 
@@ -613,7 +614,7 @@ Arquitectura técnica híbrida: ![Arquitectura técnica híbrida](assets/arquite
 
 ### Anexo D — Evidencia de sustentación
 
-Exposición breve ante el docente: pendiente (ver [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md)).
+Exposición breve ante el docente el 2026-11-19, con el reparto por integrante y el guion de la [Guía de sustentación](e5-presentacion-sustentacion-ce0217.md).
 
 ## Rúbrica de Evaluación
 

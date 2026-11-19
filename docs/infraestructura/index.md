@@ -7,11 +7,11 @@
 
 La línea de infraestructura diseña, implementa, valida y opera una **arquitectura de seguridad híbrida on-premise + nube** para CERMAT (Azángaro, Puno), que reúne a la Academia La Prepa Cermat y a CERMAT School:
 
-| Dominio | Qué contiene | Estado al 2026-10-24 |
+| Dominio | Qué contiene | Estado al 2026-11-18 |
 |---|---|---|
-| **On-premise** (sede principal, Azángaro) | Host de virtualización con OPNsense, servidor de aplicaciones (API Node.js, MySQL y analítica), Wazuh, monitoreo, respaldo, bastión y honeypot, segmentados en 6 VLAN | **Diseñado.** Mientras tanto, la capa relacional de la academia corre en el VPS del colegio (desde el 2026-10-24; antes, en una PC con PM2) |
+| **On-premise** (sede principal, Azángaro) | Host de virtualización con OPNsense, servidor de aplicaciones (API Node.js, MySQL y analítica), Wazuh, monitoreo, respaldo, bastión y honeypot, segmentados en 6 VLAN | **Diseñado** y validado en un entorno simulado el 2026-11-17 (red, VPN y detección). Mientras tanto, la capa relacional de la academia corre en el VPS del colegio (desde el 2026-10-24; antes, en una PC con PM2) |
 | **Nube IaaS** (VPS RackNerd, New York) | Sistema de gestión del colegio con Nginx, TLS, UFW y PostgreSQL local; extremo de la VPN; desde el 2026-10-24, la capa relacional de la academia (API, MySQL y analítica) | **En producción** desde el 2026-10-17; la capa de la academia, desde el 2026-10-24 con HTTPS y respaldo diario. VPN y respaldos externos del colegio pendientes |
-| **Nube PaaS** | Plataforma de la academia en Vercel; identidad y datos en Firebase | **En producción**; frontend con cabeceras de seguridad y reglas de Firestore corregidas publicados y verificados el 2026-10-24 |
+| **Nube PaaS** | Plataforma de la academia en Vercel; identidad y datos en Firebase | **En producción**; frontend con cabeceras de seguridad y reglas de Firestore corregidas publicados y verificados el 2026-10-24; última publicación de frontend y reglas el 2026-11-18, verificada sin sesión |
 
 La guía oficial toma como referencia VMware ESXi y AWS y permite ajustar la tecnología "siempre que se mantenga la equivalencia técnica". La tabla de equivalencias de esta página explica cada sustitución.
 
@@ -101,6 +101,22 @@ Todos los entregables se califican sobre **100 puntos** y se convierten a **nota
 
 !!! note "AWS Academy como alternativa"
     Si el jurado requiere evidencia sobre AWS, el mismo diseño puede reproducirse en AWS Academy (VPC 10.20.0.0/16, EC2, Security Groups, NACL y Site-to-Site VPN hacia OPNsense), sujeto a los servicios habilitados en esa cuenta educativa. **No se usó en este proyecto.**
+
+## Informes en Word y PDF
+
+La guía pide cada informe en DOCX y PDF. Ambos se generan desde estas mismas páginas, así que tienen el mismo contenido; en el Word, los diagramas Mermaid van como imágenes y los enlaces apuntan al sitio publicado.
+
+| Entregable | Word | PDF |
+|---|---|---|
+| S1-E1 · Análisis y Diseño de Red (CE0311) | [S1_E1_Analisis_y_Diseno_de_Red.docx](../assets/infraestructura/informes/S1_E1_Analisis_y_Diseno_de_Red.docx) | [PDF](../assets/infraestructura/informes/S1_E1_Analisis_y_Diseno_de_Red.pdf) |
+| S1-E2 · Análisis y Diseño de Centro de Datos Híbrido (CE0331) | [S1_E2_Analisis_y_Diseno_de_Centro_de_Datos_Hibrido.docx](../assets/infraestructura/informes/S1_E2_Analisis_y_Diseno_de_Centro_de_Datos_Hibrido.docx) | [PDF](../assets/infraestructura/informes/S1_E2_Analisis_y_Diseno_de_Centro_de_Datos_Hibrido.pdf) |
+| Producto final S1 · Diseño Técnico Consolidado | [S1_Producto_Final_Diseno_Tecnico_Consolidado.docx](../assets/infraestructura/informes/S1_Producto_Final_Diseno_Tecnico_Consolidado.docx) | [PDF](../assets/infraestructura/informes/S1_Producto_Final_Diseno_Tecnico_Consolidado.pdf) |
+| S2-E1 · Planificación e Implementación del SGSI (CE0321–CE0324) | [S2_E1_Planificacion_e_Implementacion_del_SGSI.docx](../assets/infraestructura/informes/S2_E1_Planificacion_e_Implementacion_del_SGSI.docx) | [PDF](../assets/infraestructura/informes/S2_E1_Planificacion_e_Implementacion_del_SGSI.pdf) |
+| S2-E2 · Implementación, Testing y Monitoreo de Red (CE0312–CE0313) | [S2_E2_Implementacion_Testing_y_Monitoreo_de_Red.docx](../assets/infraestructura/informes/S2_E2_Implementacion_Testing_y_Monitoreo_de_Red.docx) | [PDF](../assets/infraestructura/informes/S2_E2_Implementacion_Testing_y_Monitoreo_de_Red.pdf) |
+| S2-E3 · Implementación, Gestión y Control de Centro de Datos (CE0332–CE0333) | [S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.docx](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.docx) | [PDF](../assets/infraestructura/informes/S2_E3_Implementacion_Gestion_y_Control_de_Centro_de_Datos.pdf) |
+| Producto final S2 · Informe de Implementación Integral y Operativa | [S2_Producto_Final_Informe_Integral_y_Operativo.docx](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.docx) | [PDF](../assets/infraestructura/informes/S2_Producto_Final_Informe_Integral_y_Operativo.pdf) |
+
+Para regenerarlos después de un cambio, desde `perfil-egreso/`: `mkdocs build --strict` y luego `node scripts/generar-informes.mjs infraestructura` (requiere pandoc, Google Chrome y Playwright).
 
 ## Matrices y diagramas
 
